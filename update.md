@@ -7,11 +7,11 @@
 ## 1. Trạng thái Tổng quan Dự án
 - **Dự án:** Vector Quest – Math 10 (Next.js + Vercel Frontend-Only Edition)
 - **Thư mục thiết kế chuẩn:** `design/` (chứa các file HTML mẫu bắt buộc phải bám sát 100%)
-- **Phase hiện tại:** `Hoàn thiện Tài liệu & SVG Showcase — Sẵn sàng Push Git & Deploy Vercel`
+- **Phase hiện tại:** `Hoàn thiện Máy bay Chân thực & Tối ưu Thao tác Giáo viên — Sẵn sàng Deploy Vercel`
 - **Trạng thái Build gần nhất:** `PASS (npm run build --webpack thành công)`
-- **Trạng thái Test gần nhất:** `PASS (26/26 Vitest unit tests + 28/28 Edge CDP DevTools assertions)`
+- **Trạng thái Test gần nhất:** `PASS (26/26 Vitest unit tests + 40/40 Edge CDP DevTools assertions)`
 - **Người/Agent cập nhật cuối:** `Senior Frontend & Physics Simulation Engineer (Antigravity)`
-- **Thời gian cập nhật:** `2026-11-23 23:10`
+- **Thời gian cập nhật:** `2026-11-23 23:50`
 
 ---
 
@@ -28,7 +28,9 @@
 | **Phase 6** (QA, Polish & Vercel Deploy) | `[x] Hoàn thành` | `100%` | `PASS` | `PASS (26/26)` | `PASS` | `urlSync.ts, keyboard shortcuts (A–D/Space/←/→/Esc), README.md, urlSync.test.ts` |
 | **Final Review** (Audit toàn diện) | `[x] Hoàn thành` | `100% (Verified on Edge)` | `PASS` | `PASS (27/27 Edge E2E)` | `PASS` | `0 console errors/warnings, 0 hydration issues, kéo thả & 6 bước PASS trên Microsoft Edge 1280×720 & 1920×1080` |
 | **VI Localization** (Việt hóa & Rà soát Toán 10) | `[x] Hoàn thành` | `100% (Verified on Edge)` | `PASS` | `PASS (26/26 Vitest + 28/28 Edge E2E)` | `PASS` | `100% Tiếng Việt chuẩn Toán 10 CT GDPT 2018 + hàng không; bảo toàn tuyệt đối v⃗_A, v⃗_W, v⃗_R, KaTeX, không tràn/rớt dòng trên 1280×720 & 1920×1080` |
-| **Docs & SVG Showcase** (`README.md` + `docs/assets/`) | `[x] Hoàn thành` | `100% Aerospace HUD` | `N/A` | `SVG XML PASS` | `N/A` | `3 SVG self-contained (hero-banner, vector-mechanics, architecture-flow) + README.md 100% Tiếng Việt khớp package.json & code thực tế` |
+| **Docs & SVG Showcase** (`README.md` + `docs/assets/`) | `[x] Hoàn thành` | `100% Aerospace HUD` | `N/A` | `SVG XML PASS` | `N/A` | `4 SVG self-contained (logo, hero-banner, vector-mechanics, architecture-flow) + README.md 100% Tiếng Việt` |
+| **Daylight & TV Audit** (Theme Sáng & Typography 3–5m) | `[x] Hoàn thành` | `100% (Verified on Edge)` | `PASS` | `PASS (26/26 Vitest + 32/32 Edge E2E)` | `PASS` | `Daylight Avionics (#EAF0F6 + #FFFFFF/94 + #1E293B runway + #D97706/#0284C7/#059669/#E11D48 vectơ); nâng cỡ chữ TV 12–24px, tabular-nums, 0 chồng lấn 1280×720` |
+| **Aircraft & Teacher UX** (Máy bay 3D SVG & Nút `- / +`) | `[x] Hoàn thành` | `100% (Verified on Edge)` | `PASS` | `PASS (26/26 Vitest + 40/40 Edge E2E)` | `PASS` | `RealisticAircraftSvg đa lớp (động cơ, kính lái, đèn cánh đỏ/xanh lá, bóng đổ) đồng bộ Radar & Bước 3; cụm 7 nút -5°..+5°/0° (press-and-hold), gió ±5 KT, gợi ý góc chuẩn, phím ↑/↓` |
 
 ---
 
@@ -54,6 +56,38 @@
 
 ## 4. Nhật ký Cập nhật (Log History)
 *(Agent thêm báo cáo mới nhất lên đầu mục này)*
+
+### [2026-11-23 23:50] — AIRCRAFT REALISM & TEACHER PRECISION UX — COMPLETED
+- **Skills đã kích hoạt & áp dụng:** `@ui-ux-pro-max`, `@frontend-ui-engineering`, `@design`, `@browser-testing-with-devtools`, `@doubt-driven-development`
+- **Các file đã tạo / cập nhật:**
+  - `src/components/ui/RealisticAircraftSvg.tsx` (Mới, 100% inline SVG nội bộ): Máy bay phản lực nhìn từ trên xuống đa lớp gồm bóng đổ mềm, 2 động cơ phản lực dưới cánh, cánh chính xuôi + đường cánh tà, cánh đuôi ngang/đứng, thân tạo khối gradient 3D, kính buồng lái tối phản chiếu và đèn dẫn hướng đầu cánh chuẩn ICAO (đỏ bên trái, xanh lá bên phải, trắng ở đuôi).
+  - `src/components/canvas/AircraftLayer.tsx` & `src/components/panels/StepObserveGrid.tsx`: Đồng bộ sử dụng `<RealisticAircraftSvg />` trên radar chính và 4 thẻ đáp án `[A–D]` Bước 3.
+  - `src/domain/vectorMath.ts` & `src/store/useSimulationStore.ts`: Mở rộng tùy chọn `customWindSpeedKts?: number` (5–50 KT) và bổ sung `adjustAircraftHeading(deltaDeg)` / `adjustWindSpeed(deltaKts)` mà không làm thay đổi công thức vật lý hay test cũ.
+  - `src/components/panels/StepVectorCheck.tsx`: Bổ sung cụm 7 nút tinh chỉnh góc chiều cao `40px` (`-5°`, `-1°`, `-0.5°`, `0°`, `+0.5°`, `+1°`, `+5°`) hỗ trợ click từng nhịp và nhấn giữ (`press-and-hold`), thanh chỉ báo độ lệch thời gian thực (`Độ lệch quỹ đạo`), và nút `"Gợi ý góc cân bằng"` khi bật Hướng dẫn.
+  - `src/components/canvas/VectorOverlayLayer.tsx`: Kéo tay cầm `KÉO ĐẦU` hỗ trợ làm tròn thông minh theo bước `0.5°` (giữ `Shift` để kéo siêu mịn `0.1°`, hút nhẹ quanh góc cân bằng lý tưởng), vạch tham chiếu góc chuẩn khi bật Hướng dẫn và pill chỉ báo độ lệch trực tiếp trên vòng đo độ.
+  - `src/components/hud/{WindTelemetryPill,BottomControlDock}.tsx` & `src/app/page.tsx`: Thêm nút `-5` / `+5` chỉnh tốc độ gió `5–50 KT`, đảm bảo vùng bấm tối thiểu `40px` trên thanh điều khiển đáy, và phím tắt `ArrowUp`/`ArrowDown`/`+`/`-` chỉnh góc mũi ở Bước 4–6.
+- **Kết quả kiểm chứng thực tế sau lần sửa cuối:**
+  - `npx tsc --noEmit`: **PASS** (0 errors)
+  - `npm run lint`: **PASS** (0 warnings / 0 errors)
+  - `npx vitest run`: **PASS (`3/3` files, `26/26` tests)**
+  - `npm run build` (`next build --webpack`): **PASS**
+  - **Microsoft Edge E2E (`verify-edge.mjs`):** **PASS (`40/40` assertions)** trên cả **Dark Cockpit** & **Daylight Avionics** tại `1920×1080` và `1280×720` (`0` console errors/warnings, `0` tràn ngang, `0` rớt dòng nút, `0` chồng lấn card, xác nhận bấm `-5°..-0.5°/+0.5°..+5°/0°`, `Gợi ý góc cân bằng`, gió `±5 KT`, kéo `KÉO ĐẦU`).
+
+### [2026-11-23 23:32] — DAYLIGHT AVIONICS THEME & TV/PROJECTOR TYPOGRAPHY AUDIT — COMPLETED
+- **Skills đã kích hoạt & áp dụng:** `@ui-ux-pro-max`, `@design-system`, `@ui-styling`, `@browser-testing-with-devtools`, `@doubt-driven-development`
+- **Đánh giá hiện trạng trước khi sửa:**
+  1. **Theme Sáng (`.theme-daylight`) cũ bị chói và thiếu tách lớp:** Các lớp SVG (`AirportRadarCanvas`, `AircraftLayer`, `VectorOverlayLayer`, `StepPrediction`, `VideoDemoModal`) gán cứng màu neon của Dark Mode (`#ffc640`, `#38bdf8`, `#56e5a9`, `#ffb4ab`, `#8ed5ff`, `#dfe2ef`), đường băng dùng `var(--surface-container-high)` (`#e2e8f0`) hòa lẫn nền sáng, vòng thước đo góc/hộp nhãn dùng nền tối `#181b25`, và công thức ở `WindTelemetryPill` dùng `text-primary-fixed` (`#e0f2fe`) bị mờ trên nền trắng.
+  2. **Typography chưa tối ưu cho TV / Máy chiếu nhìn xa (3–5m):** Nhãn thông số & chú thích SVG dùng cỡ chữ `8.5px–11px` (`--text-label-caps: 10px`, `--text-telemetry-sm: 11px`), nét vectơ `2.2px–3.5px` khá mảnh. Khi thử tăng cỡ chữ ở `1280×720`, `WindTelemetryPill` từng chạm nhẹ mép trên `LiveTelemetryHud` nên đã tinh chỉnh lại khoảng đệm để tách bạch `60px`.
+- **Các cải tiến đã thực hiện (KHÔNG sửa `src/domain/` hay `tests/`):**
+  - `src/app/globals.css`: Bổ sung bộ biến semantic `--radar-*`, `--runway-*`, `--vec-a/w/r-safe/r-drift`, `--hud-card-shadow` cho cả Dark Cockpit và Daylight Avionics (`#eaf0f6` nền sân bay, `rgba(255,255,255,0.94)` thẻ HUD, viền `#cbd5e1`, bóng đổ `0 8px 24px rgba(15,23,42,0.08)`, đường băng `#1e293b`, $\vec{v}_A$ `#d97706`, $\vec{v}_W$ `#0284c7`, $\vec{v}_R$ `#059669`/`#e11d48`); cập nhật font stack Tiếng Việt `"Be Vietnam Pro", "Inter", "Segoe UI"` + `"JetBrains Mono", "Cascadia Mono"` với `tabular-nums`, nâng KaTeX `.katex { font-size: 1.1em; }` và scale chữ lên `11.5px–24px`.
+  - `src/components/canvas/{AirportRadarCanvas,AircraftLayer,VectorOverlayLayer,WindParticlesLayer,LiveTelemetryHud}.tsx`: Chuyển toàn bộ màu vectơ/đường băng/vạch kẻ/la bàn sang CSS variables theo theme; tắt glow filter khi ở Daylight để nét vẽ sắc gọn; nâng `fontSize` SVG lên `11px–13.5px` (`fontWeight: 700`) và tăng `strokeWidth` vectơ lên `2.8px–4.6px`.
+  - `src/components/hud/{TopPillBar,WindTelemetryPill,BottomControlDock}.tsx`, `src/components/panels/{ChallengePanelHost,StepPrediction}.tsx`, `src/components/modals/VideoDemoModal.tsx`: Áp dụng viền `border-outline-variant/60`, bóng đổ `--hud-card-shadow`, sửa công thức ở `WindTelemetryPill` sang `text-primary font-bold`, thu gọn nhịp dọc thẻ trái để đạt khoảng hở `60px` tại `1280×720`.
+- **Kết quả kiểm chứng thực tế sau lần sửa cuối:**
+  - `npx tsc --noEmit`: **PASS** (0 errors)
+  - `npm run lint`: **PASS** (0 warnings / 0 errors)
+  - `npx vitest run`: **PASS (`3/3` files, `26/26` tests)**
+  - `npm run build` (`next build --webpack`): **PASS**
+  - **Microsoft Edge E2E (`verify-edge.mjs`):** **PASS (`32/32` assertions)** trên cả **Dark Cockpit** & **Daylight Avionics** tại `1920×1080` và `1280×720` (`0` console errors/warnings, `0` tràn ngang, `0` rớt dòng nút bấm, `0` chồng lấn card ở `1280×720`).
 
 ### [2026-11-23 23:10] — README & SVG SHOWCASE (TIẾNG VIỆT) — COMPLETED
 - **Skills đã kích hoạt & áp dụng:** `@documentation-and-adrs`, `@design`, `@ui-ux-pro-max`, `@git-workflow-and-versioning`, `@doubt-driven-development`

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Logo Nhiệm vụ Vectơ Toán 10">
+  <defs>
+    <linearGradient id="logo-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090D16" />
+      <stop offset="55%" stop-color="#0F131C" />
+      <stop offset="100%" stop-color="#181B25" />
+    </linearGradient>
+    <radialGradient id="logo-glow" cx="50%" cy="52%" r="48%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.22" />
+      <stop offset="70%" stop-color="#38BDF8" stop-opacity="0.05" />
+      <stop offset="100%" stop-color="#090D16" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="logo-ring" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="50%" stop-color="#56E5A9" />
+      <stop offset="100%" stop-color="#FFC640" />
+    </linearGradient>
+    <marker id="lg-amber" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#FFC640" />
+    </marker>
+    <marker id="lg-cyan" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#38BDF8" />
+    </marker>
+    <marker id="lg-green" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#56E5A9" />
+    </marker>
+  </defs>
+
+  <!-- Outer Squircle Badge -->
+  <rect x="4" y="4" width="248" height="248" rx="52" fill="url(#logo-bg)" />
+  <rect x="4" y="4" width="248" height="248" rx="52" fill="url(#logo-glow)" />
+  <rect x="4" y="4" width="248" height="248" rx="52" fill="none" stroke="url(#logo-ring)" stroke-opacity="0.65" stroke-width="3" />
+
+  <!-- Subtle Radar Rings & Crosshair -->
+  <circle cx="128" cy="132" r="82" fill="none" stroke="#38BDF8" stroke-opacity="0.18" stroke-width="1.5" stroke-dasharray="5 5" />
+  <circle cx="128" cy="132" r="50" fill="none" stroke="#38BDF8" stroke-opacity="0.14" stroke-width="1.2" />
+  <line x1="128" y1="32" x2="128" y2="224" stroke="#56E5A9" stroke-opacity="0.24" stroke-width="1.5" stroke-dasharray="5 5" />
+  <line x1="40" y1="132" x2="216" y2="132" stroke="#38BDF8" stroke-opacity="0.16" stroke-width="1.2" />
+
+  <!-- Runway 36L Threshold Accent at Top -->
+  <rect x="108" y="32" width="40" height="8" rx="2" fill="#56E5A9" fill-opacity="0.85" />
+
+  <!-- Parallelogram Dashed Guide -->
+  <line x1="80" y1="186" x2="128" y2="74" stroke="#FFC640" stroke-opacity="0.35" stroke-width="1.5" stroke-dasharray="4 4" />
+  <line x1="128" y1="186" x2="80" y2="186" stroke="#38BDF8" stroke-opacity="0.4" stroke-width="1.5" stroke-dasharray="4 4" />
+
+  <!-- Resultant Vector v_R (Vertical Emerald) -->
+  <line x1="128" y1="186" x2="128" y2="76" stroke="#56E5A9" stroke-width="4.5" stroke-linecap="round" marker-end="url(#lg-green)" />
+
+  <!-- Aircraft Velocity Vector v_A (Amber Crab Angle) -->
+  <line x1="128" y1="186" x2="176" y2="76" stroke="#FFC640" stroke-width="4.5" stroke-linecap="round" marker-end="url(#lg-amber)" />
+
+  <!-- Crosswind Vector v_W (Cyan R -> L) -->
+  <line x1="176" y1="76" x2="134" y2="76" stroke="#38BDF8" stroke-width="4" stroke-linecap="round" marker-end="url(#lg-cyan)" />
+
+  <!-- Origin Aircraft Silhouette -->
+  <g transform="translate(128, 186) rotate(22)">
+    <path d="M 0 -18 L 4 -5 L 20 4 L 20 9 L 4 5 L 3 13 L 9 17 L 9 20 L 0 18 L -9 20 L -9 17 L -3 13 L -4 5 L -20 9 L -20 4 L -4 -5 Z" fill="#F8FAFC" stroke="#FFC640" stroke-width="1.4" />
+  </g>
+
+  <!-- Corner Tag -->
+  <text x="128" y="232" text-anchor="middle" font-family="'Consolas', 'Courier New', monospace" font-size="13" font-weight="800" fill="#38BDF8" letter-spacing="2">VECTOR QUEST • 10</text>
+</svg>

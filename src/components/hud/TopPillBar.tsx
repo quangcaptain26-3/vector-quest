@@ -1,12 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import {
   HelpCircle,
   Maximize2,
   Minimize2,
   Moon,
-  Plane,
   PlaySquare,
   SlidersHorizontal,
   Sun,
@@ -81,10 +81,14 @@ export function TopPillBar() {
     <header className="fixed top-0 w-full z-50 pointer-events-none">
       <div className="h-20 w-full px-margin-desktop flex items-center justify-between gap-2 pointer-events-auto">
         {/* Biểu trưng & Tên ứng dụng */}
-        <div className="flex items-center gap-space-sm bg-surface-container-low/80 backdrop-blur-xl px-space-md py-space-xs rounded-full shadow-[0_4px_24px_rgba(0,0,0,0.4)] border border-outline-variant/30 shrink-0">
-          <div className="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center">
-            <Plane className="w-5 h-5 text-primary" aria-hidden="true" />
-          </div>
+        <div className="flex items-center gap-space-sm bg-surface-container-low/95 backdrop-blur-xl px-space-md py-space-xs rounded-full shadow-[var(--hud-card-shadow)] border border-outline-variant/60 shrink-0">
+          <Image
+            src="/logo.svg"
+            alt="Logo Nhiệm vụ Vectơ"
+            width={36}
+            height={36}
+            className="w-9 h-9 rounded-lg shrink-0"
+          />
           <div className="flex flex-col">
             <span className="font-label-caps text-label-caps text-primary tracking-widest">
               PHÉP CỘNG &amp; PHÉP TRỪ VECTƠ
@@ -98,7 +102,7 @@ export function TopPillBar() {
         {/* Các tab giai đoạn ở giữa */}
         <nav
           aria-label="Các giai đoạn nhiệm vụ"
-          className="hidden xl:flex items-center gap-1 bg-surface-container-low/80 backdrop-blur-xl p-space-xs rounded-full shadow-[0_4px_24px_rgba(0,0,0,0.4)] border border-outline-variant/30"
+          className="hidden xl:flex items-center gap-1 bg-surface-container-low/95 backdrop-blur-xl p-space-xs rounded-full shadow-[var(--hud-card-shadow)] border border-outline-variant/60"
         >
           {TOP_NAV_STAGES.map((stage) => {
             const active = isStageActive(stage.id, currentStep);
@@ -121,7 +125,7 @@ export function TopPillBar() {
         </nav>
 
         {/* Cụm nút tiện ích bên phải */}
-        <div className="flex items-center gap-space-xs bg-surface-container-low/80 backdrop-blur-xl p-space-xs rounded-full shadow-[0_4px_24px_rgba(0,0,0,0.4)] border border-outline-variant/30 shrink-0">
+        <div className="flex items-center gap-space-xs bg-surface-container-low/95 backdrop-blur-xl p-space-xs rounded-full shadow-[var(--hud-card-shadow)] border border-outline-variant/60 shrink-0">
           <button
             type="button"
             title="Video"
