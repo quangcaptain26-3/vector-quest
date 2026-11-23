@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { RealisticAircraftSvg } from "@/components/ui/RealisticAircraftSvg";
 import { RADAR_CANVAS_COORDS } from "@/config/simulation";
 import { useSimulationStore } from "@/store/useSimulationStore";
 
@@ -17,6 +18,7 @@ export function AircraftLayer() {
   const isPlaying = useSimulationStore((s) => s.isPlaying);
   const isFlightAnimating = useSimulationStore((s) => s.isFlightAnimating);
   const stopFlightAnimation = useSimulationStore((s) => s.stopFlightAnimation);
+  const isDaylight = useSimulationStore((s) => s.themeMode) === "daylight";
 
   const [flightProgress, setFlightProgress] = useState(0);
 
@@ -91,9 +93,10 @@ export function AircraftLayer() {
           y1={70}
           x2={origin.x}
           y2={720}
-          stroke="rgba(86,229,169,0.5)"
+          stroke="var(--vec-r-safe)"
+          strokeOpacity={isDaylight ? 0.65 : 0.5}
           strokeDasharray="10 8"
-          strokeWidth={1.5}
+          strokeWidth={2}
         />
       ) : (
         <line
@@ -101,11 +104,12 @@ export function AircraftLayer() {
           y1={100}
           x2={origin.x}
           y2={560}
-          filter={currentStep <= 5 ? "url(#glow-cyan)" : undefined}
-          stroke={currentStep === 6 ? "rgba(86,229,169,0.35)" : "#56e5a9"}
+          filter={!isDaylight && currentStep <= 5 ? "url(#glow-cyan)" : undefined}
+          stroke="var(--vec-r-safe)"
+          strokeOpacity={currentStep === 6 ? 0.45 : 1}
           strokeDasharray="8 6"
           strokeLinecap="round"
-          strokeWidth={currentStep === 6 ? 1.5 : 2.5}
+          strokeWidth={currentStep === 6 ? 1.8 : 2.8}
         />
       )}
 
@@ -115,18 +119,18 @@ export function AircraftLayer() {
           <circle
             cx={touchdown.x}
             cy={touchdown.y}
-            r={8}
+            r={9}
             fill="none"
-            stroke="#56e5a9"
-            strokeWidth={2}
+            stroke="var(--vec-r-safe)"
+            strokeWidth={2.4}
           />
-          <circle cx={touchdown.x} cy={touchdown.y} r={3} fill="#56e5a9" />
+          <circle cx={touchdown.x} cy={touchdown.y} r={3.5} fill="var(--vec-r-safe)" />
           <text
             x={touchdown.x}
             y={26}
-            fill="#56e5a9"
+            fill="var(--vec-r-safe)"
             fontFamily="var(--font-jetbrains-mono)"
-            fontSize={10}
+            fontSize={12.5}
             fontWeight={700}
             textAnchor="middle"
           >
@@ -145,33 +149,34 @@ export function AircraftLayer() {
             y1={origin.y}
             x2={projectedX}
             y2={projectedY}
-            opacity={0.55}
-            stroke={isAligned ? "#56e5a9" : "#38bdf8"}
-            strokeDasharray="4 6"
-            strokeWidth={1.5}
+            opacity={isDaylight ? 0.85 : 0.65}
+            stroke={isAligned ? "var(--vec-r-safe)" : "var(--vec-w)"}
+            strokeDasharray="6 6"
+            strokeWidth={2.2}
           />
           <circle
             cx={projectedX}
             cy={projectedY}
-            r={4}
+            r={5}
             fill="none"
-            stroke={isAligned ? "#56e5a9" : "#38bdf8"}
-            strokeWidth={1.5}
+            stroke={isAligned ? "var(--vec-r-safe)" : "var(--vec-w)"}
+            strokeWidth={2}
           />
           <circle
             cx={projectedX}
             cy={projectedY}
-            r={1.5}
-            fill={isAligned ? "#56e5a9" : "#38bdf8"}
+            r={2}
+            fill={isAligned ? "var(--vec-r-safe)" : "var(--vec-w)"}
           />
           {!isAligned && (
             <text
               x={projectedX < origin.x ? projectedX - 12 : projectedX + 12}
               y={projectedY + 4}
-              fill="#38bdf8"
+              fill="var(--vec-w)"
               fontFamily="var(--font-jetbrains-mono)"
-              fontSize={10}
-              opacity={0.85}
+              fontSize={12.5}
+              fontWeight={700}
+              opacity={0.95}
               textAnchor={projectedX < origin.x ? "end" : "start"}
             >
               {`DỰ KIẾN LỆCH (${absDriftMeters}m ${
@@ -190,18 +195,18 @@ export function AircraftLayer() {
             y1={0}
             x2={caliperDevPx}
             y2={0}
-            stroke="#ffb4ab"
-            strokeWidth={1.5}
+            stroke="var(--vec-caliper)"
+            strokeWidth={2.2}
           />
-          <circle cx={0} cy={0} r={3} fill="#56e5a9" />
-          <circle cx={caliperDevPx} cy={0} r={3} fill="#ffb4ab" />
+          <circle cx={0} cy={0} r={3.5} fill="var(--vec-r-safe)" />
+          <circle cx={caliperDevPx} cy={0} r={3.5} fill="var(--vec-caliper)" />
           <text
             x={caliperDevPx < 0 ? caliperDevPx - 8 : caliperDevPx + 8}
-            y={-6}
-            fill="#ffb4ab"
+            y={-7}
+            fill="var(--vec-caliper)"
             fontFamily="var(--font-jetbrains-mono)"
-            fontSize={10}
-            fontWeight={600}
+            fontSize={12.5}
+            fontWeight={700}
             textAnchor={caliperDevPx < 0 ? "end" : "start"}
           >
             {`LỆCH NGANG: ${telemetry.lateralDriftMeters > 0 ? "+" : ""}${
@@ -211,31 +216,26 @@ export function AircraftLayer() {
         </g>
       )}
 
-      {/* Máy bay top-down & vòng định hướng */}
+      {/* Máy bay top-down chân thực & vòng định hướng */}
       <g transform={`translate(${aircraftX}, ${aircraftY})`}>
         <circle
           cx={0}
           cy={0}
-          r={24}
+          r={28}
           fill="none"
-          stroke="rgba(255, 198, 64, 0.4)"
+          stroke="var(--vec-a)"
+          strokeOpacity={isDaylight ? 0.55 : 0.4}
           strokeDasharray="4 4"
-          strokeWidth={1}
+          strokeWidth={1.3}
           style={{
             animation: "vq-spin 20s linear infinite",
             animationPlayState: isPlaying ? "running" : "paused",
           }}
         />
-        <g
-          transform={`rotate(${telemetry.headingOffsetDeg}) translate(-18, -18) scale(1.5)`}
-          filter="url(#glow-amber)"
-        >
-          <path
-            d="M12 2L9 9H3L6 13L4 21L12 17L20 21L18 13L21 9H15L12 2Z"
-            fill="var(--secondary)"
-          />
+        <g transform={`rotate(${telemetry.headingOffsetDeg}) translate(-32, -32)`}>
+          <RealisticAircraftSvg variant="radar" isDaylight={isDaylight} />
         </g>
-        <circle cx={0} cy={0} r={2.5} fill="var(--primary-fixed)" />
+        <circle cx={0} cy={0} r={2.5} fill="var(--vec-a)" />
       </g>
     </g>
   );

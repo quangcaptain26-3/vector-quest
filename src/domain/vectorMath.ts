@@ -164,6 +164,7 @@ export interface ComputeTelemetryInput {
   readonly windDirection: WindDirection;
   readonly windStrength: WindStrength;
   readonly headingOffsetDeg: number;
+  readonly customWindSpeedKts?: number;
 }
 
 /**
@@ -173,19 +174,26 @@ export function computeSimulationTelemetry(
   input: ComputeTelemetryInput
 ): SimulationTelemetry {
   const headingOffsetDeg = clampHeadingOffsetDeg(input.headingOffsetDeg);
-  const windSpeedKts = getWindSpeedKts(input.windStrength);
+  const windSpeedKts =
+    typeof input.customWindSpeedKts === "number" &&
+    !Number.isNaN(input.customWindSpeedKts)
+      ? Math.min(50, Math.max(5, Math.round(input.customWindSpeedKts)))
+      : getWindSpeedKts(input.windStrength);
   const vA = computeAircraftVector(headingOffsetDeg, KINEMATIC_AIRSPEED_KTS);
-  const vW = computeWindVector(input.windDirection, input.windStrength);
+  const vW: Vector2D = {
+    x: input.windDirection === "rtl" ? -windSpeedKts : windSpeedKts,
+    y: 0,
+  };
   const vR = computeResultantVector(vA, vW);
 
   const driftAngleDeg = computeAngleFromRunwayAxisDeg(vR);
   const compassHeadingDeg = normalizeCompassHeadingDeg(headingOffsetDeg);
   const groundTrackDeg = normalizeCompassHeadingDeg(driftAngleDeg);
-  const idealCrabAngleDeg = computeIdealCrabAngleDeg(
-    input.windDirection,
-    input.windStrength,
-    KINEMATIC_AIRSPEED_KTS
+  const idealCrabRatio = Math.min(
+    0.99,
+    Math.max(-0.99, -vW.x / KINEMATIC_AIRSPEED_KTS)
   );
+  const idealCrabAngleDeg = Math.asin(idealCrabRatio) * RAD_TO_DEG;
   const lateralNetKts = vR.x;
   const lateralDriftMeters = Math.round(
     lateralNetKts * METERS_PER_KNOT_CROSS_DRIFT

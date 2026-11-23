@@ -9,6 +9,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { MathFormula } from "@/components/ui/MathFormula";
+import { RealisticAircraftSvg } from "@/components/ui/RealisticAircraftSvg";
 import {
   getStep3HintForWind,
   HEADING_OPTIONS,
@@ -30,6 +31,7 @@ const ROTATION_BY_OPTION: Record<HeadingOptionId, number> = {
  */
 export function StepObserveGrid() {
   const windDirection = useSimulationStore((s) => s.windDirection);
+  const isDaylight = useSimulationStore((s) => s.themeMode) === "daylight";
   const telemetry = useSimulationStore((s) => s.telemetry);
   const selectedOption = useSimulationStore((s) => s.selectedOption);
   const predictionResult = useSimulationStore((s) => s.predictionResult);
@@ -180,18 +182,11 @@ export function StepObserveGrid() {
                     transform: `rotate(${ROTATION_BY_OPTION[opt.id]}deg)`,
                   }}
                 >
-                  <svg
-                    className={`w-6 h-6 filter ${
-                      isSelected
-                        ? "text-secondary drop-shadow-[0_0_8px_rgba(255,198,64,0.7)]"
-                        : "text-on-surface drop-shadow"
-                    }`}
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path d="M12 2L9 9H3L6 13L4 21L12 17L20 21L18 13L21 9H15L12 2Z" />
-                  </svg>
+                  <RealisticAircraftSvg
+                    variant="mini"
+                    isDaylight={isDaylight}
+                    isSelected={isSelected}
+                  />
                 </div>
               </div>
 

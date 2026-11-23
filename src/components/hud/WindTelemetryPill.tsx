@@ -26,6 +26,7 @@ export function WindTelemetryPill() {
   const toleranceDeg = useSimulationStore((s) => s.toleranceDeg);
   const setWindDirection = useSimulationStore((s) => s.setWindDirection);
   const setWindStrength = useSimulationStore((s) => s.setWindStrength);
+  const adjustWindSpeed = useSimulationStore((s) => s.adjustWindSpeed);
 
   const isAligned = Math.abs(telemetry.driftAngleDeg) <= toleranceDeg;
   const driftDirectionLabel = isAligned
@@ -35,7 +36,7 @@ export function WindTelemetryPill() {
       : "Lệch sang phải";
 
   return (
-    <div className="absolute top-6 left-8 w-[340px] z-10 bg-surface-container-low/85 backdrop-blur-md p-space-md rounded-xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] border border-outline-variant/30 flex flex-col gap-space-md">
+    <div className="absolute top-4 left-8 w-[364px] z-10 bg-surface-container-low/95 backdrop-blur-md p-3.5 rounded-xl shadow-[var(--hud-card-shadow)] border border-outline-variant/60 flex flex-col gap-2.5">
       {/* Tiêu đề thẻ */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-space-xs">
@@ -97,16 +98,38 @@ export function WindTelemetryPill() {
 
       {/* Cường độ gió */}
       <div className="flex flex-col gap-space-xs">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center gap-2">
           <span className="font-telemetry-sm text-telemetry-sm text-on-surface-variant">
             CƯỜNG ĐỘ GIÓ
           </span>
-          <span
-            id="wind-speed-label"
-            className="font-telemetry-sm text-telemetry-sm text-secondary font-semibold"
-          >
-            {`${telemetry.windSpeedKts} KT`}
-          </span>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              aria-label="Giảm tốc độ gió 5 KT"
+              title="Giảm 5 KT"
+              disabled={telemetry.windSpeedKts <= 5}
+              onClick={() => adjustWindSpeed(-5)}
+              className="px-2 py-0.5 rounded bg-surface-container-high hover:bg-primary-container hover:text-on-primary-container disabled:opacity-35 disabled:pointer-events-none font-telemetry-sm text-telemetry-sm font-bold text-on-surface border border-outline-variant/60 transition-colors cursor-pointer"
+            >
+              -5
+            </button>
+            <span
+              id="wind-speed-label"
+              className="font-telemetry-sm text-telemetry-sm text-secondary font-bold min-w-[46px] text-center"
+            >
+              {`${telemetry.windSpeedKts} KT`}
+            </span>
+            <button
+              type="button"
+              aria-label="Tăng tốc độ gió 5 KT"
+              title="Tăng 5 KT"
+              disabled={telemetry.windSpeedKts >= 50}
+              onClick={() => adjustWindSpeed(5)}
+              className="px-2 py-0.5 rounded bg-surface-container-high hover:bg-primary-container hover:text-on-primary-container disabled:opacity-35 disabled:pointer-events-none font-telemetry-sm text-telemetry-sm font-bold text-on-surface border border-outline-variant/60 transition-colors cursor-pointer"
+            >
+              +5
+            </button>
+          </div>
         </div>
         <div className="grid grid-cols-3 p-1 bg-surface-container-lowest/90 rounded-full">
           {STRENGTH_BUTTONS.map((btn) => {
@@ -131,10 +154,10 @@ export function WindTelemetryPill() {
       </div>
 
       {/* Ma trận 2x2 Thông số Vectơ */}
-      <div className="grid grid-cols-2 gap-2 bg-surface-container-highest/40 p-2.5 rounded-lg">
+      <div className="grid grid-cols-2 gap-1.5 bg-surface-container-highest/40 p-2 rounded-lg">
         <div className="flex flex-col bg-surface-container-low/70 p-2 rounded">
-          <span className="font-label-caps text-label-caps text-on-surface-variant flex items-center gap-1">
-            <span>VẬN TỐC MÁY BAY</span>
+          <span className="font-label-caps text-label-caps text-on-surface-variant flex items-center gap-1 whitespace-nowrap tracking-tight">
+            <span>MÁY BAY</span>
             <MathFormula tex="\vec{v}_A" className="text-secondary" />
           </span>
           <div className="flex items-baseline gap-1 mt-0.5">
@@ -151,7 +174,7 @@ export function WindTelemetryPill() {
         </div>
 
         <div className="flex flex-col bg-surface-container-low/70 p-2 rounded">
-          <span className="font-label-caps text-label-caps text-on-surface-variant flex items-center gap-1">
+          <span className="font-label-caps text-label-caps text-on-surface-variant flex items-center gap-1 whitespace-nowrap tracking-tight">
             <span>GIÓ NGANG</span>
             <MathFormula tex="\vec{v}_W" className="text-primary" />
           </span>
@@ -169,7 +192,7 @@ export function WindTelemetryPill() {
         </div>
 
         <div className="flex flex-col bg-surface-container-low/70 p-2 rounded">
-          <span className="font-label-caps text-label-caps text-on-surface-variant">
+          <span className="font-label-caps text-label-caps text-on-surface-variant whitespace-nowrap tracking-tight">
             GÓC LỆCH (θ)
           </span>
           <div className="flex items-baseline gap-1 mt-0.5">
@@ -191,8 +214,8 @@ export function WindTelemetryPill() {
         </div>
 
         <div className="flex flex-col bg-surface-container-low/70 p-2 rounded">
-          <span className="font-label-caps text-label-caps text-on-surface-variant flex items-center gap-1">
-            <span>QUỸ ĐẠO THỰC TẾ</span>
+          <span className="font-label-caps text-label-caps text-on-surface-variant flex items-center gap-1 whitespace-nowrap tracking-tight">
+            <span>QUỸ ĐẠO</span>
             <MathFormula tex="\vec{v}_R" className="text-tertiary" />
           </span>
           <div className="flex items-baseline gap-1 mt-0.5">
@@ -213,7 +236,7 @@ export function WindTelemetryPill() {
         </span>
         <MathFormula
           tex="\vec{v}_R = \vec{v}_A + \vec{v}_W"
-          className="font-telemetry-sm text-telemetry-sm text-primary-fixed font-semibold"
+          className="font-telemetry-sm text-telemetry-sm text-primary font-bold"
         />
       </div>
     </div>

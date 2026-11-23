@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import {
   AlertTriangle,
   ArrowRight,
   BadgeCheck,
   CheckCircle2,
+  Compass,
   PlaneTakeoff,
   RotateCcw,
 } from "lucide-react";
@@ -12,6 +14,15 @@ import { MathFormula } from "@/components/ui/MathFormula";
 import { MAX_HEADING_OFFSET_DEG, MIN_HEADING_OFFSET_DEG } from "@/config/simulation";
 import { MISSION_STEPS, STEP5_OUTCOMES } from "@/domain/missionContent";
 import { useSimulationStore } from "@/store/useSimulationStore";
+
+const HEADING_STEP_BUTTONS: readonly { readonly label: string; readonly delta: number }[] = [
+  { label: "-5°", delta: -5 },
+  { label: "-1°", delta: -1 },
+  { label: "-0.5°", delta: -0.5 },
+  { label: "+0.5°", delta: 0.5 },
+  { label: "+1°", delta: 1 },
+  { label: "+5°", delta: 5 },
+];
 
 /**
  * Bước 4 & 5: Phòng thí nghiệm vectơ & Kiểm tra hạ cánh.
@@ -26,9 +37,41 @@ export function StepVectorCheck() {
   const guideVisible = useSimulationStore((s) => s.guideVisible);
 
   const setAircraftHeading = useSimulationStore((s) => s.setAircraftHeading);
+  const adjustAircraftHeading = useSimulationStore(
+    (s) => s.adjustAircraftHeading
+  );
+  const applyIdealCrabHeading = useSimulationStore(
+    (s) => s.applyIdealCrabHeading
+  );
   const watchFlight = useSimulationStore((s) => s.watchFlight);
   const checkLanding = useSimulationStore((s) => s.checkLanding);
   const setStep = useSimulationStore((s) => s.setStep);
+
+  const holdTimeoutRef = useRef<number | null>(null);
+  const holdIntervalRef = useRef<number | null>(null);
+
+  const stopHoldRepeat = () => {
+    if (holdTimeoutRef.current !== null) {
+      window.clearTimeout(holdTimeoutRef.current);
+      holdTimeoutRef.current = null;
+    }
+    if (holdIntervalRef.current !== null) {
+      window.clearInterval(holdIntervalRef.current);
+      holdIntervalRef.current = null;
+    }
+  };
+
+  useEffect(() => stopHoldRepeat, []);
+
+  const startHoldRepeat = (deltaDeg: number) => {
+    stopHoldRepeat();
+    adjustAircraftHeading(deltaDeg);
+    holdTimeoutRef.current = window.setTimeout(() => {
+      holdIntervalRef.current = window.setInterval(() => {
+        adjustAircraftHeading(deltaDeg);
+      }, 95);
+    }, 340);
+  };
 
   const isStep5 = currentStep === 5;
   const copy = isStep5 ? MISSION_STEPS[5] : MISSION_STEPS[4];
@@ -37,6 +80,9 @@ export function StepVectorCheck() {
   const counterKts = Math.round(telemetry.vA.x);
   const windKtsSigned = Math.round(telemetry.vW.x);
   const netLateralKts = Math.round(telemetry.lateralNetKts * 10) / 10;
+  const absDriftDeg = Math.abs(telemetry.driftAngleDeg);
+  const isWithinTolerance = absDriftDeg <= toleranceDeg;
+  const idealSign = telemetry.idealCrabAngleDeg >= 0 ? "+" : "";
 
   return (
     <div className="flex flex-col gap-space-sm">
@@ -83,8 +129,8 @@ export function StepVectorCheck() {
         </p>
       </div>
 
-      {/* Thanh kéo tinh chỉnh góc v_A */}
-      <div className="bg-surface-container-high/50 border border-outline-variant/60 rounded-xl p-2.5 flex flex-col gap-1.5">
+      {/* Thanh kéo + Cụm nút tinh chỉnh góc v_A (- / +) */}
+      <div className="bg-surface-container-high/50 border border-outline-variant/60 rounded-xl p-2.5 flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <span className="font-label-caps text-label-caps text-secondary uppercase flex items-center gap-1">
             <span>VẬN TỐC MÁY BAY</span>
@@ -100,16 +146,86 @@ export function StepVectorCheck() {
           type="range"
           min={MIN_HEADING_OFFSET_DEG}
           max={MAX_HEADING_OFFSET_DEG}
-          step={0.2}
+          step={0.5}
           value={telemetry.headingOffsetDeg}
           aria-label="Điều chỉnh góc hướng mũi vectơ v_A"
           onChange={(e) => setAircraftHeading(Number(e.target.value))}
-          className="w-full accent-[#ffc640] cursor-pointer"
+          className="w-full accent-[var(--vec-a)] cursor-pointer"
         />
-        <div className="flex items-center justify-between font-telemetry-sm text-telemetry-sm text-outline">
-          <span>-60° (TRÁI)</span>
-          <span>{`SAI SỐ ±${toleranceDeg}°`}</span>
-          <span>+60° (PHẢI)</span>
+
+        {/* Cụm nút tinh chỉnh chính xác (-5°, -1°, -0.5°, 0°, +0.5°, +1°, +5°) */}
+        <div
+          className="grid grid-cols-7 gap-1"
+          role="group"
+          aria-label="Nút tinh chỉnh góc mũi máy bay"
+        >
+          {HEADING_STEP_BUTTONS.slice(0, 3).map((btn) => (
+            <button
+              key={btn.label}
+              type="button"
+              aria-label={`Giảm góc mũi ${Math.abs(btn.delta)} độ`}
+              onPointerDown={() => startHoldRepeat(btn.delta)}
+              onPointerUp={stopHoldRepeat}
+              onPointerLeave={stopHoldRepeat}
+              onPointerCancel={stopHoldRepeat}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  adjustAircraftHeading(btn.delta);
+                }
+              }}
+              className="min-h-[40px] px-1 rounded-lg bg-surface-container-lowest hover:bg-primary-container hover:text-on-primary-container border border-outline-variant/70 font-telemetry-sm text-telemetry-sm font-bold text-on-surface transition-colors cursor-pointer select-none"
+            >
+              {btn.label}
+            </button>
+          ))}
+
+          <button
+            type="button"
+            aria-label="Đưa góc mũi về 0 độ thẳng"
+            title="Về 0° (Thẳng)"
+            onClick={() => setAircraftHeading(0)}
+            className="min-h-[40px] px-1 rounded-lg bg-surface-container-highest hover:bg-secondary hover:text-on-secondary border border-outline-variant/80 font-telemetry-sm text-telemetry-sm font-bold text-on-surface transition-colors cursor-pointer select-none"
+          >
+            0°
+          </button>
+
+          {HEADING_STEP_BUTTONS.slice(3).map((btn) => (
+            <button
+              key={btn.label}
+              type="button"
+              aria-label={`Tăng góc mũi ${btn.delta} độ`}
+              onPointerDown={() => startHoldRepeat(btn.delta)}
+              onPointerUp={stopHoldRepeat}
+              onPointerLeave={stopHoldRepeat}
+              onPointerCancel={stopHoldRepeat}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  adjustAircraftHeading(btn.delta);
+                }
+              }}
+              className="min-h-[40px] px-1 rounded-lg bg-surface-container-lowest hover:bg-primary-container hover:text-on-primary-container border border-outline-variant/70 font-telemetry-sm text-telemetry-sm font-bold text-on-surface transition-colors cursor-pointer select-none"
+            >
+              {btn.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Chỉ báo độ lệch thời gian thực */}
+        <div
+          className={`px-2.5 py-1.5 rounded-lg border font-telemetry-sm text-telemetry-sm font-bold flex items-center justify-between gap-2 ${
+            isWithinTolerance
+              ? "bg-tertiary/15 border-tertiary/45 text-tertiary"
+              : "bg-surface-container-lowest/90 border-outline-variant/60 text-on-surface-variant"
+          }`}
+        >
+          <span>{`Độ lệch quỹ đạo: ${absDriftDeg.toFixed(1)}°`}</span>
+          <span>
+            {isWithinTolerance
+              ? `• Đạt ngưỡng ±${toleranceDeg}°`
+              : `• Ngưỡng đạt ±${toleranceDeg}°`}
+          </span>
         </div>
       </div>
 
@@ -229,9 +345,19 @@ export function StepVectorCheck() {
       </div>
 
       {guideVisible && (
-        <p className="font-body-sm text-body-sm text-on-surface-variant italic px-1">
-          {copy.guideNote.vi}
-        </p>
+        <div className="flex flex-col gap-1.5">
+          <p className="font-body-sm text-body-sm text-on-surface-variant italic px-1">
+            {copy.guideNote.vi}
+          </p>
+          <button
+            type="button"
+            onClick={applyIdealCrabHeading}
+            className="min-h-[40px] px-3 py-1.5 rounded-lg bg-tertiary/15 hover:bg-tertiary hover:text-on-tertiary border border-tertiary/40 text-tertiary font-telemetry-sm text-telemetry-sm font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+          >
+            <Compass className="w-4 h-4" aria-hidden="true" />
+            <span>{`Gợi ý góc cân bằng (${idealSign}${telemetry.idealCrabAngleDeg.toFixed(1)}°)`}</span>
+          </button>
+        </div>
       )}
 
       {/* Các nút thao tác */}
@@ -240,7 +366,7 @@ export function StepVectorCheck() {
           <button
             type="button"
             onClick={() => setStep(6)}
-            className="w-full py-3 px-space-md rounded-lg bg-primary hover:bg-primary-fixed text-on-primary font-headline-sm text-headline-sm font-bold text-center transition-all flex items-center justify-center gap-space-xs shadow-[0_0_24px_rgba(56,189,248,0.5)] cursor-pointer"
+            className="w-full min-h-[44px] py-2.5 px-space-md rounded-lg bg-primary hover:bg-primary-fixed text-on-primary font-headline-sm text-headline-sm font-bold text-center transition-all flex items-center justify-center gap-space-xs shadow-[0_0_24px_rgba(56,189,248,0.5)] cursor-pointer"
           >
             <span>XEM GIẢI THÍCH TOÁN HỌC</span>
             <ArrowRight className="w-5 h-5" aria-hidden="true" />
@@ -250,7 +376,7 @@ export function StepVectorCheck() {
             <button
               type="button"
               onClick={watchFlight}
-              className="py-2.5 px-2 rounded-lg bg-surface-container-highest hover:bg-surface-container-high text-on-surface font-telemetry-sm text-telemetry-sm font-semibold text-center transition-all flex items-center justify-center gap-1 border border-outline-variant/60 cursor-pointer"
+              className="min-h-[42px] py-2 px-2 rounded-lg bg-surface-container-highest hover:bg-surface-container-high text-on-surface font-telemetry-sm text-telemetry-sm font-semibold text-center transition-all flex items-center justify-center gap-1 border border-outline-variant/60 cursor-pointer"
             >
               <PlaneTakeoff
                 className="w-4 h-4 text-primary"
@@ -262,7 +388,7 @@ export function StepVectorCheck() {
             <button
               type="button"
               onClick={checkLanding}
-              className="py-2.5 px-2 rounded-lg bg-primary hover:bg-primary-fixed text-on-primary font-telemetry-sm text-telemetry-sm font-bold text-center transition-all flex items-center justify-center gap-1 shadow-[0_0_20px_rgba(56,189,248,0.45)] cursor-pointer"
+              className="min-h-[42px] py-2 px-2 rounded-lg bg-primary hover:bg-primary-fixed text-on-primary font-telemetry-sm text-telemetry-sm font-bold text-center transition-all flex items-center justify-center gap-1 shadow-[0_0_20px_rgba(56,189,248,0.45)] cursor-pointer"
             >
               <BadgeCheck className="w-4 h-4" aria-hidden="true" />
               <span>Kiểm tra hạ cánh</span>

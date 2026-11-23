@@ -119,6 +119,20 @@ export default function HomePage() {
         return;
       }
 
+      if (state.currentStep >= 4) {
+        const fineDelta = event.shiftKey ? 0.1 : 0.5;
+        if (event.key === "ArrowUp" || event.key === "+" || event.key === "=") {
+          event.preventDefault();
+          state.adjustAircraftHeading(fineDelta);
+          return;
+        }
+        if (event.key === "ArrowDown" || event.key === "-" || event.key === "_") {
+          event.preventDefault();
+          state.adjustAircraftHeading(-fineDelta);
+          return;
+        }
+      }
+
       if (state.currentStep === 3) {
         const upper = event.key.toUpperCase() as HeadingOptionId;
         if (OPTION_KEYS.has(upper)) {
