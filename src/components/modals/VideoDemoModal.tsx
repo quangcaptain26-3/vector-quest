@@ -67,16 +67,18 @@ export function VideoDemoModal() {
               y1="20"
               x2="210"
               y2="180"
-              stroke="rgba(86,229,169,0.5)"
+              stroke="var(--vec-r-safe)"
+              strokeOpacity="0.6"
               strokeDasharray="6 4"
-              strokeWidth="2"
+              strokeWidth="2.2"
             />
             <text
               x="210"
               y="14"
-              fill="#56e5a9"
+              fill="var(--vec-r-safe)"
               fontFamily="var(--font-jetbrains-mono)"
-              fontSize="9"
+              fontSize="11"
+              fontWeight="700"
               textAnchor="middle"
             >
               TRỤC ĐƯỜNG BĂNG 36L
@@ -84,9 +86,10 @@ export function VideoDemoModal() {
 
             <polygon
               points="210,170 265,45 210,45 155,170"
-              fill="rgba(56,189,248,0.08)"
-              stroke="rgba(56,189,248,0.35)"
-              strokeWidth="1"
+              fill="rgba(56,189,248,0.1)"
+              stroke="var(--vec-w)"
+              strokeOpacity="0.45"
+              strokeWidth="1.2"
             />
 
             <line
@@ -94,23 +97,24 @@ export function VideoDemoModal() {
               y1="170"
               x2="265"
               y2="45"
-              stroke="#ffc640"
-              strokeWidth="3"
+              stroke="var(--vec-a)"
+              strokeWidth="3.5"
             />
             <circle
               cx="265"
               cy="45"
-              r="7"
-              fill="rgba(255,198,64,0.3)"
-              stroke="#ffc640"
-              strokeWidth="2"
+              r="7.5"
+              fill="var(--vec-a)"
+              fillOpacity="0.25"
+              stroke="var(--vec-a)"
+              strokeWidth="2.2"
             />
             <text
               x="278"
               y="108"
-              fill="#ffc640"
+              fill="var(--vec-a)"
               fontFamily="var(--font-jetbrains-mono)"
-              fontSize="10"
+              fontSize="11.5"
               fontWeight="700"
             >
               1. Kéo đầu v_A (+18.4°)
@@ -121,16 +125,16 @@ export function VideoDemoModal() {
               y1="45"
               x2="210"
               y2="45"
-              stroke="#38bdf8"
+              stroke="var(--vec-w)"
               strokeDasharray="4 3"
-              strokeWidth="2.5"
+              strokeWidth="3"
             />
             <text
               x="238"
               y="35"
-              fill="#38bdf8"
+              fill="var(--vec-w)"
               fontFamily="var(--font-jetbrains-mono)"
-              fontSize="10"
+              fontSize="11.5"
               fontWeight="700"
               textAnchor="middle"
             >
@@ -142,15 +146,15 @@ export function VideoDemoModal() {
               y1="170"
               x2="210"
               y2="45"
-              stroke="#f43f5e"
-              strokeWidth="3.5"
+              stroke="var(--vec-r-drift)"
+              strokeWidth="4"
             />
             <text
               x="196"
               y="112"
-              fill="#f43f5e"
+              fill="var(--vec-r-drift)"
               fontFamily="var(--font-jetbrains-mono)"
-              fontSize="10"
+              fontSize="11.5"
               fontWeight="700"
               textAnchor="end"
             >

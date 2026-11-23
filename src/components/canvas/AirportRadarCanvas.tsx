@@ -26,12 +26,15 @@ export function AirportRadarCanvas() {
   const isDaylight = themeMode === "daylight";
 
   return (
-    <div className="relative w-full h-full overflow-hidden rounded-xl bg-surface-container-lowest flex items-center justify-center">
+    <div
+      className="relative w-full h-full overflow-hidden rounded-xl flex items-center justify-center"
+      style={{ backgroundColor: "var(--radar-bg)" }}
+    >
       {/* Atmospheric Glow & Tactical Radial Vignette */}
       <div
         className={`absolute inset-0 pointer-events-none z-0 ${
           isDaylight
-            ? "bg-[radial-gradient(circle_at_50%_45%,rgba(2,132,199,0.08)_0%,rgba(241,245,249,0.72)_68%,rgba(226,232,240,0.95)_100%)]"
+            ? "bg-[radial-gradient(circle_at_50%_45%,rgba(2,132,199,0.07)_0%,rgba(234,240,246,0.65)_68%,rgba(220,229,239,0.92)_100%)]"
             : "bg-[radial-gradient(circle_at_50%_45%,rgba(56,189,248,0.06)_0%,rgba(15,19,28,0.75)_65%,rgba(10,14,23,0.98)_100%)]"
         }`}
       />
@@ -65,7 +68,7 @@ export function AirportRadarCanvas() {
             refY="5"
             viewBox="0 0 10 10"
           >
-            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#38bdf8" />
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="var(--vec-w)" />
           </marker>
           <marker
             id="amber-arrow"
@@ -76,7 +79,7 @@ export function AirportRadarCanvas() {
             refY="5"
             viewBox="0 0 10 10"
           >
-            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#ffc640" />
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="var(--vec-a)" />
           </marker>
           <marker
             id="emerald-arrow"
@@ -87,7 +90,7 @@ export function AirportRadarCanvas() {
             refY="5"
             viewBox="0 0 10 10"
           >
-            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#56e5a9" />
+            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="var(--vec-r-safe)" />
           </marker>
           <marker
             id="coral-arrow"
@@ -98,7 +101,7 @@ export function AirportRadarCanvas() {
             refY="5"
             viewBox="0 0 10 10"
           >
-            <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#f43f5e" />
+            <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="var(--vec-r-drift)" />
           </marker>
 
           <pattern
@@ -107,24 +110,11 @@ export function AirportRadarCanvas() {
             height="48"
             patternUnits="userSpaceOnUse"
           >
-            <circle
-              cx="24"
-              cy="24"
-              r="0.8"
-              fill={
-                isDaylight
-                  ? "rgba(2, 132, 199, 0.22)"
-                  : "rgba(142, 213, 255, 0.16)"
-              }
-            />
+            <circle cx="24" cy="24" r="1" fill="var(--radar-grid-dot)" />
             <path
               d="M 48 0 L 0 0 0 48"
               fill="none"
-              stroke={
-                isDaylight
-                  ? "rgba(15, 23, 42, 0.06)"
-                  : "rgba(255, 255, 255, 0.025)"
-              }
+              stroke="var(--radar-grid-line)"
               strokeWidth="1"
             />
           </pattern>
@@ -162,24 +152,25 @@ export function AirportRadarCanvas() {
 
         {/* Center Dynamic Compass Radial Rings */}
         <g
-          opacity={isExplainStep ? 0.2 : 0.45}
+          opacity={isExplainStep ? 0.3 : isDaylight ? 0.85 : 0.55}
           transform={`translate(${compassCenter.x}, ${compassCenter.y})`}
           className="pointer-events-none"
         >
           <circle
             r={130}
             fill="none"
-            stroke="rgba(56,189,248,0.22)"
-            strokeDasharray="3 4"
-            strokeWidth={1}
+            stroke="var(--radar-ring)"
+            strokeDasharray="4 4"
+            strokeWidth={1.3}
           />
           <text
             x={136}
             y={-6}
-            fill="rgba(142,213,255,0.75)"
+            fill="var(--radar-ring-text)"
             fontFamily="var(--font-jetbrains-mono)"
-            fontSize={10}
-            letterSpacing="0.08em"
+            fontSize={12}
+            fontWeight={700}
+            letterSpacing="0.06em"
           >
             5 NM
           </text>
@@ -187,17 +178,18 @@ export function AirportRadarCanvas() {
           <circle
             r={260}
             fill="none"
-            stroke="rgba(56,189,248,0.18)"
+            stroke="var(--radar-ring)"
             strokeDasharray="4 6"
-            strokeWidth={1}
+            strokeWidth={1.3}
           />
           <text
             x={266}
             y={-6}
-            fill="rgba(142,213,255,0.75)"
+            fill="var(--radar-ring-text)"
             fontFamily="var(--font-jetbrains-mono)"
-            fontSize={10}
-            letterSpacing="0.08em"
+            fontSize={12}
+            fontWeight={700}
+            letterSpacing="0.06em"
           >
             10 NM
           </text>
@@ -207,17 +199,18 @@ export function AirportRadarCanvas() {
               <circle
                 r={390}
                 fill="none"
-                stroke="rgba(56,189,248,0.12)"
+                stroke="var(--radar-ring)"
                 strokeDasharray="2 8"
-                strokeWidth={1}
+                strokeWidth={1.2}
               />
               <text
                 x={396}
                 y={-6}
-                fill="rgba(142,213,255,0.75)"
+                fill="var(--radar-ring-text)"
                 fontFamily="var(--font-jetbrains-mono)"
-                fontSize={10}
-                letterSpacing="0.08em"
+                fontSize={12}
+                fontWeight={700}
+                letterSpacing="0.06em"
               >
                 15 NM
               </text>
@@ -230,22 +223,22 @@ export function AirportRadarCanvas() {
             x2={480}
             y1={0}
             y2={0}
-            stroke="rgba(135,146,154,0.18)"
-            strokeWidth={1}
+            stroke="var(--radar-axis-stroke)"
+            strokeWidth={1.1}
           />
           <line
             x1={0}
             x2={0}
             y1={-380}
             y2={380}
-            stroke="rgba(135,146,154,0.18)"
-            strokeWidth={1}
+            stroke="var(--radar-axis-stroke)"
+            strokeWidth={1.1}
           />
 
           {/* Azimuth Compass Ticks */}
           {currentStep <= 3 && (
             <>
-              <g stroke="rgba(56,189,248,0.3)" strokeWidth={1}>
+              <g stroke="var(--radar-ring)" strokeWidth={1.4}>
                 <line x1={0} x2={0} y1={-390} y2={-402} />
                 <line x1={390} x2={402} y1={0} y2={0} />
                 <line x1={0} x2={0} y1={390} y2={402} />
@@ -256,11 +249,11 @@ export function AirportRadarCanvas() {
                 <line x1={-275} x2={-284} y1={275} y2={284} />
               </g>
               <text
-                x={-8}
+                x={-12}
                 y={-408}
-                fill="#8ed5ff"
+                fill="var(--radar-compass-text)"
                 fontFamily="var(--font-jetbrains-mono)"
-                fontSize={11}
+                fontSize={13}
                 fontWeight={700}
               >
                 360°
@@ -268,29 +261,29 @@ export function AirportRadarCanvas() {
               <text
                 x={410}
                 y={4}
-                fill="#8ed5ff"
+                fill="var(--radar-compass-text)"
                 fontFamily="var(--font-jetbrains-mono)"
-                fontSize={11}
+                fontSize={13}
                 fontWeight={700}
               >
                 090°
               </text>
               <text
-                x={-8}
+                x={-12}
                 y={420}
-                fill="#8ed5ff"
+                fill="var(--radar-compass-text)"
                 fontFamily="var(--font-jetbrains-mono)"
-                fontSize={11}
+                fontSize={13}
                 fontWeight={700}
               >
                 180°
               </text>
               <text
-                x={-445}
+                x={-448}
                 y={4}
-                fill="#8ed5ff"
+                fill="var(--radar-compass-text)"
                 fontFamily="var(--font-jetbrains-mono)"
-                fontSize={11}
+                fontSize={13}
                 fontWeight={700}
               >
                 270°
@@ -307,17 +300,22 @@ export function AirportRadarCanvas() {
                 ? "680,110 590,560 770,560"
                 : "680,110 590,520 770,520"
             }
-            fill="rgba(86,229,169,0.035)"
-            stroke="rgba(86,229,169,0.18)"
-            strokeDasharray="3 3"
-            strokeWidth={1}
+            fill={
+              isDaylight
+                ? "rgba(5, 150, 105, 0.08)"
+                : "rgba(86, 229, 169, 0.035)"
+            }
+            stroke="var(--vec-r-safe)"
+            strokeOpacity={isDaylight ? 0.35 : 0.22}
+            strokeDasharray="4 4"
+            strokeWidth={1.2}
             className="pointer-events-none"
           />
         )}
 
         {/* Physical Runway 36L (exact SVG-aligned strip at x=644, y=40, 72x260) */}
         <g
-          opacity={isExplainStep ? 0.32 : 1}
+          opacity={isExplainStep ? 0.35 : 1}
           className="pointer-events-none"
         >
           <rect
@@ -326,9 +324,9 @@ export function AirportRadarCanvas() {
             width={72}
             height={260}
             rx={3}
-            fill="var(--surface-container-high)"
-            stroke="rgba(56,189,248,0.2)"
-            strokeWidth={1.5}
+            fill="var(--runway-fill)"
+            stroke="var(--runway-stroke)"
+            strokeWidth={2}
           />
           {/* Threshold Green Identification Strobes */}
           {[658, 668, 678, 688, 698].map((sx) => (
@@ -339,17 +337,17 @@ export function AirportRadarCanvas() {
               width={10}
               height={4}
               rx={1}
-              fill="var(--tertiary)"
+              fill="var(--vec-r-safe)"
             />
           ))}
           {/* Runway Designation Markings */}
           <text
             x={680}
             y={82}
-            fill="var(--on-surface)"
+            fill="var(--runway-markings)"
             fontFamily="var(--font-space-grotesk)"
-            fontSize={18}
-            fontWeight={700}
+            fontSize={19}
+            fontWeight={800}
             letterSpacing="0.12em"
             textAnchor="middle"
           >
@@ -357,11 +355,11 @@ export function AirportRadarCanvas() {
           </text>
           <text
             x={680}
-            y={100}
-            fill="var(--on-surface)"
+            y={102}
+            fill="var(--runway-markings)"
             fontFamily="var(--font-space-grotesk)"
-            fontSize={18}
-            fontWeight={700}
+            fontSize={19}
+            fontWeight={800}
             letterSpacing="0.12em"
             textAnchor="middle"
           >
@@ -374,8 +372,8 @@ export function AirportRadarCanvas() {
             width={8}
             height={40}
             rx={1}
-            fill="var(--on-surface)"
-            opacity={0.8}
+            fill="var(--runway-markings)"
+            opacity={0.9}
           />
           <rect
             x={700}
@@ -383,8 +381,8 @@ export function AirportRadarCanvas() {
             width={8}
             height={40}
             rx={1}
-            fill="var(--on-surface)"
-            opacity={0.8}
+            fill="var(--runway-markings)"
+            opacity={0.9}
           />
           {/* Centerline High-Intensity Lights */}
           {[195, 220, 245].map((ly) => (
@@ -395,7 +393,7 @@ export function AirportRadarCanvas() {
               width={4}
               height={12}
               rx={1}
-              fill="var(--tertiary-container)"
+              fill="var(--vec-r-safe)"
             />
           ))}
           {/* Outer Runway End Safety Zone */}
@@ -404,8 +402,8 @@ export function AirportRadarCanvas() {
             y={296}
             width={72}
             height={4}
-            fill="var(--error)"
-            opacity={0.7}
+            fill="var(--vec-r-drift)"
+            opacity={0.85}
           />
         </g>
 

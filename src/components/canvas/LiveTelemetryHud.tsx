@@ -26,7 +26,10 @@ export function LiveTelemetryHud() {
         : "Gió ngang đang đẩy máy bay lệch sang phải.";
 
     return (
-      <div className="absolute bottom-4 left-8 max-w-[345px] z-10 flex items-center gap-space-sm bg-surface-container-low/90 backdrop-blur-md px-space-md py-space-xs rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.6)] border border-outline-variant/40">
+      <div
+        id="live-telemetry-hud"
+        className="absolute bottom-2.5 left-8 max-w-[364px] z-10 flex items-center gap-space-sm bg-surface-container-low/95 backdrop-blur-md px-space-md py-1.5 rounded-full shadow-[var(--hud-card-shadow)] border border-outline-variant/60"
+      >
         <div
           className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
             isAligned
@@ -60,7 +63,10 @@ export function LiveTelemetryHud() {
   const windDirLabel = windDirection === "rtl" ? "Phải → Trái" : "Trái → Phải";
 
   return (
-    <div className="absolute bottom-6 left-8 z-10 flex flex-col gap-2 bg-surface-container-low/90 backdrop-blur-md p-space-md rounded-xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] border border-primary/20 max-w-[380px]">
+    <div
+      id="live-telemetry-hud"
+      className="absolute bottom-3 left-8 z-10 flex flex-col gap-1.5 bg-surface-container-low/95 backdrop-blur-md p-3 rounded-xl shadow-[var(--hud-card-shadow)] border border-outline-variant/60 max-w-[364px]"
+    >
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">
           <span

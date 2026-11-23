@@ -38,7 +38,7 @@ export function ChallengePanelHost() {
   return (
     <aside
       aria-label="Bảng nhiệm vụ học tập"
-      className={`absolute top-6 right-8 ${widthClass} z-10 bg-surface-container-low/90 backdrop-blur-xl p-space-lg rounded-xl shadow-[0_16px_48px_rgba(0,0,0,0.65)] border border-outline-variant/30 max-h-[calc(100%-3rem)] overflow-y-auto`}
+      className={`absolute top-6 right-8 ${widthClass} z-10 bg-surface-container-low/95 backdrop-blur-xl p-space-lg rounded-xl shadow-[var(--hud-card-shadow)] border border-outline-variant/60 max-h-[calc(100%-3rem)] overflow-y-auto`}
     >
       <AnimatePresence mode="wait">
         <motion.div

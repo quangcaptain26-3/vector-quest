@@ -83,64 +83,65 @@ export function StepPrediction() {
             <path
               d="M 70 80 A 130 130 0 0 1 130 35"
               fill="none"
-              stroke="#38bdf8"
-              strokeWidth="2.5"
+              stroke="var(--vec-w)"
+              strokeWidth="2.8"
             />
             <path
               d="M 130 35 A 130 130 0 0 1 190 35"
               fill="none"
-              stroke="#ffc640"
-              strokeWidth="2.5"
+              stroke="var(--vec-a)"
+              strokeWidth="2.8"
             />
             <path
               d="M 190 35 A 130 130 0 0 1 250 80"
               fill="none"
-              stroke="#ffb4ab"
-              strokeWidth="2.5"
+              stroke="var(--vec-r-drift)"
+              strokeWidth="2.8"
             />
-            <circle cx="160" cy="90" fill="#dfe2ef" r="3.5" />
+            <circle cx="160" cy="90" fill="var(--on-surface)" r="4" />
             <line
-              stroke="#ffc640"
+              stroke="var(--vec-a)"
               strokeDasharray="2 2"
-              strokeWidth="1.5"
+              strokeWidth="2"
               x1="160"
               x2="160"
               y1="85"
               y2="32"
             />
             <line
-              stroke="#38bdf8"
-              strokeWidth="2"
+              stroke="var(--vec-w)"
+              strokeWidth="2.4"
               x1="160"
               x2="100"
               y1="85"
               y2="45"
             />
-            <polygon fill="#38bdf8" points="95,43 103,42 101,50" />
+            <polygon fill="var(--vec-w)" points="95,43 103,42 101,50" />
             <line
-              stroke="#ffb4ab"
+              stroke="var(--vec-r-drift)"
               strokeDasharray="3 3"
-              strokeWidth="1.5"
+              strokeWidth="1.8"
               x1="160"
               x2="220"
               y1="85"
               y2="45"
             />
             <text
-              fill="#38bdf8"
+              fill="var(--vec-w)"
               fontFamily="var(--font-jetbrains-mono)"
-              fontSize="10"
+              fontSize="11.5"
               fontWeight="700"
               textAnchor="middle"
               x="90"
-              y="28"
+              y="26"
             >
               RẼ TRÁI
             </text>
             <text
-              fill="#87929a"
+              fill="var(--on-surface-variant)"
               fontFamily="var(--font-jetbrains-mono)"
-              fontSize="8.5"
+              fontSize="10"
+              fontWeight="600"
               textAnchor="middle"
               x="90"
               y="38"
@@ -148,20 +149,21 @@ export function StepPrediction() {
               Chếch trái
             </text>
             <text
-              fill="#ffc640"
+              fill="var(--vec-a)"
               fontFamily="var(--font-jetbrains-mono)"
-              fontSize="10"
+              fontSize="11.5"
               fontWeight="700"
               textAnchor="middle"
               x="160"
-              y="20"
+              y="18"
             >
               BAY THẲNG
             </text>
             <text
-              fill="#87929a"
+              fill="var(--on-surface-variant)"
               fontFamily="var(--font-jetbrains-mono)"
-              fontSize="8.5"
+              fontSize="10"
+              fontWeight="600"
               textAnchor="middle"
               x="160"
               y="30"
@@ -169,20 +171,21 @@ export function StepPrediction() {
               Hướng 360°
             </text>
             <text
-              fill="#ffb4ab"
+              fill="var(--vec-r-drift)"
               fontFamily="var(--font-jetbrains-mono)"
-              fontSize="10"
+              fontSize="11.5"
               fontWeight="700"
               textAnchor="middle"
               x="230"
-              y="28"
+              y="26"
             >
               RẼ PHẢI
             </text>
             <text
-              fill="#87929a"
+              fill="var(--on-surface-variant)"
               fontFamily="var(--font-jetbrains-mono)"
-              fontSize="8.5"
+              fontSize="10"
+              fontWeight="600"
               textAnchor="middle"
               x="230"
               y="38"

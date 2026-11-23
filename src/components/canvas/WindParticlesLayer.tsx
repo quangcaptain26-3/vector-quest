@@ -101,8 +101,8 @@ export function WindParticlesLayer({
             key={stream.id}
             d={stream.d}
             fill="none"
-            stroke="var(--primary-container)"
-            strokeWidth={stream.strokeWidth}
+            stroke="var(--vec-w)"
+            strokeWidth={stream.strokeWidth + 0.4}
             strokeLinecap="round"
             strokeDasharray={stream.dashArray}
             markerEnd="url(#cyan-arrow)"

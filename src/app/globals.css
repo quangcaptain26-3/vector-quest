@@ -58,20 +58,41 @@
   --on-background: #dfe2ef;
   --coral: #f43f5e;
 
-  /* Font stacks matching design/*.html */
-  --font-space-grotesk: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-geist: "Geist", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-jetbrains-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  /* Font stacks tối ưu Tiếng Việt & hiển thị sắc nét trên TV/Máy chiếu */
+  --font-space-grotesk: "Be Vietnam Pro", "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-geist: "Be Vietnam Pro", "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-jetbrains-mono: "JetBrains Mono", "Cascadia Mono", "Consolas", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Radar & Vector Semantics — Dark Cockpit (Default) */
+  --radar-bg: #0a0e17;
+  --radar-grid-dot: rgba(142, 213, 255, 0.18);
+  --radar-grid-line: rgba(255, 255, 255, 0.03);
+  --radar-ring: rgba(56, 189, 248, 0.24);
+  --radar-ring-text: rgba(142, 213, 255, 0.88);
+  --radar-compass-text: #8ed5ff;
+  --radar-protractor-bg: rgba(15, 19, 28, 0.48);
+  --radar-axis-stroke: rgba(135, 146, 154, 0.35);
+  --runway-fill: #262a34;
+  --runway-stroke: rgba(56, 189, 248, 0.28);
+  --runway-markings: #dfe2ef;
+  --vec-a: #ffc640;
+  --vec-w: #38bdf8;
+  --vec-r-safe: #56e5a9;
+  --vec-r-drift: #f43f5e;
+  --vec-caliper: #ffb4ab;
+  --vec-arc-neutral: #dfe2ef;
+  --vec-pill-bg: #181b25;
+  --hud-card-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
 }
 
-/* Daylight Projector Mode — High-contrast classroom projection theme */
+/* Daylight Avionics Mode — High-contrast classroom TV & projector theme */
 .theme-daylight {
-  --surface: #f1f5f9;
-  --surface-dim: #e2e8f0;
-  --surface-bright: #cbd5e1;
+  --surface: #eaf0f6;
+  --surface-dim: #dce5ef;
+  --surface-bright: #ffffff;
   --surface-container-lowest: #ffffff;
-  --surface-container-low: #f8fafc;
-  --surface-container: #eef2f6;
+  --surface-container-low: rgba(255, 255, 255, 0.94);
+  --surface-container: #f1f5f9;
   --surface-container-high: #e2e8f0;
   --surface-container-highest: #cbd5e1;
   --surface-variant: #e2e8f0;
@@ -82,45 +103,66 @@
   --inverse-on-surface: #f8fafc;
 
   --outline: #475569;
-  --outline-variant: #94a3b8;
+  --outline-variant: #cbd5e1;
   --surface-tint: #0284c7;
 
-  --primary: #0369a1;
+  --primary: #0284c7;
   --on-primary: #ffffff;
   --primary-container: #0284c7;
   --on-primary-container: #ffffff;
   --inverse-primary: #7bd0ff;
-  --primary-fixed: #e0f2fe;
+  --primary-fixed: #0369a1;
   --primary-fixed-dim: #bae6fd;
-  --on-primary-fixed: #082f49;
+  --on-primary-fixed: #ffffff;
   --on-primary-fixed-variant: #0369a1;
 
-  --secondary: #b45309;
+  --secondary: #d97706;
   --on-secondary: #ffffff;
   --secondary-container: #d97706;
   --on-secondary-container: #ffffff;
-  --secondary-fixed: #fef3c7;
+  --secondary-fixed: #b45309;
   --secondary-fixed-dim: #fde68a;
-  --on-secondary-fixed: #451a03;
+  --on-secondary-fixed: #ffffff;
   --on-secondary-fixed-variant: #92400e;
 
-  --tertiary: #047857;
+  --tertiary: #059669;
   --on-tertiary: #ffffff;
   --tertiary-container: #059669;
   --on-tertiary-container: #ffffff;
-  --tertiary-fixed: #d1fae5;
+  --tertiary-fixed: #047857;
   --tertiary-fixed-dim: #a7f3d0;
-  --on-tertiary-fixed: #022c22;
+  --on-tertiary-fixed: #ffffff;
   --on-tertiary-fixed-variant: #065f46;
 
-  --error: #be123c;
+  --error: #e11d48;
   --on-error: #ffffff;
   --error-container: #ffe4e6;
-  --on-error-container: #881337;
+  --on-error-container: #9f1239;
 
-  --background: #f1f5f9;
+  --background: #eaf0f6;
   --on-background: #0f172a;
   --coral: #e11d48;
+
+  /* Radar & Vector Semantics — Daylight Avionics */
+  --radar-bg: #eaf0f6;
+  --radar-grid-dot: rgba(2, 132, 199, 0.28);
+  --radar-grid-line: rgba(15, 23, 42, 0.08);
+  --radar-ring: rgba(2, 132, 199, 0.34);
+  --radar-ring-text: #0369a1;
+  --radar-compass-text: #0f172a;
+  --radar-protractor-bg: rgba(255, 255, 255, 0.78);
+  --radar-axis-stroke: rgba(15, 23, 42, 0.35);
+  --runway-fill: #1e293b;
+  --runway-stroke: #334155;
+  --runway-markings: #f8fafc;
+  --vec-a: #d97706;
+  --vec-w: #0284c7;
+  --vec-r-safe: #059669;
+  --vec-r-drift: #e11d48;
+  --vec-caliper: #e11d48;
+  --vec-arc-neutral: #0f172a;
+  --vec-pill-bg: #ffffff;
+  --hud-card-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
 }
 
 @theme inline {
@@ -227,43 +269,43 @@
   --text-headline-lg-mobile--font-weight: 600;
 
   --text-headline-md: 24px;
-  --text-headline-md--line-height: 32px;
-  --text-headline-md--font-weight: 600;
+  --text-headline-md--line-height: 31px;
+  --text-headline-md--font-weight: 700;
 
-  --text-headline-sm: 18px;
+  --text-headline-sm: 19px;
   --text-headline-sm--line-height: 26px;
-  --text-headline-sm--font-weight: 600;
+  --text-headline-sm--font-weight: 700;
 
   --text-body-lg: 16px;
   --text-body-lg--line-height: 24px;
-  --text-body-lg--font-weight: 400;
+  --text-body-lg--font-weight: 500;
 
-  --text-body-md: 14px;
-  --text-body-md--line-height: 20px;
-  --text-body-md--font-weight: 400;
+  --text-body-md: 15px;
+  --text-body-md--line-height: 22px;
+  --text-body-md--font-weight: 450;
 
-  --text-body-sm: 12px;
-  --text-body-sm--line-height: 18px;
-  --text-body-sm--font-weight: 400;
+  --text-body-sm: 13px;
+  --text-body-sm--line-height: 19px;
+  --text-body-sm--font-weight: 450;
 
-  --text-telemetry-lg: 20px;
-  --text-telemetry-lg--line-height: 24px;
+  --text-telemetry-lg: 22px;
+  --text-telemetry-lg--line-height: 26px;
   --text-telemetry-lg--letter-spacing: -0.02em;
-  --text-telemetry-lg--font-weight: 600;
+  --text-telemetry-lg--font-weight: 700;
 
-  --text-telemetry-md: 14px;
-  --text-telemetry-md--line-height: 18px;
-  --text-telemetry-md--letter-spacing: 0.02em;
-  --text-telemetry-md--font-weight: 500;
+  --text-telemetry-md: 15px;
+  --text-telemetry-md--line-height: 20px;
+  --text-telemetry-md--letter-spacing: 0.01em;
+  --text-telemetry-md--font-weight: 600;
 
-  --text-telemetry-sm: 11px;
-  --text-telemetry-sm--line-height: 14px;
-  --text-telemetry-sm--letter-spacing: 0.06em;
-  --text-telemetry-sm--font-weight: 500;
+  --text-telemetry-sm: 12px;
+  --text-telemetry-sm--line-height: 16px;
+  --text-telemetry-sm--letter-spacing: 0.03em;
+  --text-telemetry-sm--font-weight: 600;
 
-  --text-label-caps: 10px;
-  --text-label-caps--line-height: 12px;
-  --text-label-caps--letter-spacing: 0.1em;
+  --text-label-caps: 11.5px;
+  --text-label-caps--line-height: 15px;
+  --text-label-caps--letter-spacing: 0.06em;
   --text-label-caps--font-weight: 700;
 }
 
@@ -279,6 +321,16 @@
     background-color: var(--surface);
     color: var(--on-surface);
     font-family: var(--font-geist);
+  }
+
+  .font-telemetry-lg,
+  .font-telemetry-md,
+  .font-telemetry-sm {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .katex {
+    font-size: 1.1em;
   }
 }
 
