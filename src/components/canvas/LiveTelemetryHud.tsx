@@ -14,6 +14,7 @@ export function LiveTelemetryHud() {
   const telemetry = useSimulationStore((s) => s.telemetry);
   const windDirection = useSimulationStore((s) => s.windDirection);
   const toleranceDeg = useSimulationStore((s) => s.toleranceDeg);
+  const blindMode = useSimulationStore((s) => s.blindMode);
 
   const absDriftDeg = Math.abs(telemetry.driftAngleDeg);
   const isAligned = absDriftDeg <= toleranceDeg;
@@ -49,9 +50,11 @@ export function LiveTelemetryHud() {
             {isAligned ? "CHUẨN TRỤC:" : "CẢNH BÁO:"}
           </span>
           <span className="text-on-surface">
-            {isAligned
-              ? "Quỹ đạo máy bay trùng với tim đường băng 36L."
-              : `${dynamicWindNotice} (Lệch ${absMeters}m)`}
+            {blindMode
+              ? `${dynamicWindNotice} (Lệch ??m • Tự tính)`
+              : isAligned
+                ? "Quỹ đạo máy bay trùng với tim đường băng 36L."
+                : `${dynamicWindNotice} (Lệch ${absMeters}m)`}
           </span>
         </div>
       </div>
@@ -82,21 +85,31 @@ export function LiveTelemetryHud() {
         </div>
         <span
           className={`font-telemetry-sm text-telemetry-sm font-bold px-1.5 py-0.5 rounded bg-surface-container-high border ${
-            isAligned
-              ? "text-tertiary border-tertiary/40"
-              : "text-error border-error/40"
+            blindMode
+              ? "text-secondary border-secondary/40"
+              : isAligned
+                ? "text-tertiary border-tertiary/40"
+                : "text-error border-error/40"
           }`}
         >
-          {isAligned ? "KHÓA ĐƯỜNG BĂNG" : "LỆCH TIM ĐƯỜNG BĂNG"}
+          {blindMode
+            ? "ĐANG GIẤU ĐÁP ÁN"
+            : isAligned
+              ? "KHÓA ĐƯỜNG BĂNG"
+              : "LỆCH TIM ĐƯỜNG BĂNG"}
         </span>
       </div>
 
       <div className="bg-surface-container-lowest/80 px-2.5 py-1.5 rounded-md flex items-center justify-between gap-2">
         <span className="font-label-caps text-label-caps text-on-surface-variant">
-          CÔNG THỨC VECTƠ:
+          {telemetry.operationMode === "subtract" ? "PHÉP TRỪ VECTƠ:" : "CÔNG THỨC VECTƠ:"}
         </span>
         <MathFormula
-          tex="\vec{v}_R = \vec{v}_A + \vec{v}_W"
+          tex={
+            telemetry.operationMode === "subtract"
+              ? "\\vec{v}_A = \\vec{v}_R - \\vec{v}_W"
+              : "\\vec{v}_R = \\vec{v}_A + \\vec{v}_W"
+          }
           className="font-telemetry-sm text-telemetry-sm text-tertiary font-bold"
         />
       </div>
@@ -131,12 +144,14 @@ export function LiveTelemetryHud() {
           </span>
           <span
             className={`font-telemetry-sm text-telemetry-sm font-semibold ${
-              isAligned ? "text-tertiary" : "text-error"
+              blindMode ? "text-secondary" : isAligned ? "text-tertiary" : "text-error"
             }`}
           >
-            {`${driftSign}${telemetry.driftAngleDeg.toFixed(1)}° (${
-              isAligned ? "Chuẩn trục" : "Đang lệch"
-            })`}
+            {blindMode
+              ? "??.?° (Tự tính)"
+              : `${driftSign}${telemetry.driftAngleDeg.toFixed(1)}° (${
+                  isAligned ? "Chuẩn trục" : "Đang lệch"
+                })`}
           </span>
         </div>
 
@@ -146,15 +161,21 @@ export function LiveTelemetryHud() {
           </span>
           <span
             className={`font-telemetry-sm text-telemetry-sm font-bold flex items-center gap-1 ${
-              isAligned ? "text-tertiary" : "text-secondary"
+              blindMode ? "text-secondary" : isAligned ? "text-tertiary" : "text-secondary"
             }`}
           >
             <span
               className={`w-1.5 h-1.5 rounded-full ${
-                isAligned ? "bg-tertiary" : "bg-secondary"
+                blindMode ? "bg-secondary" : isAligned ? "bg-tertiary" : "bg-secondary"
               }`}
             />
-            <span>{isAligned ? "TRÙNG TIM ĐB" : "CẦN CHỈNH HƯỚNG"}</span>
+            <span>
+              {blindMode
+                ? "GIẤU SỐ LIỆU"
+                : isAligned
+                  ? "TRÙNG TIM ĐB"
+                  : "CẦN CHỈNH HƯỚNG"}
+            </span>
           </span>
         </div>
       </div>

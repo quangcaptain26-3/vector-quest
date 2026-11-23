@@ -18,6 +18,7 @@ export function AircraftLayer() {
   const isPlaying = useSimulationStore((s) => s.isPlaying);
   const isFlightAnimating = useSimulationStore((s) => s.isFlightAnimating);
   const stopFlightAnimation = useSimulationStore((s) => s.stopFlightAnimation);
+  const blindMode = useSimulationStore((s) => s.blindMode);
   const isDaylight = useSimulationStore((s) => s.themeMode) === "daylight";
 
   const [flightProgress, setFlightProgress] = useState(0);
@@ -86,60 +87,68 @@ export function AircraftLayer() {
 
   return (
     <g className="pointer-events-none">
-      {/* Trục kéo dài tim đường băng */}
-      {currentStep <= 3 ? (
-        <line
-          x1={origin.x}
-          y1={70}
-          x2={origin.x}
-          y2={720}
-          stroke="var(--vec-r-safe)"
-          strokeOpacity={isDaylight ? 0.65 : 0.5}
-          strokeDasharray="10 8"
-          strokeWidth={2}
-        />
-      ) : (
-        <line
-          x1={origin.x}
-          y1={100}
-          x2={origin.x}
-          y2={560}
-          filter={!isDaylight && currentStep <= 5 ? "url(#glow-cyan)" : undefined}
-          stroke="var(--vec-r-safe)"
-          strokeOpacity={currentStep === 6 ? 0.45 : 1}
-          strokeDasharray="8 6"
-          strokeLinecap="round"
-          strokeWidth={currentStep === 6 ? 1.8 : 2.8}
-        />
-      )}
-
-      {/* Điểm chạm đất mục tiêu */}
-      {currentStep >= 4 && currentStep <= 5 && (
-        <g>
-          <circle
-            cx={touchdown.x}
-            cy={touchdown.y}
-            r={9}
-            fill="none"
+      {/* Trục kéo dài tim đường băng & điểm chạm đất xoay theo runwayAngleDeg */}
+      <g
+        transform={
+          telemetry.runwayAngleDeg !== 0
+            ? `rotate(${telemetry.runwayAngleDeg}, ${origin.x}, ${origin.y})`
+            : undefined
+        }
+      >
+        {currentStep <= 3 ? (
+          <line
+            x1={origin.x}
+            y1={70}
+            x2={origin.x}
+            y2={720}
             stroke="var(--vec-r-safe)"
-            strokeWidth={2.4}
+            strokeOpacity={isDaylight ? 0.65 : 0.5}
+            strokeDasharray="10 8"
+            strokeWidth={2}
           />
-          <circle cx={touchdown.x} cy={touchdown.y} r={3.5} fill="var(--vec-r-safe)" />
-          <text
-            x={touchdown.x}
-            y={26}
-            fill="var(--vec-r-safe)"
-            fontFamily="var(--font-jetbrains-mono)"
-            fontSize={12.5}
-            fontWeight={700}
-            textAnchor="middle"
-          >
-            {isAligned
-              ? "ĐIỂM CHẠM ĐẤT • ĐÃ KHÓA"
-              : "ĐIỂM CHẠM ĐẤT • ĐB 36L"}
-          </text>
-        </g>
-      )}
+        ) : (
+          <line
+            x1={origin.x}
+            y1={100}
+            x2={origin.x}
+            y2={560}
+            filter={!isDaylight && currentStep <= 5 ? "url(#glow-cyan)" : undefined}
+            stroke="var(--vec-r-safe)"
+            strokeOpacity={currentStep === 6 ? 0.45 : 1}
+            strokeDasharray="8 6"
+            strokeLinecap="round"
+            strokeWidth={currentStep === 6 ? 1.8 : 2.8}
+          />
+        )}
+
+        {/* Điểm chạm đất mục tiêu */}
+        {currentStep >= 4 && currentStep <= 5 && (
+          <g>
+            <circle
+              cx={touchdown.x}
+              cy={touchdown.y}
+              r={9}
+              fill="none"
+              stroke="var(--vec-r-safe)"
+              strokeWidth={2.4}
+            />
+            <circle cx={touchdown.x} cy={touchdown.y} r={3.5} fill="var(--vec-r-safe)" />
+            <text
+              x={touchdown.x}
+              y={26}
+              fill="var(--vec-r-safe)"
+              fontFamily="var(--font-jetbrains-mono)"
+              fontSize={12.5}
+              fontWeight={700}
+              textAnchor="middle"
+            >
+              {isAligned && !blindMode
+                ? "ĐIỂM CHẠM ĐẤT • ĐÃ KHÓA"
+                : "ĐIỂM CHẠM ĐẤT • ĐB 36L"}
+            </text>
+          </g>
+        )}
+      </g>
 
       {/* Quỹ đạo đứt nét dự kiến */}
       {showGhostTrail && (
@@ -179,9 +188,10 @@ export function AircraftLayer() {
               opacity={0.95}
               textAnchor={projectedX < origin.x ? "end" : "start"}
             >
-              {`DỰ KIẾN LỆCH (${absDriftMeters}m ${
-                telemetry.lateralDriftMeters < 0 ? "TRÁI" : "PHẢI"
-              })`}
+              {blindMode
+                ? "DỰ KIẾN LỆCH (??m)"
+                : `DỰ KIẾN LỆCH (${absDriftMeters}m ${telemetry.lateralDriftMeters < 0 ? "TRÁI" : "PHẢI"
+                })`}
             </text>
           )}
         </g>
@@ -209,9 +219,10 @@ export function AircraftLayer() {
             fontWeight={700}
             textAnchor={caliperDevPx < 0 ? "end" : "start"}
           >
-            {`LỆCH NGANG: ${telemetry.lateralDriftMeters > 0 ? "+" : ""}${
-              telemetry.lateralDriftMeters
-            }m`}
+            {blindMode
+              ? "LỆCH NGANG: ??m"
+              : `LỆCH NGANG: ${telemetry.lateralDriftMeters > 0 ? "+" : ""}${telemetry.lateralDriftMeters
+              }m`}
           </text>
         </g>
       )}

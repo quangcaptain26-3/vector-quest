@@ -7,6 +7,7 @@ import { TopPillBar } from "@/components/hud/TopPillBar";
 import { WindTelemetryPill } from "@/components/hud/WindTelemetryPill";
 import { HelpModal } from "@/components/modals/HelpModal";
 import { SettingsModal } from "@/components/modals/SettingsModal";
+import { TeacherStudioModal } from "@/components/modals/TeacherStudioModal";
 import { VideoDemoModal } from "@/components/modals/VideoDemoModal";
 import { ChallengePanelHost } from "@/components/panels/ChallengePanelHost";
 import { CanvasErrorBoundary } from "@/components/ui/CanvasErrorBoundary";
@@ -30,9 +31,15 @@ export default function HomePage() {
   const windDirection = useSimulationStore((s) => s.windDirection);
   const windStrength = useSimulationStore((s) => s.windStrength);
   const currentStep = useSimulationStore((s) => s.currentStep);
+  const operationMode = useSimulationStore((s) => s.operationMode);
+  const customAirspeedKts = useSimulationStore((s) => s.customAirspeedKts);
+  const customWindSpeedKts = useSimulationStore((s) => s.customWindSpeedKts);
+  const runwayAngleDeg = useSimulationStore((s) => s.runwayAngleDeg);
+  const blindMode = useSimulationStore((s) => s.blindMode);
+  const tvScale = useSimulationStore((s) => s.tvScale);
   const hasHydratedUrlRef = useRef(false);
 
-  // Sync Dark Cockpit vs Daylight Projector theme class on <html>
+  // Sync Dark Cockpit vs Daylight Projector theme class and TV text scale on <html>
   useEffect(() => {
     const root = document.documentElement;
     if (themeMode === "daylight") {
@@ -42,36 +49,65 @@ export default function HomePage() {
       root.classList.remove("theme-daylight");
       root.classList.add("dark");
     }
-  }, [themeMode]);
 
-  // Hydrate initial wind & step preset from URL query params once on mount
+    root.classList.remove("tv-scale-large", "tv-scale-xlarge");
+    if (tvScale === "large") {
+      root.classList.add("tv-scale-large");
+    } else if (tvScale === "xlarge") {
+      root.classList.add("tv-scale-xlarge");
+    }
+  }, [themeMode, tvScale]);
+
+  // Hydrate initial wind, step, and Teacher Studio preset from URL query params once on mount
   useEffect(() => {
     const preset = parseSimulationQueryParams(window.location.search);
     if (
       preset.windDirection ||
       preset.windStrength ||
-      preset.currentStep
+      preset.currentStep ||
+      preset.operationMode ||
+      preset.customAirspeedKts !== undefined ||
+      preset.customWindSpeedKts !== undefined ||
+      preset.runwayAngleDeg !== undefined ||
+      preset.blindMode !== undefined ||
+      preset.tvScale !== undefined
     ) {
       const current = useSimulationStore.getState();
       const nextDirection = preset.windDirection ?? current.windDirection;
       const nextStrength = preset.windStrength ?? current.windStrength;
       const nextStep = preset.currentStep ?? current.currentStep;
+      const nextMode = preset.operationMode ?? current.operationMode;
+      const nextVa = preset.customAirspeedKts ?? current.customAirspeedKts;
+      const nextVw = preset.customWindSpeedKts ?? current.customWindSpeedKts;
+      const nextRw = preset.runwayAngleDeg ?? current.runwayAngleDeg;
+      const nextBlind = preset.blindMode ?? current.blindMode;
+      const nextTvScale = preset.tvScale ?? current.tvScale;
 
       useSimulationStore.setState({
         windDirection: nextDirection,
         windStrength: nextStrength,
         currentStep: nextStep,
+        operationMode: nextMode,
+        customAirspeedKts: nextVa,
+        customWindSpeedKts: nextVw,
+        runwayAngleDeg: nextRw,
+        blindMode: nextBlind,
+        tvScale: nextTvScale,
         telemetry: computeSimulationTelemetry({
           windDirection: nextDirection,
           windStrength: nextStrength,
           headingOffsetDeg: current.aircraftHeadingDeg,
+          customAirspeedKts: nextVa ?? undefined,
+          customWindSpeedKts: nextVw ?? undefined,
+          runwayAngleDeg: nextRw,
+          operationMode: nextMode,
         }),
       });
     }
     hasHydratedUrlRef.current = true;
   }, []);
 
-  // Keep URL query params synchronized when wind or step changes
+  // Keep URL query params synchronized when wind, step, or Teacher Studio config changes
   useEffect(() => {
     if (!hasHydratedUrlRef.current) {
       return;
@@ -80,8 +116,24 @@ export default function HomePage() {
       windDirection,
       windStrength,
       currentStep,
+      operationMode,
+      customAirspeedKts,
+      customWindSpeedKts,
+      runwayAngleDeg,
+      blindMode,
+      tvScale,
     });
-  }, [windDirection, windStrength, currentStep]);
+  }, [
+    windDirection,
+    windStrength,
+    currentStep,
+    operationMode,
+    customAirspeedKts,
+    customWindSpeedKts,
+    runwayAngleDeg,
+    blindMode,
+    tvScale,
+  ]);
 
   // Classroom keyboard shortcuts (disabled while any modal is open)
   useEffect(() => {
@@ -174,6 +226,7 @@ export default function HomePage() {
       <SettingsModal />
       <HelpModal />
       <VideoDemoModal />
+      <TeacherStudioModal />
     </div>
   );
 }

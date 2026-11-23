@@ -7,11 +7,11 @@
 ## 1. Trạng thái Tổng quan Dự án
 - **Dự án:** Vector Quest – Math 10 (Next.js + Vercel Frontend-Only Edition)
 - **Thư mục thiết kế chuẩn:** `design/` (chứa các file HTML mẫu bắt buộc phải bám sát 100%)
-- **Phase hiện tại:** `Hoàn thiện Máy bay Chân thực & Tối ưu Thao tác Giáo viên — Sẵn sàng Deploy Vercel`
+- **Phase hiện tại:** `Hoàn thiện Teacher Studio (Ngăn Tùy biến Giáo viên) — Sẵn sàng Deploy Vercel`
 - **Trạng thái Build gần nhất:** `PASS (npm run build --webpack thành công)`
-- **Trạng thái Test gần nhất:** `PASS (26/26 Vitest unit tests + 40/40 Edge CDP DevTools assertions)`
+- **Trạng thái Test gần nhất:** `PASS (31/31 Vitest unit tests + 48/48 Edge CDP DevTools assertions)`
 - **Người/Agent cập nhật cuối:** `Senior Frontend & Physics Simulation Engineer (Antigravity)`
-- **Thời gian cập nhật:** `2026-11-23 23:50`
+- **Thời gian cập nhật:** `2026-11-24 00:09`
 
 ---
 
@@ -31,6 +31,7 @@
 | **Docs & SVG Showcase** (`README.md` + `docs/assets/`) | `[x] Hoàn thành` | `100% Aerospace HUD` | `N/A` | `SVG XML PASS` | `N/A` | `4 SVG self-contained (logo, hero-banner, vector-mechanics, architecture-flow) + README.md 100% Tiếng Việt` |
 | **Daylight & TV Audit** (Theme Sáng & Typography 3–5m) | `[x] Hoàn thành` | `100% (Verified on Edge)` | `PASS` | `PASS (26/26 Vitest + 32/32 Edge E2E)` | `PASS` | `Daylight Avionics (#EAF0F6 + #FFFFFF/94 + #1E293B runway + #D97706/#0284C7/#059669/#E11D48 vectơ); nâng cỡ chữ TV 12–24px, tabular-nums, 0 chồng lấn 1280×720` |
 | **Aircraft & Teacher UX** (Máy bay 3D SVG & Nút `- / +`) | `[x] Hoàn thành` | `100% (Verified on Edge)` | `PASS` | `PASS (26/26 Vitest + 40/40 Edge E2E)` | `PASS` | `RealisticAircraftSvg đa lớp (động cơ, kính lái, đèn cánh đỏ/xanh lá, bóng đổ) đồng bộ Radar & Bước 3; cụm 7 nút -5°..+5°/0° (press-and-hold), gió ±5 KT, gợi ý góc chuẩn, phím ↑/↓` |
+| **Teacher Studio** (Tùy biến Giáo viên 100% FE) | `[x] Hoàn thành` | `100% (Verified on Edge)` | `PASS` | `PASS (31/31 Vitest + 48/48 Edge E2E)` | `PASS` | `Phép cộng/trừ, bộ số đẹp 30°/45°/3-4-5, xoay đường băng -45°..+45°, Blind Mode giấu số liệu, TV Scale 100/115/125%, lưu localStorage, URL share, Bút vẽ Radar` |
 
 ---
 
@@ -56,6 +57,21 @@
 
 ## 4. Nhật ký Cập nhật (Log History)
 *(Agent thêm báo cáo mới nhất lên đầu mục này)*
+
+### [2026-11-24 00:09] — TEACHER STUDIO & CUSTOMIZATION (100% FRONTEND) — COMPLETED
+- **Skills đã kích hoạt & áp dụng:** `@idea-to-project`, `@spec-driven-development`, `@test-driven-development`, `@frontend-ui-engineering`, `@ui-ux-pro-max`, `@browser-testing-with-devtools`, `@doubt-driven-development`
+- **Các file đã tạo / cập nhật:**
+  - `src/domain/{types,vectorMath,landingEvaluator}.ts`: Bổ sung `VectorOperationMode` (`add`/`subtract`), `TvScaleMode` (`normal`/`large`/`xlarge`), `SPECIAL_ANGLE_PRESETS` (`30°`, `45°`, `3-4-5`, `Đường băng chéo +30°`, `Chuẩn 140/25`), `computeRequiredAircraftVector`, mở rộng `computeSimulationTelemetry` & `evaluateLanding` hỗ trợ độ lớn tùy chỉnh `|v_A|`, `|v_W|` và xoay góc đường băng `-45°..+45°`.
+  - `tests/domain/{vectorMath,landingEvaluator,urlSync}.test.ts`: Bổ sung 5 unit tests TDD cho bộ số đẹp $30^\circ/45^\circ/3\text{-}4\text{-}5$, phép trừ vectơ, đường băng xoay $+30^\circ / -25^\circ$, và serialize/parse URL query params Teacher Studio (`31/31` PASS).
+  - `src/lib/urlSync.ts` & `src/store/useSimulationStore.ts`: Đồng bộ đầy đủ `mode`, `va`, `vw`, `rw`, `blind`, `tv` qua query params; quản lý `chalkEnabled`, `chalkPaths`, `applySpecialPreset`, `applyTeacherConfig`.
+  - `src/components/modals/TeacherStudioModal.tsx` (Mới) & `src/components/hud/TopPillBar.tsx`: Thêm nút `Giáo viên`, nút `Bút vẽ`, huy hiệu `Mở đáp án`, bảng tùy biến phép cộng/trừ, bộ số đẹp, slider đường băng `-45°..+45°`, `Blind Mode`, `TV Scale` (`100%/115%/125%`), lưu preset vào `localStorage` (`vq_teacher_presets_v1`) và nút `Sao chép Link bài giảng`.
+  - `src/components/canvas/{AirportRadarCanvas,AircraftLayer,VectorOverlayLayer,LiveTelemetryHud}.tsx`, `src/components/hud/WindTelemetryPill.tsx`, `src/components/panels/StepVectorCheck.tsx`, `src/app/{page.tsx,globals.css}`: Xoay trực quan đường băng & trục chuẩn, lớp Bút ghi chú tạm SVG (`Chalk Overlay`), che số liệu `??.?°` khi bật Blind Mode, hiển thị công thức phép trừ $\vec{v}_A = \vec{v}_R - \vec{v}_W$, và áp dụng class `.tv-scale-large` / `.tv-scale-xlarge`.
+- **Kết quả kiểm chứng thực tế sau lần sửa cuối:**
+  - `npx tsc --noEmit`: **PASS** (0 errors)
+  - `npm run lint`: **PASS** (0 warnings / 0 errors)
+  - `npx vitest run`: **PASS (`3/3` files, `31/31` tests)**
+  - `npm run build` (`next build --webpack`): **PASS**
+  - **Microsoft Edge E2E (`verify-edge.mjs`):** **PASS (`48/48` assertions)** — kiểm thử đầy đủ bộ số đẹp `30°` (`100/50`), bật `Blind Mode` (`??.?°`), mở đáp án & hạ cánh an toàn ở `+30°`, `Sao chép Link bài giảng`, khôi phục link `?dir=rtl&strength=strong&step=4&mode=subtract&va=100&vw=50&rw=30`, bật/tắt Bút ghi chú và TV Scale `115%` trên cả `1280×720` & `1920×1080`.
 
 ### [2026-11-23 23:50] — AIRCRAFT REALISM & TEACHER PRECISION UX — COMPLETED
 - **Skills đã kích hoạt & áp dụng:** `@ui-ux-pro-max`, `@frontend-ui-engineering`, `@design`, `@browser-testing-with-devtools`, `@doubt-driven-development`

@@ -10,10 +10,10 @@ const STRENGTH_BUTTONS: readonly {
   readonly label: string;
   readonly activeLabel: string;
 }[] = [
-  { id: "light", label: "Nhẹ", activeLabel: "Nhẹ (15 KT)" },
-  { id: "moderate", label: "Vừa", activeLabel: "Vừa (25 KT)" },
-  { id: "strong", label: "Mạnh", activeLabel: "Mạnh (40 KT)" },
-];
+    { id: "light", label: "Nhẹ", activeLabel: "Nhẹ (15 KT)" },
+    { id: "moderate", label: "Vừa", activeLabel: "Vừa (25 KT)" },
+    { id: "strong", label: "Mạnh", activeLabel: "Mạnh (40 KT)" },
+  ];
 
 /**
  * Bảng điều khiển Gió ngang & Thông số Vectơ góc trên trái.
@@ -24,6 +24,7 @@ export function WindTelemetryPill() {
   const windStrength = useSimulationStore((s) => s.windStrength);
   const telemetry = useSimulationStore((s) => s.telemetry);
   const toleranceDeg = useSimulationStore((s) => s.toleranceDeg);
+  const blindMode = useSimulationStore((s) => s.blindMode);
   const setWindDirection = useSimulationStore((s) => s.setWindDirection);
   const setWindStrength = useSimulationStore((s) => s.setWindStrength);
   const adjustWindSpeed = useSimulationStore((s) => s.adjustWindSpeed);
@@ -69,11 +70,10 @@ export function WindTelemetryPill() {
             type="button"
             onClick={() => setWindDirection("rtl")}
             aria-pressed={windDirection === "rtl"}
-            className={`py-1 px-3 rounded-full font-telemetry-sm text-telemetry-sm whitespace-nowrap transition-all flex items-center justify-center gap-1 cursor-pointer ${
-              windDirection === "rtl"
+            className={`py-1 px-3 rounded-full font-telemetry-sm text-telemetry-sm whitespace-nowrap transition-all flex items-center justify-center gap-1 cursor-pointer ${windDirection === "rtl"
                 ? "bg-primary-container text-on-primary-container font-semibold shadow-[0_0_12px_rgba(56,189,248,0.4)]"
                 : "text-on-surface-variant hover:text-on-surface"
-            }`}
+              }`}
           >
             <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
             <span>Phải → Trái</span>
@@ -84,11 +84,10 @@ export function WindTelemetryPill() {
             type="button"
             onClick={() => setWindDirection("ltr")}
             aria-pressed={windDirection === "ltr"}
-            className={`py-1 px-3 rounded-full font-telemetry-sm text-telemetry-sm whitespace-nowrap transition-all flex items-center justify-center gap-1 cursor-pointer ${
-              windDirection === "ltr"
+            className={`py-1 px-3 rounded-full font-telemetry-sm text-telemetry-sm whitespace-nowrap transition-all flex items-center justify-center gap-1 cursor-pointer ${windDirection === "ltr"
                 ? "bg-primary-container text-on-primary-container font-semibold shadow-[0_0_12px_rgba(56,189,248,0.4)]"
                 : "text-on-surface-variant hover:text-on-surface"
-            }`}
+              }`}
           >
             <span>Trái → Phải</span>
             <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
@@ -140,11 +139,10 @@ export function WindTelemetryPill() {
                 type="button"
                 aria-pressed={active}
                 onClick={() => setWindStrength(btn.id)}
-                className={`py-1 rounded-full font-telemetry-sm text-telemetry-sm whitespace-nowrap text-center transition-all cursor-pointer ${
-                  active
+                className={`py-1 rounded-full font-telemetry-sm text-telemetry-sm whitespace-nowrap text-center transition-all cursor-pointer ${active
                     ? "bg-primary-container text-on-primary-container font-semibold shadow-[0_0_10px_rgba(56,189,248,0.35)]"
                     : "text-on-surface-variant hover:text-on-surface"
-                }`}
+                  }`}
               >
                 {active ? btn.activeLabel : btn.label}
               </button>
@@ -197,19 +195,19 @@ export function WindTelemetryPill() {
           </span>
           <div className="flex items-baseline gap-1 mt-0.5">
             <span
-              className={`font-telemetry-lg text-telemetry-lg ${
-                isAligned ? "text-tertiary" : "text-error"
-              }`}
+              className={`font-telemetry-lg text-telemetry-lg ${blindMode ? "text-secondary" : isAligned ? "text-tertiary" : "text-error"
+                }`}
             >
-              {`${telemetry.driftAngleDeg > 0 ? "+" : ""}${telemetry.driftAngleDeg.toFixed(1)}°`}
+              {blindMode
+                ? "??.?°"
+                : `${telemetry.driftAngleDeg > 0 ? "+" : ""}${telemetry.driftAngleDeg.toFixed(1)}°`}
             </span>
           </div>
           <span
-            className={`font-telemetry-sm text-telemetry-sm ${
-              isAligned ? "text-tertiary" : "text-error"
-            }`}
+            className={`font-telemetry-sm text-telemetry-sm ${blindMode ? "text-secondary" : isAligned ? "text-tertiary" : "text-error"
+              }`}
           >
-            {driftDirectionLabel}
+            {blindMode ? "Tự tính toán" : driftDirectionLabel}
           </span>
         </div>
 
@@ -220,11 +218,15 @@ export function WindTelemetryPill() {
           </span>
           <div className="flex items-baseline gap-1 mt-0.5">
             <span className="font-telemetry-lg text-telemetry-lg text-tertiary">
-              {`${telemetry.groundTrackDeg.toFixed(1)}°`}
+              {blindMode ? "???.?°" : `${telemetry.groundTrackDeg.toFixed(1)}°`}
             </span>
           </div>
           <span className="font-telemetry-sm text-telemetry-sm text-tertiary">
-            {isAligned ? "ĐB 36L Chuẩn trục" : "ĐB 36L Lệch trục"}
+            {blindMode
+              ? "Đang giấu đáp án"
+              : isAligned
+                ? "ĐB 36L Chuẩn trục"
+                : "ĐB 36L Lệch trục"}
           </span>
         </div>
       </div>
@@ -232,10 +234,14 @@ export function WindTelemetryPill() {
       {/* Công thức tổng hợp KaTeX */}
       <div className="flex items-center justify-between bg-surface-container-lowest/80 px-space-sm py-1.5 rounded-md">
         <span className="font-label-caps text-label-caps text-on-surface-variant">
-          CỘNG VECTƠ:
+          {telemetry.operationMode === "subtract" ? "TRỪ VECTƠ:" : "CỘNG VECTƠ:"}
         </span>
         <MathFormula
-          tex="\vec{v}_R = \vec{v}_A + \vec{v}_W"
+          tex={
+            telemetry.operationMode === "subtract"
+              ? "\\vec{v}_A = \\vec{v}_R - \\vec{v}_W"
+              : "\\vec{v}_R = \\vec{v}_A + \\vec{v}_W"
+          }
           className="font-telemetry-sm text-telemetry-sm text-primary font-bold"
         />
       </div>

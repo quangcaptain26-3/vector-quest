@@ -332,6 +332,51 @@
   .katex {
     font-size: 1.1em;
   }
+
+  /* TV / Projector Magnification Modes (Teacher Studio) */
+  .tv-scale-large {
+    font-size: 112%;
+  }
+
+  .tv-scale-large .font-body-md,
+  .tv-scale-large .text-body-md {
+    font-size: 17px;
+    line-height: 24px;
+  }
+
+  .tv-scale-large .font-headline-md,
+  .tv-scale-large .text-headline-md {
+    font-size: 27px;
+    line-height: 34px;
+  }
+
+  .tv-scale-large .font-telemetry-sm,
+  .tv-scale-large .text-telemetry-sm {
+    font-size: 13.5px;
+    line-height: 18px;
+  }
+
+  .tv-scale-xlarge {
+    font-size: 122%;
+  }
+
+  .tv-scale-xlarge .font-body-md,
+  .tv-scale-xlarge .text-body-md {
+    font-size: 18.5px;
+    line-height: 26px;
+  }
+
+  .tv-scale-xlarge .font-headline-md,
+  .tv-scale-xlarge .text-headline-md {
+    font-size: 29px;
+    line-height: 36px;
+  }
+
+  .tv-scale-xlarge .font-telemetry-sm,
+  .tv-scale-xlarge .text-telemetry-sm {
+    font-size: 14.5px;
+    line-height: 19px;
+  }
 }
 
 ::-webkit-scrollbar {

@@ -7,6 +7,7 @@ import {
   BadgeCheck,
   CheckCircle2,
   Compass,
+  Eye,
   PlaneTakeoff,
   RotateCcw,
 } from "lucide-react";
@@ -35,8 +36,10 @@ export function StepVectorCheck() {
   const landingResult = useSimulationStore((s) => s.landingResult);
   const toleranceDeg = useSimulationStore((s) => s.toleranceDeg);
   const guideVisible = useSimulationStore((s) => s.guideVisible);
+  const blindMode = useSimulationStore((s) => s.blindMode);
 
   const setAircraftHeading = useSimulationStore((s) => s.setAircraftHeading);
+  const toggleBlindMode = useSimulationStore((s) => s.toggleBlindMode);
   const adjustAircraftHeading = useSimulationStore(
     (s) => s.adjustAircraftHeading
   );
@@ -215,16 +218,24 @@ export function StepVectorCheck() {
         {/* Chỉ báo độ lệch thời gian thực */}
         <div
           className={`px-2.5 py-1.5 rounded-lg border font-telemetry-sm text-telemetry-sm font-bold flex items-center justify-between gap-2 ${
-            isWithinTolerance
-              ? "bg-tertiary/15 border-tertiary/45 text-tertiary"
-              : "bg-surface-container-lowest/90 border-outline-variant/60 text-on-surface-variant"
+            blindMode
+              ? "bg-secondary/15 border-secondary/45 text-secondary"
+              : isWithinTolerance
+                ? "bg-tertiary/15 border-tertiary/45 text-tertiary"
+                : "bg-surface-container-lowest/90 border-outline-variant/60 text-on-surface-variant"
           }`}
         >
-          <span>{`Độ lệch quỹ đạo: ${absDriftDeg.toFixed(1)}°`}</span>
           <span>
-            {isWithinTolerance
-              ? `• Đạt ngưỡng ±${toleranceDeg}°`
-              : `• Ngưỡng đạt ±${toleranceDeg}°`}
+            {blindMode
+              ? "Độ lệch quỹ đạo: ??.?°"
+              : `Độ lệch quỹ đạo: ${absDriftDeg.toFixed(1)}°`}
+          </span>
+          <span>
+            {blindMode
+              ? "• Đang giấu số"
+              : isWithinTolerance
+                ? `• Đạt ngưỡng ±${toleranceDeg}°`
+                : `• Ngưỡng đạt ±${toleranceDeg}°`}
           </span>
         </div>
       </div>
@@ -297,9 +308,11 @@ export function StepVectorCheck() {
             PHÂN TÍCH THÀNH PHẦN VECTƠ
           </span>
           <span className="font-telemetry-sm text-telemetry-sm text-tertiary font-semibold">
-            {`sin(${Math.abs(telemetry.headingOffsetDeg).toFixed(1)}°) ≈ ${Math.abs(
-              Math.sin((telemetry.headingOffsetDeg * Math.PI) / 180)
-            ).toFixed(3)}`}
+            {blindMode
+              ? "sin(θ) = ?"
+              : `sin(${Math.abs(telemetry.headingOffsetDeg).toFixed(1)}°) ≈ ${Math.abs(
+                  Math.sin((telemetry.headingOffsetDeg * Math.PI) / 180)
+                ).toFixed(3)}`}
           </span>
         </div>
 
@@ -321,7 +334,9 @@ export function StepVectorCheck() {
               <MathFormula tex="v_{A_x}" />
             </span>
             <div className="font-telemetry-sm text-telemetry-sm text-secondary font-bold mt-0.5">
-              {`${counterKts >= 0 ? "+" : ""}${counterKts} KT`}
+              {blindMode
+                ? "?? KT"
+                : `${counterKts >= 0 ? "+" : ""}${counterKts} KT`}
             </div>
           </div>
         </div>
@@ -332,19 +347,34 @@ export function StepVectorCheck() {
           </span>
           <span
             className={`font-telemetry-sm text-telemetry-sm font-bold ${
-              Math.abs(telemetry.driftAngleDeg) <= toleranceDeg
-                ? "text-tertiary"
-                : "text-error"
+              blindMode
+                ? "text-secondary"
+                : Math.abs(telemetry.driftAngleDeg) <= toleranceDeg
+                  ? "text-tertiary"
+                  : "text-error"
             }`}
           >
-            {Math.abs(netLateralKts) < 0.5
-              ? "0 KT (CÂN BẰNG)"
-              : `${netLateralKts > 0 ? "+" : ""}${netLateralKts} KT (ĐANG LỆCH)`}
+            {blindMode
+              ? "?? KT (Tự tính)"
+              : Math.abs(netLateralKts) < 0.5
+                ? "0 KT (CÂN BẰNG)"
+                : `${netLateralKts > 0 ? "+" : ""}${netLateralKts} KT (ĐANG LỆCH)`}
           </span>
         </div>
       </div>
 
-      {guideVisible && (
+      {blindMode && (
+        <button
+          type="button"
+          onClick={toggleBlindMode}
+          className="min-h-[40px] px-3 py-1.5 rounded-lg bg-secondary/20 hover:bg-secondary hover:text-on-secondary border border-secondary/50 text-secondary font-telemetry-sm text-telemetry-sm font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+        >
+          <Eye className="w-4 h-4" aria-hidden="true" />
+          <span>Mở đáp án số liệu</span>
+        </button>
+      )}
+
+      {guideVisible && !blindMode && (
         <div className="flex flex-col gap-1.5">
           <p className="font-body-sm text-body-sm text-on-surface-variant italic px-1">
             {copy.guideNote.vi}

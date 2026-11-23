@@ -1,7 +1,10 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import type { PointerEvent as ReactPointerEvent } from "react";
+import { Eraser, PenTool, X } from "lucide-react";
 import { RADAR_CANVAS_COORDS } from "@/config/simulation";
+import { clientToSvgPoint } from "@/lib/svgCoords";
 import { useSimulationStore } from "@/store/useSimulationStore";
 import { AircraftLayer } from "./AircraftLayer";
 import { LiveTelemetryHud } from "./LiveTelemetryHud";
@@ -10,20 +13,67 @@ import { WindParticlesLayer } from "./WindParticlesLayer";
 
 /**
  * Full-viewport SVG Airport Radar Canvas stage matching design/*.html.
- * Renders the radial compass rings, glideslope cone, Physical Runway 36L,
- * dynamic wind particles, aircraft layer, interactive vector overlay, and telemetry HUD.
+ * Renders the radial compass rings, glideslope cone, Physical Runway 36L (with optional rotation),
+ * dynamic wind particles, aircraft layer, interactive vector overlay, chalk notes, and telemetry HUD.
  */
 export function AirportRadarCanvas() {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const currentStep = useSimulationStore((s) => s.currentStep);
   const windDirection = useSimulationStore((s) => s.windDirection);
   const windStrength = useSimulationStore((s) => s.windStrength);
+  const runwayAngleDeg = useSimulationStore((s) => s.runwayAngleDeg);
   const isPlaying = useSimulationStore((s) => s.isPlaying);
   const themeMode = useSimulationStore((s) => s.themeMode);
+  const chalkEnabled = useSimulationStore((s) => s.chalkEnabled);
+  const chalkPaths = useSimulationStore((s) => s.chalkPaths);
+  const addChalkPath = useSimulationStore((s) => s.addChalkPath);
+  const clearChalkPaths = useSimulationStore((s) => s.clearChalkPaths);
+  const toggleChalk = useSimulationStore((s) => s.toggleChalk);
+
+  const [activeStroke, setActiveStroke] = useState<string>("");
+  const isDrawingRef = useRef(false);
 
   const compassCenter = RADAR_CANVAS_COORDS.COMPASS_CENTER;
+  const origin = RADAR_CANVAS_COORDS.AIRCRAFT_ORIGIN;
   const isExplainStep = currentStep === 6;
   const isDaylight = themeMode === "daylight";
+
+  const handleChalkPointerDown = (e: ReactPointerEvent<SVGRectElement>) => {
+    if (!chalkEnabled) return;
+    e.preventDefault();
+    const pt = clientToSvgPoint(svgRef.current, e.clientX, e.clientY);
+    if (!pt) return;
+    isDrawingRef.current = true;
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // Bỏ qua trong headless browser
+    }
+    setActiveStroke(`M ${pt.x.toFixed(1)} ${pt.y.toFixed(1)}`);
+  };
+
+  const handleChalkPointerMove = (e: ReactPointerEvent<SVGRectElement>) => {
+    if (!chalkEnabled || !isDrawingRef.current) return;
+    const pt = clientToSvgPoint(svgRef.current, e.clientX, e.clientY);
+    if (!pt) return;
+    setActiveStroke((prev) => `${prev} L ${pt.x.toFixed(1)} ${pt.y.toFixed(1)}`);
+  };
+
+  const finishChalkStroke = (e: ReactPointerEvent<SVGRectElement>) => {
+    if (!isDrawingRef.current) return;
+    isDrawingRef.current = false;
+    try {
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      }
+    } catch {
+      // Bỏ qua
+    }
+    if (activeStroke.includes("L")) {
+      addChalkPath(activeStroke);
+    }
+    setActiveStroke("");
+  };
 
   return (
     <div
@@ -292,32 +342,36 @@ export function AirportRadarCanvas() {
           )}
         </g>
 
-        {/* Approach Glideslope & Localizer Lateral Cone */}
-        {!isExplainStep && (
-          <polygon
-            points={
-              currentStep >= 4
-                ? "680,110 590,560 770,560"
-                : "680,110 590,520 770,520"
-            }
-            fill={
-              isDaylight
-                ? "rgba(5, 150, 105, 0.08)"
-                : "rgba(86, 229, 169, 0.035)"
-            }
-            stroke="var(--vec-r-safe)"
-            strokeOpacity={isDaylight ? 0.35 : 0.22}
-            strokeDasharray="4 4"
-            strokeWidth={1.2}
-            className="pointer-events-none"
-          />
-        )}
-
-        {/* Physical Runway 36L (exact SVG-aligned strip at x=644, y=40, 72x260) */}
+        {/* Approach Glideslope & Physical Runway 36L (rotates with runwayAngleDeg) */}
         <g
-          opacity={isExplainStep ? 0.35 : 1}
+          transform={
+            runwayAngleDeg !== 0
+              ? `rotate(${runwayAngleDeg}, ${origin.x}, ${origin.y})`
+              : undefined
+          }
           className="pointer-events-none"
         >
+          {!isExplainStep && (
+            <polygon
+              points={
+                currentStep >= 4
+                  ? "680,110 590,560 770,560"
+                  : "680,110 590,520 770,520"
+              }
+              fill={
+                isDaylight
+                  ? "rgba(5, 150, 105, 0.08)"
+                  : "rgba(86, 229, 169, 0.035)"
+              }
+              stroke="var(--vec-r-safe)"
+              strokeOpacity={isDaylight ? 0.35 : 0.22}
+              strokeDasharray="4 4"
+              strokeWidth={1.2}
+            />
+          )}
+
+          {/* Physical Runway 36L (exact SVG-aligned strip at x=644, y=40, 72x260) */}
+          <g opacity={isExplainStep ? 0.35 : 1}>
           <rect
             x={644}
             y={40}
@@ -405,6 +459,7 @@ export function AirportRadarCanvas() {
             fill="var(--vec-r-drift)"
             opacity={0.85}
           />
+          </g>
         </g>
 
         {/* Animated Wind Streams */}
@@ -421,7 +476,79 @@ export function AirportRadarCanvas() {
 
         {/* 3 Vectors + Protractor + Parallelogram + DRAG TIP Handle */}
         <VectorOverlayLayer svgRef={svgRef} />
+
+        {/* Lớp Bút ghi chú tạm trên Radar cho Giáo viên */}
+        <g id="chalk-overlay">
+          {chalkPaths.map((d, idx) => (
+            <path
+              key={`${idx}-${d.slice(0, 16)}`}
+              d={d}
+              fill="none"
+              stroke="var(--vec-a)"
+              strokeWidth={3}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="pointer-events-none"
+            />
+          ))}
+          {activeStroke && (
+            <path
+              d={activeStroke}
+              fill="none"
+              stroke="var(--vec-a)"
+              strokeWidth={3}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="pointer-events-none"
+            />
+          )}
+          {chalkEnabled && (
+            <rect
+              x={0}
+              y={0}
+              width={1360}
+              height={720}
+              fill="transparent"
+              style={{ touchAction: "none" }}
+              className="pointer-events-auto cursor-crosshair"
+              onPointerDown={handleChalkPointerDown}
+              onPointerMove={handleChalkPointerMove}
+              onPointerUp={finishChalkStroke}
+              onPointerCancel={finishChalkStroke}
+            />
+          )}
+        </g>
       </svg>
+
+      {/* Thanh công cụ Bút ghi chú khi đang bật */}
+      {(chalkEnabled || chalkPaths.length > 0) && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-surface-container-low/95 backdrop-blur-md px-3 py-1.5 rounded-full shadow-[var(--hud-card-shadow)] border border-secondary/50">
+          <span className="font-telemetry-sm text-telemetry-sm text-secondary font-bold flex items-center gap-1">
+            <PenTool className="w-3.5 h-3.5" aria-hidden="true" />
+            <span>{chalkEnabled ? "Bút ghi chú đang bật" : "Ghi chú trên Radar"}</span>
+          </span>
+          {chalkPaths.length > 0 && (
+            <button
+              type="button"
+              onClick={clearChalkPaths}
+              className="px-2 py-0.5 rounded-full bg-surface-container-high hover:bg-error-container hover:text-error font-telemetry-sm text-telemetry-sm font-semibold flex items-center gap-1 cursor-pointer"
+            >
+              <Eraser className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>Xóa nét</span>
+            </button>
+          )}
+          {chalkEnabled && (
+            <button
+              type="button"
+              onClick={toggleChalk}
+              className="px-2 py-0.5 rounded-full bg-secondary text-on-secondary font-telemetry-sm text-telemetry-sm font-bold flex items-center gap-1 cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>Tắt bút</span>
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Bottom-Left Status Warning Pill / Vector Equilibrium HUD */}
       <LiveTelemetryHud />

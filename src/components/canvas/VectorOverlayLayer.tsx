@@ -22,6 +22,7 @@ export function VectorOverlayLayer({ svgRef }: VectorOverlayLayerProps) {
   const showCoordinateGrid = useSimulationStore((s) => s.showCoordinateGrid);
   const windDirection = useSimulationStore((s) => s.windDirection);
   const guideVisible = useSimulationStore((s) => s.guideVisible);
+  const blindMode = useSimulationStore((s) => s.blindMode);
   const toleranceDeg = useSimulationStore((s) => s.toleranceDeg);
   const setAircraftHeading = useSimulationStore((s) => s.setAircraftHeading);
   const isDaylight = useSimulationStore((s) => s.themeMode) === "daylight";
@@ -194,8 +195,8 @@ export function VectorOverlayLayer({ svgRef }: VectorOverlayLayerProps) {
             315°
           </text>
 
-          {/* Vạch gợi ý góc cân bằng lý tưởng khi bật Hướng dẫn */}
-          {guideVisible && (
+          {/* Vạch gợi ý góc cân bằng lý tưởng khi bật Hướng dẫn & không giấu số */}
+          {guideVisible && !blindMode && (
             <g>
               <line
                 x1={0}
@@ -232,21 +233,23 @@ export function VectorOverlayLayer({ svgRef }: VectorOverlayLayerProps) {
               rx={13}
               fill="var(--vec-pill-bg)"
               fillOpacity={0.94}
-              stroke={isAligned ? "var(--vec-r-safe)" : "var(--vec-a)"}
+              stroke={blindMode ? "var(--vec-a)" : isAligned ? "var(--vec-r-safe)" : "var(--vec-a)"}
               strokeWidth={1.4}
             />
             <text
               x={0}
               y={4}
-              fill={isAligned ? "var(--vec-r-safe)" : "var(--vec-a)"}
+              fill={blindMode ? "var(--vec-a)" : isAligned ? "var(--vec-r-safe)" : "var(--vec-a)"}
               fontFamily="var(--font-jetbrains-mono)"
               fontSize={11.5}
               fontWeight={700}
               textAnchor="middle"
             >
-              {isAligned
-                ? `Độ lệch: ${absDriftDeg.toFixed(1)}° • Đạt ngưỡng ±${toleranceDeg}°`
-                : `Độ lệch: ${absDriftDeg.toFixed(1)}° • Cần chỉnh vào ±${toleranceDeg}°`}
+              {blindMode
+                ? "Độ lệch: ??.?° • Đang giấu số liệu"
+                : isAligned
+                  ? `Độ lệch: ${absDriftDeg.toFixed(1)}° • Đạt ngưỡng ±${toleranceDeg}°`
+                  : `Độ lệch: ${absDriftDeg.toFixed(1)}° • Cần chỉnh vào ±${toleranceDeg}°`}
             </text>
           </g>
         </g>
@@ -518,9 +521,11 @@ export function VectorOverlayLayer({ svgRef }: VectorOverlayLayerProps) {
               textAnchor="end"
               className="pointer-events-none"
             >
-              {isLabStep
-                ? `v_R = ${telemetry.airspeedKts} KT (Δθ = ${driftLabel})`
-                : `v_R (Quỹ đạo ${telemetry.groundTrackDeg.toFixed(1)}°)`}
+              {blindMode
+                ? "v_R (Δθ = ??.?°)"
+                : isLabStep
+                  ? `v_R = ${telemetry.airspeedKts} KT (Δθ = ${driftLabel})`
+                  : `v_R (Quỹ đạo ${telemetry.groundTrackDeg.toFixed(1)}°)`}
             </text>
           )}
 
@@ -547,7 +552,13 @@ export function VectorOverlayLayer({ svgRef }: VectorOverlayLayerProps) {
                 fontWeight={700}
                 textAnchor={arcAngleDeg >= 0 ? "start" : "end"}
               >
-                {currentStep >= 4 ? `θ = ${headingLabel}` : `Δθ = ${driftLabel}`}
+                {blindMode
+                  ? currentStep >= 4
+                    ? `θ = ${headingLabel}`
+                    : "Δθ = ??.?°"
+                  : currentStep >= 4
+                    ? `θ = ${headingLabel}`
+                    : `Δθ = ${driftLabel}`}
               </text>
             </g>
           )}

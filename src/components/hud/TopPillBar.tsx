@@ -3,10 +3,13 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import {
+  Eye,
+  GraduationCap,
   HelpCircle,
   Maximize2,
   Minimize2,
   Moon,
+  PenTool,
   PlaySquare,
   SlidersHorizontal,
   Sun,
@@ -40,9 +43,13 @@ export function TopPillBar() {
   const currentStep = useSimulationStore((s) => s.currentStep);
   const soundEnabled = useSimulationStore((s) => s.soundEnabled);
   const themeMode = useSimulationStore((s) => s.themeMode);
+  const blindMode = useSimulationStore((s) => s.blindMode);
+  const chalkEnabled = useSimulationStore((s) => s.chalkEnabled);
   const setStep = useSimulationStore((s) => s.setStep);
   const toggleSound = useSimulationStore((s) => s.toggleSound);
   const toggleThemeMode = useSimulationStore((s) => s.toggleThemeMode);
+  const toggleBlindMode = useSimulationStore((s) => s.toggleBlindMode);
+  const toggleChalk = useSimulationStore((s) => s.toggleChalk);
   const openModal = useSimulationStore((s) => s.openModal);
 
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -126,6 +133,45 @@ export function TopPillBar() {
 
         {/* Cụm nút tiện ích bên phải */}
         <div className="flex items-center gap-space-xs bg-surface-container-low/95 backdrop-blur-xl p-space-xs rounded-full shadow-[var(--hud-card-shadow)] border border-outline-variant/60 shrink-0">
+          {blindMode && (
+            <button
+              type="button"
+              onClick={toggleBlindMode}
+              title="Mở đáp án số liệu đang giấu"
+              aria-label="Mở đáp án số liệu"
+              className="h-8 px-2.5 rounded-full bg-secondary/20 border border-secondary/50 text-secondary font-telemetry-sm text-telemetry-sm font-bold flex items-center gap-1 hover:bg-secondary hover:text-on-secondary transition-colors whitespace-nowrap cursor-pointer"
+            >
+              <Eye className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>Mở đáp án</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            title="Chế độ Giáo viên (Ra đề & Chia sẻ)"
+            aria-label="Chế độ Giáo viên"
+            onClick={() => openModal("teacher")}
+            className="h-8 px-2.5 rounded-full bg-primary/15 border border-primary/35 text-primary hover:bg-primary hover:text-on-primary font-telemetry-sm text-telemetry-sm font-bold flex items-center gap-1 transition-colors whitespace-nowrap cursor-pointer"
+          >
+            <GraduationCap className="w-4 h-4" aria-hidden="true" />
+            <span>Giáo viên</span>
+          </button>
+
+          <button
+            type="button"
+            title="Bút ghi chú trên Radar"
+            aria-label="Bút ghi chú trên Radar"
+            aria-pressed={chalkEnabled}
+            onClick={toggleChalk}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
+              chalkEnabled
+                ? "bg-secondary text-on-secondary shadow-[0_0_10px_rgba(255,198,64,0.45)]"
+                : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
+            }`}
+          >
+            <PenTool className="w-[17px] h-[17px]" aria-hidden="true" />
+          </button>
+
           <button
             type="button"
             title="Video"
