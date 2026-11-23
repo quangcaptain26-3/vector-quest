@@ -2,16 +2,19 @@ import { describe, expect, it } from "vitest";
 import {
   addVectors,
   clampHeadingOffsetDeg,
+  clampRunwayAngleDeg,
   computeAircraftVector,
   computeAngleFromRunwayAxisDeg,
   computeIdealCrabAngleDeg,
   computeParallelogramVertices,
+  computeRequiredAircraftVector,
   computeResultantVector,
   computeSimulationTelemetry,
   computeWindVector,
   getVectorMagnitude,
   getWindSpeedKts,
   normalizeCompassHeadingDeg,
+  SPECIAL_ANGLE_PRESETS,
   subtractVectors,
 } from "../../src/domain/vectorMath";
 
@@ -166,6 +169,80 @@ describe("vectorMath", () => {
       expect(Math.abs(aligned.lateralNetKts)).toBeLessThan(0.2);
       expect(aligned.svgParallelogram.origin).toEqual({ x: 680, y: 560 });
       expect(aligned.svgParallelogram.tipR.x).toBeCloseTo(680, 0);
+    });
+  });
+
+  describe("Teacher Studio: special angles, subtraction mode, and rotated runway", () => {
+    it("computes exact 30°, 45°, and 3-4-5 crab angles for custom clean magnitudes", () => {
+      const deg30 = computeSimulationTelemetry({
+        windDirection: "rtl",
+        windStrength: "strong",
+        headingOffsetDeg: 30,
+        customAirspeedKts: 100,
+        customWindSpeedKts: 50,
+      });
+      expect(deg30.idealCrabAngleDeg).toBeCloseTo(30, 3);
+      expect(Math.abs(deg30.driftAngleDeg)).toBeLessThan(0.05);
+
+      const deg45 = computeSimulationTelemetry({
+        windDirection: "rtl",
+        windStrength: "strong",
+        headingOffsetDeg: 45,
+        customAirspeedKts: 100,
+        customWindSpeedKts: 70.7,
+      });
+      expect(deg45.idealCrabAngleDeg).toBeCloseTo(45, 0);
+      expect(Math.abs(deg45.driftAngleDeg)).toBeLessThan(0.1);
+
+      const ratio345 = computeSimulationTelemetry({
+        windDirection: "rtl",
+        windStrength: "strong",
+        headingOffsetDeg: 36.87,
+        customAirspeedKts: 100,
+        customWindSpeedKts: 60,
+      });
+      expect(ratio345.idealCrabAngleDeg).toBeCloseTo(36.87, 1);
+      expect(Math.abs(ratio345.driftAngleDeg)).toBeLessThan(0.05);
+      expect(SPECIAL_ANGLE_PRESETS.length).toBeGreaterThanOrEqual(4);
+    });
+
+    it("solves required aircraft vector v_A = v_R - v_W in subtraction mode", () => {
+      const vRDesired = { x: 0, y: 86.6 };
+      const vW = { x: -50, y: 0 };
+      const vARequired = computeRequiredAircraftVector(vRDesired, vW);
+      expect(vARequired.x).toBeCloseTo(50, 4);
+      expect(vARequired.y).toBeCloseTo(86.6, 4);
+      expect(getVectorMagnitude(vARequired)).toBeCloseTo(100, 1);
+    });
+
+    it("clamps runway angle within [-45, +45] and aligns ideal crab angle to rotated runway", () => {
+      expect(clampRunwayAngleDeg(60)).toBe(45);
+      expect(clampRunwayAngleDeg(-60)).toBe(-45);
+
+      const base = computeSimulationTelemetry({
+        windDirection: "rtl",
+        windStrength: "moderate",
+        headingOffsetDeg: 0,
+        customAirspeedKts: 100,
+        customWindSpeedKts: 50,
+        runwayAngleDeg: 30,
+        operationMode: "subtract",
+      });
+
+      const aligned = computeSimulationTelemetry({
+        windDirection: "rtl",
+        windStrength: "moderate",
+        headingOffsetDeg: base.idealCrabAngleDeg,
+        customAirspeedKts: 100,
+        customWindSpeedKts: 50,
+        runwayAngleDeg: 30,
+        operationMode: "subtract",
+      });
+
+      expect(aligned.runwayAngleDeg).toBe(30);
+      expect(aligned.operationMode).toBe("subtract");
+      expect(Math.abs(aligned.driftAngleDeg)).toBeLessThan(0.05);
+      expect(Math.abs(aligned.lateralNetKts)).toBeLessThan(0.1);
     });
   });
 });

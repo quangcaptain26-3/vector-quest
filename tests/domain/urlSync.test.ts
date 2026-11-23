@@ -56,4 +56,33 @@ describe("urlSync", () => {
       })
     ).toBe("?dir=ltr&strength=strong&step=4");
   });
+
+  it("parses and serializes extended Teacher Studio query parameters", () => {
+    const query = buildSimulationQueryString({
+      windDirection: "rtl",
+      windStrength: "strong",
+      currentStep: 4,
+      operationMode: "subtract",
+      customAirspeedKts: 100,
+      customWindSpeedKts: 50,
+      runwayAngleDeg: 30,
+      blindMode: true,
+      tvScale: "large",
+    });
+
+    expect(query).toBe(
+      "?dir=rtl&strength=strong&step=4&mode=subtract&va=100&vw=50&rw=30&blind=1&tv=large"
+    );
+    expect(parseSimulationQueryParams(query)).toEqual({
+      windDirection: "rtl",
+      windStrength: "strong",
+      currentStep: 4,
+      operationMode: "subtract",
+      customAirspeedKts: 100,
+      customWindSpeedKts: 50,
+      runwayAngleDeg: 30,
+      blindMode: true,
+      tvScale: "large",
+    });
+  });
 });

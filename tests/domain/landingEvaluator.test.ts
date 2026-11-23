@@ -65,6 +65,22 @@ describe("landingEvaluator", () => {
       expect(evaluateLanding({ x: 0, y: 0 }, 4).success).toBe(false);
       expect(evaluateLanding({ x: 0, y: -50 }, 4).success).toBe(false);
     });
+
+    it("evaluates landing relative to a rotated runwayAngleDeg (-45° to +45°)", () => {
+      const rad30 = (30 * Math.PI) / 180;
+      const vectorAlong30 = {
+        x: Math.sin(rad30) * 100,
+        y: Math.cos(rad30) * 100,
+      };
+      const aligned30 = evaluateLanding(vectorAlong30, 4, 30);
+      expect(aligned30.success).toBe(true);
+      expect(aligned30.absDeltaDeg).toBeCloseTo(0, 5);
+
+      // Same vector compared against -25° runway should fail
+      const mismatched = evaluateLanding(vectorAlong30, 4, -25);
+      expect(mismatched.success).toBe(false);
+      expect(mismatched.absDeltaDeg).toBeCloseTo(55, 4);
+    });
   });
 
   describe("getCorrectOptionForWind & evaluatePredictionOption", () => {

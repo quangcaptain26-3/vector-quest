@@ -14,23 +14,46 @@ import type {
   PredictionEvaluationResult,
   SimulationTelemetry,
   ThemeMode,
+  TvScaleMode,
+  VectorOperationMode,
   WindDirection,
   WindStrength,
 } from "@/domain/types";
 import {
   clampHeadingOffsetDeg,
+  clampRunwayAngleDeg,
   computeSimulationTelemetry,
+  SPECIAL_ANGLE_PRESETS,
 } from "@/domain/vectorMath";
 import { playAlert, playClick, playSuccess } from "@/lib/audio";
 import { devLog } from "@/lib/logger";
 
-export type HudModalType = "video" | "settings" | "help" | null;
+export type HudModalType = "video" | "settings" | "help" | "teacher" | null;
+
+export interface TeacherConfigInput {
+  readonly windDirection?: WindDirection;
+  readonly windStrength?: WindStrength;
+  readonly currentStep?: MissionStep;
+  readonly operationMode?: VectorOperationMode;
+  readonly customAirspeedKts?: number | null;
+  readonly customWindSpeedKts?: number | null;
+  readonly runwayAngleDeg?: number;
+  readonly blindMode?: boolean;
+  readonly tvScale?: TvScaleMode;
+}
 
 export interface SimulationStoreState {
   currentStep: MissionStep;
   windDirection: WindDirection;
   windStrength: WindStrength;
   customWindSpeedKts: number | null;
+  customAirspeedKts: number | null;
+  runwayAngleDeg: number;
+  operationMode: VectorOperationMode;
+  blindMode: boolean;
+  tvScale: TvScaleMode;
+  chalkEnabled: boolean;
+  chalkPaths: readonly string[];
   aircraftHeadingDeg: number;
   telemetry: SimulationTelemetry;
   selectedOption: HeadingOptionId | null;
@@ -55,6 +78,18 @@ export interface SimulationStoreState {
   setWindDirection: (direction: WindDirection) => void;
   setWindStrength: (strength: WindStrength) => void;
   adjustWindSpeed: (deltaKts: number) => void;
+  setCustomAirspeed: (airspeedKts: number | null) => void;
+  setCustomWindSpeed: (windSpeedKts: number | null) => void;
+  setRunwayAngle: (angleDeg: number) => void;
+  setOperationMode: (mode: VectorOperationMode) => void;
+  applySpecialPreset: (presetId: string) => void;
+  applyTeacherConfig: (config: TeacherConfigInput) => void;
+  toggleBlindMode: () => void;
+  setBlindMode: (blind: boolean) => void;
+  setTvScale: (scale: TvScaleMode) => void;
+  toggleChalk: () => void;
+  addChalkPath: (pathD: string) => void;
+  clearChalkPaths: () => void;
   setAircraftHeading: (headingOffsetDeg: number) => void;
   adjustAircraftHeading: (deltaDeg: number) => void;
   applyIdealCrabHeading: () => void;
@@ -93,11 +128,58 @@ function createInitialTelemetry(): SimulationTelemetry {
   });
 }
 
+function buildTelemetryFromState(
+  state: Pick<
+    SimulationStoreState,
+    | "windDirection"
+    | "windStrength"
+    | "aircraftHeadingDeg"
+    | "customWindSpeedKts"
+    | "customAirspeedKts"
+    | "runwayAngleDeg"
+    | "operationMode"
+  >,
+  overrides: Partial<
+    Pick<
+      SimulationStoreState,
+      | "windDirection"
+      | "windStrength"
+      | "aircraftHeadingDeg"
+      | "customWindSpeedKts"
+      | "customAirspeedKts"
+      | "runwayAngleDeg"
+      | "operationMode"
+    >
+  > = {}
+): SimulationTelemetry {
+  const merged = { ...state, ...overrides };
+  return computeSimulationTelemetry({
+    windDirection: merged.windDirection,
+    windStrength: merged.windStrength,
+    headingOffsetDeg: merged.aircraftHeadingDeg,
+    customWindSpeedKts: merged.customWindSpeedKts ?? undefined,
+    customAirspeedKts: merged.customAirspeedKts ?? undefined,
+    runwayAngleDeg: merged.runwayAngleDeg,
+    operationMode: merged.operationMode,
+  });
+}
+
+function deriveStrengthFromSpeed(speedKts: number): WindStrength {
+  return speedKts <= 18 ? "light" : speedKts <= 32 ? "moderate" : "strong";
+}
+
 export const useSimulationStore = create<SimulationStoreState>()((set, get) => ({
   currentStep: 1,
   windDirection: DEFAULT_WIND_DIRECTION,
   windStrength: DEFAULT_WIND_STRENGTH,
   customWindSpeedKts: null,
+  customAirspeedKts: null,
+  runwayAngleDeg: 0,
+  operationMode: "add",
+  blindMode: false,
+  tvScale: "normal",
+  chalkEnabled: false,
+  chalkPaths: [],
   aircraftHeadingDeg: DEFAULT_HEADING_DEG,
   telemetry: createInitialTelemetry(),
   selectedOption: null,
@@ -151,22 +233,11 @@ export const useSimulationStore = create<SimulationStoreState>()((set, get) => (
   },
 
   setWindDirection: (windDirection) => {
-    const {
-      windStrength,
-      customWindSpeedKts,
-      aircraftHeadingDeg,
-      soundEnabled,
-      selectedOption,
-    } = get();
-    playClick(soundEnabled);
-    const telemetry = computeSimulationTelemetry({
-      windDirection,
-      windStrength,
-      headingOffsetDeg: aircraftHeadingDeg,
-      customWindSpeedKts: customWindSpeedKts ?? undefined,
-    });
-    const predictionResult = selectedOption
-      ? evaluatePredictionOption(selectedOption, windDirection)
+    const state = get();
+    playClick(state.soundEnabled);
+    const telemetry = buildTelemetryFromState(state, { windDirection });
+    const predictionResult = state.selectedOption
+      ? evaluatePredictionOption(state.selectedOption, windDirection)
       : null;
 
     devLog("setWindDirection", { windDirection });
@@ -180,12 +251,11 @@ export const useSimulationStore = create<SimulationStoreState>()((set, get) => (
   },
 
   setWindStrength: (windStrength) => {
-    const { windDirection, aircraftHeadingDeg, soundEnabled } = get();
-    playClick(soundEnabled);
-    const telemetry = computeSimulationTelemetry({
-      windDirection,
+    const state = get();
+    playClick(state.soundEnabled);
+    const telemetry = buildTelemetryFromState(state, {
       windStrength,
-      headingOffsetDeg: aircraftHeadingDeg,
+      customWindSpeedKts: null,
     });
 
     devLog("setWindStrength", { windStrength });
@@ -199,20 +269,19 @@ export const useSimulationStore = create<SimulationStoreState>()((set, get) => (
   },
 
   adjustWindSpeed: (deltaKts) => {
-    const { windDirection, windStrength, aircraftHeadingDeg, telemetry, soundEnabled } =
-      get();
-    playClick(soundEnabled);
-    const nextSpeed = Math.min(50, Math.max(5, telemetry.windSpeedKts + deltaKts));
-    const derivedStrength: WindStrength =
-      nextSpeed <= 18 ? "light" : nextSpeed <= 32 ? "moderate" : "strong";
-    const nextTelemetry = computeSimulationTelemetry({
-      windDirection,
+    const state = get();
+    playClick(state.soundEnabled);
+    const nextSpeed = Math.min(
+      100,
+      Math.max(5, Math.round((state.telemetry.windSpeedKts + deltaKts) * 10) / 10)
+    );
+    const derivedStrength = deriveStrengthFromSpeed(nextSpeed);
+    const nextTelemetry = buildTelemetryFromState(state, {
       windStrength: derivedStrength,
-      headingOffsetDeg: aircraftHeadingDeg,
       customWindSpeedKts: nextSpeed,
     });
 
-    devLog("adjustWindSpeed", { deltaKts, nextSpeed, prevStrength: windStrength });
+    devLog("adjustWindSpeed", { deltaKts, nextSpeed });
     set({
       windStrength: derivedStrength,
       customWindSpeedKts: nextSpeed,
@@ -222,14 +291,186 @@ export const useSimulationStore = create<SimulationStoreState>()((set, get) => (
     });
   },
 
+  setCustomAirspeed: (airspeedKts) => {
+    const state = get();
+    playClick(state.soundEnabled);
+    const nextAirspeed =
+      airspeedKts === null
+        ? null
+        : Math.min(250, Math.max(40, Math.round(airspeedKts)));
+    const telemetry = buildTelemetryFromState(state, {
+      customAirspeedKts: nextAirspeed,
+    });
+    set({
+      customAirspeedKts: nextAirspeed,
+      telemetry,
+      landingResult: null,
+    });
+  },
+
+  setCustomWindSpeed: (windSpeedKts) => {
+    const state = get();
+    playClick(state.soundEnabled);
+    const nextSpeed =
+      windSpeedKts === null
+        ? null
+        : Math.min(150, Math.max(5, Math.round(windSpeedKts * 10) / 10));
+    const derivedStrength =
+      nextSpeed === null ? state.windStrength : deriveStrengthFromSpeed(nextSpeed);
+    const telemetry = buildTelemetryFromState(state, {
+      windStrength: derivedStrength,
+      customWindSpeedKts: nextSpeed,
+    });
+    set({
+      windStrength: derivedStrength,
+      customWindSpeedKts: nextSpeed,
+      telemetry,
+      landingResult: null,
+    });
+  },
+
+  setRunwayAngle: (angleDeg) => {
+    const state = get();
+    playClick(state.soundEnabled);
+    const runwayAngleDeg = clampRunwayAngleDeg(Math.round(angleDeg));
+    const telemetry = buildTelemetryFromState(state, { runwayAngleDeg });
+    set({
+      runwayAngleDeg,
+      telemetry,
+      landingResult: null,
+    });
+  },
+
+  setOperationMode: (operationMode) => {
+    const state = get();
+    playClick(state.soundEnabled);
+    const telemetry = buildTelemetryFromState(state, { operationMode });
+    set({
+      operationMode,
+      telemetry,
+    });
+  },
+
+  applySpecialPreset: (presetId) => {
+    const preset = SPECIAL_ANGLE_PRESETS.find((p) => p.id === presetId);
+    if (!preset) return;
+    const state = get();
+    playClick(state.soundEnabled);
+    const isDefaultPreset = preset.id === "default-140-25";
+    const nextCustomVa = isDefaultPreset ? null : preset.airspeedKts;
+    const nextCustomVw = isDefaultPreset ? null : preset.windSpeedKts;
+    const nextStrength = deriveStrengthFromSpeed(preset.windSpeedKts);
+    const nextMode = preset.operationMode ?? state.operationMode;
+    const telemetry = buildTelemetryFromState(state, {
+      windStrength: nextStrength,
+      customAirspeedKts: nextCustomVa,
+      customWindSpeedKts: nextCustomVw,
+      runwayAngleDeg: preset.runwayAngleDeg,
+      operationMode: nextMode,
+      aircraftHeadingDeg: 0,
+    });
+
+    set({
+      windStrength: nextStrength,
+      customAirspeedKts: nextCustomVa,
+      customWindSpeedKts: nextCustomVw,
+      runwayAngleDeg: preset.runwayAngleDeg,
+      operationMode: nextMode,
+      aircraftHeadingDeg: 0,
+      telemetry,
+      landingResult: null,
+      isFlightAnimating: false,
+    });
+  },
+
+  applyTeacherConfig: (config) => {
+    const state = get();
+    playClick(state.soundEnabled);
+    const nextDirection = config.windDirection ?? state.windDirection;
+    const nextCustomVw =
+      config.customWindSpeedKts === undefined
+        ? state.customWindSpeedKts
+        : config.customWindSpeedKts;
+    const nextStrength =
+      config.windStrength ??
+      (nextCustomVw !== null
+        ? deriveStrengthFromSpeed(nextCustomVw)
+        : state.windStrength);
+    const nextCustomVa =
+      config.customAirspeedKts === undefined
+        ? state.customAirspeedKts
+        : config.customAirspeedKts;
+    const nextRunway =
+      config.runwayAngleDeg !== undefined
+        ? clampRunwayAngleDeg(config.runwayAngleDeg)
+        : state.runwayAngleDeg;
+    const nextMode = config.operationMode ?? state.operationMode;
+    const nextStep = config.currentStep ?? state.currentStep;
+    const nextBlind = config.blindMode ?? state.blindMode;
+    const nextTvScale = config.tvScale ?? state.tvScale;
+
+    const telemetry = buildTelemetryFromState(state, {
+      windDirection: nextDirection,
+      windStrength: nextStrength,
+      customWindSpeedKts: nextCustomVw,
+      customAirspeedKts: nextCustomVa,
+      runwayAngleDeg: nextRunway,
+      operationMode: nextMode,
+    });
+
+    set({
+      currentStep: nextStep,
+      windDirection: nextDirection,
+      windStrength: nextStrength,
+      customWindSpeedKts: nextCustomVw,
+      customAirspeedKts: nextCustomVa,
+      runwayAngleDeg: nextRunway,
+      operationMode: nextMode,
+      blindMode: nextBlind,
+      tvScale: nextTvScale,
+      telemetry,
+      landingResult: null,
+      isFlightAnimating: false,
+    });
+  },
+
+  toggleBlindMode: () => {
+    const { blindMode, soundEnabled } = get();
+    playClick(soundEnabled);
+    set({ blindMode: !blindMode });
+  },
+
+  setBlindMode: (blindMode) => {
+    playClick(get().soundEnabled);
+    set({ blindMode });
+  },
+
+  setTvScale: (tvScale) => {
+    playClick(get().soundEnabled);
+    set({ tvScale });
+  },
+
+  toggleChalk: () => {
+    const { chalkEnabled, soundEnabled } = get();
+    playClick(soundEnabled);
+    set({ chalkEnabled: !chalkEnabled });
+  },
+
+  addChalkPath: (pathD) => {
+    if (!pathD) return;
+    set((s) => ({ chalkPaths: [...s.chalkPaths, pathD] }));
+  },
+
+  clearChalkPaths: () => {
+    playClick(get().soundEnabled);
+    set({ chalkPaths: [] });
+  },
+
   setAircraftHeading: (headingOffsetDeg) => {
-    const { windDirection, windStrength, customWindSpeedKts } = get();
+    const state = get();
     const clamped = clampHeadingOffsetDeg(headingOffsetDeg);
-    const telemetry = computeSimulationTelemetry({
-      windDirection,
-      windStrength,
-      headingOffsetDeg: clamped,
-      customWindSpeedKts: customWindSpeedKts ?? undefined,
+    const telemetry = buildTelemetryFromState(state, {
+      aircraftHeadingDeg: clamped,
     });
 
     set({
@@ -240,16 +481,12 @@ export const useSimulationStore = create<SimulationStoreState>()((set, get) => (
   },
 
   adjustAircraftHeading: (deltaDeg) => {
-    const { windDirection, windStrength, customWindSpeedKts, aircraftHeadingDeg, soundEnabled } =
-      get();
-    playClick(soundEnabled);
-    const rounded = Math.round((aircraftHeadingDeg + deltaDeg) * 10) / 10;
+    const state = get();
+    playClick(state.soundEnabled);
+    const rounded = Math.round((state.aircraftHeadingDeg + deltaDeg) * 10) / 10;
     const clamped = clampHeadingOffsetDeg(rounded);
-    const telemetry = computeSimulationTelemetry({
-      windDirection,
-      windStrength,
-      headingOffsetDeg: clamped,
-      customWindSpeedKts: customWindSpeedKts ?? undefined,
+    const telemetry = buildTelemetryFromState(state, {
+      aircraftHeadingDeg: clamped,
     });
 
     set({
@@ -260,20 +497,14 @@ export const useSimulationStore = create<SimulationStoreState>()((set, get) => (
   },
 
   applyIdealCrabHeading: () => {
-    const { windDirection, windStrength, customWindSpeedKts, soundEnabled } = get();
-    playClick(soundEnabled);
-    const currentTelemetry = computeSimulationTelemetry({
-      windDirection,
-      windStrength,
-      headingOffsetDeg: 0,
-      customWindSpeedKts: customWindSpeedKts ?? undefined,
+    const state = get();
+    playClick(state.soundEnabled);
+    const baseTelemetry = buildTelemetryFromState(state, {
+      aircraftHeadingDeg: 0,
     });
-    const ideal = Math.round(currentTelemetry.idealCrabAngleDeg * 10) / 10;
-    const telemetry = computeSimulationTelemetry({
-      windDirection,
-      windStrength,
-      headingOffsetDeg: ideal,
-      customWindSpeedKts: customWindSpeedKts ?? undefined,
+    const ideal = Math.round(baseTelemetry.idealCrabAngleDeg * 10) / 10;
+    const telemetry = buildTelemetryFromState(state, {
+      aircraftHeadingDeg: ideal,
     });
 
     set({
@@ -309,8 +540,8 @@ export const useSimulationStore = create<SimulationStoreState>()((set, get) => (
   },
 
   checkLanding: () => {
-    const { telemetry, toleranceDeg, soundEnabled } = get();
-    const result = evaluateLanding(telemetry.vR, toleranceDeg);
+    const { telemetry, toleranceDeg, runwayAngleDeg, soundEnabled } = get();
+    const result = evaluateLanding(telemetry.vR, toleranceDeg, runwayAngleDeg);
 
     if (result.success) {
       playSuccess(soundEnabled);
@@ -389,10 +620,10 @@ export const useSimulationStore = create<SimulationStoreState>()((set, get) => (
   },
 
   setToleranceDeg: (toleranceDeg) => {
-    const { telemetry, landingResult, soundEnabled } = get();
+    const { telemetry, landingResult, runwayAngleDeg, soundEnabled } = get();
     playClick(soundEnabled);
     const updatedLanding = landingResult
-      ? evaluateLanding(telemetry.vR, toleranceDeg)
+      ? evaluateLanding(telemetry.vR, toleranceDeg, runwayAngleDeg)
       : null;
 
     set({
@@ -434,6 +665,12 @@ export const useSimulationStore = create<SimulationStoreState>()((set, get) => (
       windDirection: DEFAULT_WIND_DIRECTION,
       windStrength: DEFAULT_WIND_STRENGTH,
       customWindSpeedKts: null,
+      customAirspeedKts: null,
+      runwayAngleDeg: 0,
+      operationMode: "add",
+      blindMode: false,
+      chalkEnabled: false,
+      chalkPaths: [],
       aircraftHeadingDeg: DEFAULT_HEADING_DEG,
       telemetry: createInitialTelemetry(),
       selectedOption: null,

@@ -26,6 +26,24 @@ export type Language = "en" | "vi";
 /** Classroom display themes */
 export type ThemeMode = "dark" | "daylight";
 
+/** Vector classroom operation mode: addition (find v_R) or subtraction (find v_A = v_R - v_W) */
+export type VectorOperationMode = "add" | "subtract";
+
+/** TV / Projector text magnification scale */
+export type TvScaleMode = "normal" | "large" | "xlarge";
+
+/** Curated clean-number trigonometry preset for classroom exercises */
+export interface SpecialAnglePreset {
+  readonly id: string;
+  readonly label: string;
+  readonly description: string;
+  readonly airspeedKts: number;
+  readonly windSpeedKts: number;
+  readonly expectedCrabDeg: number;
+  readonly runwayAngleDeg: number;
+  readonly operationMode?: VectorOperationMode;
+}
+
 /** Four corners of the vector addition parallelogram in SVG coordinates */
 export interface ParallelogramVertices {
   readonly origin: Vector2D;
@@ -42,6 +60,8 @@ export interface SimulationTelemetry {
   readonly airspeedKts: number;
   readonly windSpeedKts: number;
   readonly headingOffsetDeg: number;
+  readonly runwayAngleDeg: number;
+  readonly operationMode: VectorOperationMode;
   readonly compassHeadingDeg: number;
   readonly driftAngleDeg: number;
   readonly groundTrackDeg: number;

@@ -10,20 +10,33 @@ import type {
   Vector2D,
   WindDirection,
 } from "./types";
-import { computeAngleFromRunwayAxisDeg } from "./vectorMath";
+import {
+  clampRunwayAngleDeg,
+  computeAngleFromRunwayAxisDeg,
+} from "./vectorMath";
 
 /**
- * Evaluates whether the resultant velocity vector v_R is aligned parallel to Runway 36L (+y)
- * within the configured angular tolerance (default +/-4 degrees).
+ * Evaluates whether the resultant velocity vector v_R is aligned parallel to Runway 36L
+ * (or the rotated runwayAngleDeg within [-45°, +45°]) within the configured angular tolerance.
  */
 export function evaluateLanding(
   resultantVector: Vector2D,
-  toleranceDeg: number
+  toleranceDeg: number,
+  runwayAngleDeg: number = 0
 ): LandingEvaluationResult {
   const safeTolerance = Math.max(0, toleranceDeg);
-  const deltaAngleDeg = computeAngleFromRunwayAxisDeg(resultantVector);
+  const clampedRunway = clampRunwayAngleDeg(runwayAngleDeg);
+  const rawAngleDeg = computeAngleFromRunwayAxisDeg(resultantVector);
+  let deltaAngleDeg = rawAngleDeg - clampedRunway;
+  if (deltaAngleDeg > 180) deltaAngleDeg -= 360;
+  if (deltaAngleDeg < -180) deltaAngleDeg += 360;
+
   const absDeltaDeg = Math.abs(deltaAngleDeg);
-  const isForwardApproach = resultantVector.y > 0;
+  const runwayRad = (clampedRunway * Math.PI) / 180;
+  const forwardProjection =
+    resultantVector.x * Math.sin(runwayRad) +
+    resultantVector.y * Math.cos(runwayRad);
+  const isForwardApproach = forwardProjection > 0;
   const success = isForwardApproach && absDeltaDeg <= safeTolerance + 1e-6;
 
   return {
