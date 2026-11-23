@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./docs/assets/hero-banner.svg" alt="Nhiệm vụ Vectơ • Toán 10 — Phép cộng & Phép trừ Vectơ" width="100%" />
+  <img src="./docs/assets/logo.svg" alt="Logo Nhiệm vụ Vectơ • Toán 10" width="96" height="96" />
 
   <h1>NHIỆM VỤ VECTƠ • TOÁN 10</h1>
   <p>
@@ -13,6 +13,8 @@
     <img src="https://img.shields.io/badge/Vitest-26%2F26_PASS-090D16?style=for-the-badge&logo=vitest&logoColor=56E5A9" alt="Vitest 26/26 PASS" />
     <img src="https://img.shields.io/badge/Kiến_trúc-100%25_Frontend--Only-090D16?style=for-the-badge&logo=vercel&logoColor=FFC640" alt="100% Frontend-Only" />
   </p>
+
+  <img src="./docs/assets/hero-banner.svg" alt="Nhiệm vụ Vectơ • Toán 10 — Phép cộng & Phép trừ Vectơ" width="100%" />
 </div>
 
 ---
