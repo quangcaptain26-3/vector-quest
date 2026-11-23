@@ -23,6 +23,12 @@ export type HeadingOptionId = "A" | "B" | "C" | "D";
 /** Supported bilingual display languages */
 export type Language = "en" | "vi";
 
+/** Bilingual text pair */
+export interface LocalizedText {
+  readonly en: string;
+  readonly vi: string;
+}
+
 /** Classroom display themes */
 export type ThemeMode = "dark" | "daylight";
 
@@ -36,7 +42,9 @@ export type TvScaleMode = "normal" | "large" | "xlarge";
 export interface SpecialAnglePreset {
   readonly id: string;
   readonly label: string;
+  readonly labelEn: string;
   readonly description: string;
+  readonly descriptionEn: string;
   readonly airspeedKts: number;
   readonly windSpeedKts: number;
   readonly expectedCrabDeg: number;
@@ -93,33 +101,18 @@ export interface PredictionEvaluationResult {
 
 export interface HeadingOptionContent {
   readonly id: HeadingOptionId;
-  readonly compassLabel: string;
+  readonly compassLabel: LocalizedText;
   readonly headingOffsetDeg: number;
-  readonly title: {
-    readonly en: string;
-    readonly vi: string;
-  };
-  readonly shortLabel: {
-    readonly en: string;
-    readonly vi: string;
-  };
+  readonly title: LocalizedText;
+  readonly shortLabel: LocalizedText;
 }
 
 export interface MissionStepContent {
   readonly step: MissionStep;
-  readonly badge: string;
-  readonly eyebrow: string;
-  readonly title: string;
-  readonly subtitle: {
-    readonly en: string;
-    readonly vi: string;
-  };
-  readonly prompt: {
-    readonly en: string;
-    readonly vi: string;
-  };
-  readonly guideNote: {
-    readonly en: string;
-    readonly vi: string;
-  };
+  readonly badge: LocalizedText;
+  readonly eyebrow: LocalizedText;
+  readonly title: LocalizedText;
+  readonly subtitle: LocalizedText;
+  readonly prompt: LocalizedText;
+  readonly guideNote: LocalizedText;
 }

@@ -33,7 +33,9 @@ export const SPECIAL_ANGLE_PRESETS: readonly SpecialAnglePreset[] = [
   {
     id: "default-140-25",
     label: "Chuẩn Hàng không",
+    labelEn: "Aviation Standard",
     description: "|v_A| = 140 KT, |v_W| = 25 KT (Góc bù ~18.4°)",
+    descriptionEn: "|v_A| = 140 KT, |v_W| = 25 KT (Crab angle ~18.4°)",
     airspeedKts: 140,
     windSpeedKts: 25,
     expectedCrabDeg: 18.4,
@@ -43,7 +45,9 @@ export const SPECIAL_ANGLE_PRESETS: readonly SpecialAnglePreset[] = [
   {
     id: "special-30-deg",
     label: "Góc đẹp 30°",
+    labelEn: "Clean 30° Angle",
     description: "|v_A| = 100 KT, |v_W| = 50 KT (sin 30° = 1/2)",
+    descriptionEn: "|v_A| = 100 KT, |v_W| = 50 KT (sin 30° = 1/2)",
     airspeedKts: 100,
     windSpeedKts: 50,
     expectedCrabDeg: 30,
@@ -53,7 +57,9 @@ export const SPECIAL_ANGLE_PRESETS: readonly SpecialAnglePreset[] = [
   {
     id: "special-45-deg",
     label: "Góc đẹp 45°",
+    labelEn: "Clean 45° Angle",
     description: "|v_A| = 100 KT, |v_W| = 70.7 KT (sin 45° ≈ √2/2)",
+    descriptionEn: "|v_A| = 100 KT, |v_W| = 70.7 KT (sin 45° ≈ √2/2)",
     airspeedKts: 100,
     windSpeedKts: 70.7,
     expectedCrabDeg: 45,
@@ -63,7 +69,9 @@ export const SPECIAL_ANGLE_PRESETS: readonly SpecialAnglePreset[] = [
   {
     id: "pythagoras-3-4-5",
     label: "Bộ số 3-4-5",
+    labelEn: "3-4-5 Ratio",
     description: "|v_A| = 100 KT, |v_W| = 60 KT (tỉ lệ 3 : 4 : 5)",
+    descriptionEn: "|v_A| = 100 KT, |v_W| = 60 KT (3 : 4 : 5 right triangle)",
     airspeedKts: 100,
     windSpeedKts: 60,
     expectedCrabDeg: 36.9,
@@ -73,7 +81,9 @@ export const SPECIAL_ANGLE_PRESETS: readonly SpecialAnglePreset[] = [
   {
     id: "angled-runway-30",
     label: "Đường băng chéo +30°",
+    labelEn: "Angled Runway +30°",
     description: "Đường băng xoay +30°, |v_A| = 100 KT, |v_W| = 50 KT",
+    descriptionEn: "Runway rotated +30°, |v_A| = 100 KT, |v_W| = 50 KT",
     airspeedKts: 100,
     windSpeedKts: 50,
     expectedCrabDeg: 55.7,
@@ -260,7 +270,7 @@ export function computeSimulationTelemetry(
   const operationMode: VectorOperationMode = input.operationMode ?? "add";
   const windSpeedKts =
     typeof input.customWindSpeedKts === "number" &&
-    !Number.isNaN(input.customWindSpeedKts)
+      !Number.isNaN(input.customWindSpeedKts)
       ? Math.min(150, Math.max(5, Math.round(input.customWindSpeedKts * 10) / 10))
       : getWindSpeedKts(input.windStrength);
 

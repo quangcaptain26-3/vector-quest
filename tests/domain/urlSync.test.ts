@@ -85,4 +85,25 @@ describe("urlSync", () => {
       tvScale: "large",
     });
   });
+
+  it("parses and serializes bilingual lang parameter cleanly without breaking default VI URLs", () => {
+    const enQuery = buildSimulationQueryString({
+      windDirection: "rtl",
+      windStrength: "moderate",
+      currentStep: 2,
+      language: "en",
+    });
+    expect(enQuery).toBe("?dir=rtl&strength=moderate&step=2&lang=en");
+    expect(parseSimulationQueryParams(enQuery).language).toBe("en");
+
+    const viQuery = buildSimulationQueryString({
+      windDirection: "rtl",
+      windStrength: "moderate",
+      currentStep: 2,
+      language: "vi",
+    });
+    expect(viQuery).toBe("?dir=rtl&strength=moderate&step=2");
+    expect(parseSimulationQueryParams("?lang=vi").language).toBe("vi");
+    expect(parseSimulationQueryParams("?lang=fr").language).toBeUndefined();
+  });
 });

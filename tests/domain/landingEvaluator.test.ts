@@ -113,33 +113,33 @@ describe("landingEvaluator", () => {
 describe("missionContent", () => {
   it("contains all 6 mission steps in standardized Vietnamese Math 10 copy", () => {
     expect(Object.keys(MISSION_STEPS)).toEqual(["1", "2", "3", "4", "5", "6"]);
-    expect(MISSION_STEPS[1].title).toBe("CƠN GIÓ NGANG BẤT NGỜ!");
-    expect(MISSION_STEPS[2].title).toBe("EM SẼ XỬ LÝ THẾ NÀO?");
-    expect(MISSION_STEPS[3].title).toBe(
+    expect(MISSION_STEPS[1].title.vi).toBe("CƠN GIÓ NGANG BẤT NGỜ!");
+    expect(MISSION_STEPS[2].title.vi).toBe("EM SẼ XỬ LÝ THẾ NÀO?");
+    expect(MISSION_STEPS[3].title.vi).toBe(
       "Phi công nên chọn hướng mũi máy bay nào để hạ cánh đúng đường băng?"
     );
-    expect(MISSION_STEPS[4].title).toBe("CÙNG KIỂM TRA!");
-    expect(MISSION_STEPS[5].title).toBe("KIỂM TRA HẠ CÁNH");
-    expect(MISSION_STEPS[6].title).toBe("CHÚNG TA ĐÃ KHÁM PHÁ ĐƯỢC GÌ?");
+    expect(MISSION_STEPS[4].title.vi).toBe("CÙNG KIỂM TRA!");
+    expect(MISSION_STEPS[5].title.vi).toBe("KIỂM TRA HẠ CÁNH");
+    expect(MISSION_STEPS[6].title.vi).toBe("CHÚNG TA ĐÃ KHÁM PHÁ ĐƯỢC GÌ?");
   });
 
   it("contains all 4 heading options A/B/C/D in Vietnamese", () => {
     expect(HEADING_OPTIONS.map((o) => o.id)).toEqual(["A", "B", "C", "D"]);
-    expect(HEADING_OPTIONS[0].compassLabel).toBe("HƯỚNG 360°");
+    expect(HEADING_OPTIONS[0].compassLabel.vi).toBe("HƯỚNG 360°");
     expect(HEADING_OPTIONS[0].title.vi).toBe("Giữ bay thẳng");
-    expect(HEADING_OPTIONS[1].compassLabel).toBe("HƯỚNG 045°");
+    expect(HEADING_OPTIONS[1].compassLabel.vi).toBe("HƯỚNG 045°");
     expect(HEADING_OPTIONS[1].title.vi).toBe("Rẽ phải gắt");
-    expect(HEADING_OPTIONS[2].compassLabel).toBe("HƯỚNG 335°");
+    expect(HEADING_OPTIONS[2].compassLabel.vi).toBe("HƯỚNG 335°");
     expect(HEADING_OPTIONS[2].title.vi).toBe("Rẽ sang trái");
-    expect(HEADING_OPTIONS[3].compassLabel).toBe("+18.4°");
+    expect(HEADING_OPTIONS[3].compassLabel.vi).toBe("+18.4°");
     expect(HEADING_OPTIONS[3].title.vi).toBe("Rẽ nhẹ sang phải");
   });
 
   it("provides Vietnamese feedback for Step 3 and Step 5", () => {
     expect(STEP3_FEEDBACK.correct.vi).toBeTruthy();
     expect(STEP3_FEEDBACK.incorrect.vi).toBeTruthy();
-    expect(STEP5_OUTCOMES.success.headline).toBe("✓ HẠ CÁNH AN TOÀN!");
-    expect(STEP5_OUTCOMES.success.badge).toBe("HOÀN THÀNH NHIỆM VỤ!");
-    expect(STEP5_OUTCOMES.failure.headline).toBe("HẠ CÁNH CHƯA ĐẠT!");
+    expect(STEP5_OUTCOMES.success.headline.vi).toBe("✓ HẠ CÁNH AN TOÀN!");
+    expect(STEP5_OUTCOMES.success.badge.vi).toBe("HOÀN THÀNH NHIỆM VỤ!");
+    expect(STEP5_OUTCOMES.failure.headline.vi).toBe("HẠ CÁNH CHƯA ĐẠT!");
   });
 });

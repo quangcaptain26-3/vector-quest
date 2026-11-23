@@ -4,6 +4,7 @@
  */
 
 import type {
+  Language,
   MissionStep,
   TvScaleMode,
   VectorOperationMode,
@@ -21,15 +22,17 @@ export interface SimulationUrlPreset {
   readonly runwayAngleDeg?: number;
   readonly blindMode?: boolean;
   readonly tvScale?: TvScaleMode;
+  readonly language?: Language;
 }
 
 const VALID_DIRECTIONS = new Set<WindDirection>(["rtl", "ltr"]);
 const VALID_STRENGTHS = new Set<WindStrength>(["light", "moderate", "strong"]);
 const VALID_MODES = new Set<VectorOperationMode>(["add", "subtract"]);
 const VALID_TV_SCALES = new Set<TvScaleMode>(["normal", "large", "xlarge"]);
+const VALID_LANGUAGES = new Set<Language>(["vi", "en"]);
 
 /**
- * Safely parses ?dir=rtl|ltr&strength=light|moderate|strong&step=1..6 plus optional Teacher Studio params.
+ * Safely parses ?dir=rtl|ltr&strength=light|moderate|strong&step=1..6 plus optional Teacher Studio & language params.
  */
 export function parseSimulationQueryParams(
   search: string
@@ -45,6 +48,7 @@ export function parseSimulationQueryParams(
     const rwParam = params.get("rw");
     const blindParam = params.get("blind");
     const tvParam = params.get("tv");
+    const langParam = params.get("lang");
 
     const parsedStep = stepParam ? Number.parseInt(stepParam, 10) : NaN;
     const validStep =
@@ -99,6 +103,10 @@ export function parseSimulationQueryParams(
       result.tvScale = tvParam as TvScaleMode;
     }
 
+    if (langParam && VALID_LANGUAGES.has(langParam as Language)) {
+      result.language = langParam as Language;
+    }
+
     return result as SimulationUrlPreset;
   } catch {
     return {};
@@ -115,6 +123,7 @@ export function buildSimulationQueryString(input: {
   runwayAngleDeg?: number;
   blindMode?: boolean;
   tvScale?: TvScaleMode;
+  language?: Language;
 }): string {
   const params = new URLSearchParams();
   params.set("dir", input.windDirection);
@@ -144,6 +153,9 @@ export function buildSimulationQueryString(input: {
   if (input.tvScale && input.tvScale !== "normal") {
     params.set("tv", input.tvScale);
   }
+  if (input.language === "en") {
+    params.set("lang", "en");
+  }
   return `?${params.toString()}`;
 }
 
@@ -160,6 +172,7 @@ export function syncSimulationToUrl(input: {
   runwayAngleDeg?: number;
   blindMode?: boolean;
   tvScale?: TvScaleMode;
+  language?: Language;
 }): void {
   if (typeof window === "undefined") {
     return;
