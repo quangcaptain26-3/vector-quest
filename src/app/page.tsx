@@ -1,69 +1,165 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useEffect, useRef } from "react";
+import { AirportRadarCanvas } from "@/components/canvas/AirportRadarCanvas";
+import { BottomControlDock } from "@/components/hud/BottomControlDock";
+import { TopPillBar } from "@/components/hud/TopPillBar";
+import { WindTelemetryPill } from "@/components/hud/WindTelemetryPill";
+import { HelpModal } from "@/components/modals/HelpModal";
+import { SettingsModal } from "@/components/modals/SettingsModal";
+import { VideoDemoModal } from "@/components/modals/VideoDemoModal";
+import { ChallengePanelHost } from "@/components/panels/ChallengePanelHost";
+import { CanvasErrorBoundary } from "@/components/ui/CanvasErrorBoundary";
+import type { HeadingOptionId } from "@/domain/types";
+import { computeSimulationTelemetry } from "@/domain/vectorMath";
+import {
+  parseSimulationQueryParams,
+  syncSimulationToUrl,
+} from "@/lib/urlSync";
+import { useSimulationStore } from "@/store/useSimulationStore";
+
+const OPTION_KEYS = new Set<HeadingOptionId>(["A", "B", "C", "D"]);
+
+/**
+ * Vector Quest – Math 10 Flight-Deck HUD Shell.
+ * Composes TopPillBar, AirportRadarCanvas + WindTelemetryPill + ChallengePanelHost,
+ * BottomControlDock, utility modals, URL preset sync, and classroom keyboard shortcuts.
+ */
+export default function HomePage() {
+  const themeMode = useSimulationStore((s) => s.themeMode);
+  const windDirection = useSimulationStore((s) => s.windDirection);
+  const windStrength = useSimulationStore((s) => s.windStrength);
+  const currentStep = useSimulationStore((s) => s.currentStep);
+  const hasHydratedUrlRef = useRef(false);
+
+  // Sync Dark Cockpit vs Daylight Projector theme class on <html>
+  useEffect(() => {
+    const root = document.documentElement;
+    if (themeMode === "daylight") {
+      root.classList.remove("dark");
+      root.classList.add("theme-daylight");
+    } else {
+      root.classList.remove("theme-daylight");
+      root.classList.add("dark");
+    }
+  }, [themeMode]);
+
+  // Hydrate initial wind & step preset from URL query params once on mount
+  useEffect(() => {
+    const preset = parseSimulationQueryParams(window.location.search);
+    if (
+      preset.windDirection ||
+      preset.windStrength ||
+      preset.currentStep
+    ) {
+      const current = useSimulationStore.getState();
+      const nextDirection = preset.windDirection ?? current.windDirection;
+      const nextStrength = preset.windStrength ?? current.windStrength;
+      const nextStep = preset.currentStep ?? current.currentStep;
+
+      useSimulationStore.setState({
+        windDirection: nextDirection,
+        windStrength: nextStrength,
+        currentStep: nextStep,
+        telemetry: computeSimulationTelemetry({
+          windDirection: nextDirection,
+          windStrength: nextStrength,
+          headingOffsetDeg: current.aircraftHeadingDeg,
+        }),
+      });
+    }
+    hasHydratedUrlRef.current = true;
+  }, []);
+
+  // Keep URL query params synchronized when wind or step changes
+  useEffect(() => {
+    if (!hasHydratedUrlRef.current) {
+      return;
+    }
+    syncSimulationToUrl({
+      windDirection,
+      windStrength,
+      currentStep,
+    });
+  }, [windDirection, windStrength, currentStep]);
+
+  // Classroom keyboard shortcuts (disabled while any modal is open)
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      const tag = target?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") {
+        return;
+      }
+
+      const state = useSimulationStore.getState();
+      if (state.activeModal !== null) {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          state.closeModal();
+        }
+        return;
+      }
+
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        state.nextStep();
+        return;
+      }
+
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        state.prevStep();
+        return;
+      }
+
+      if (event.code === "Space" || event.key === " ") {
+        event.preventDefault();
+        state.togglePlay();
+        return;
+      }
+
+      if (state.currentStep === 3) {
+        const upper = event.key.toUpperCase() as HeadingOptionId;
+        if (OPTION_KEYS.has(upper)) {
+          event.preventDefault();
+          state.selectOption(upper);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+    <div className="min-h-screen w-full bg-surface text-on-surface flex flex-col">
+      <TopPillBar />
+
+      <main className="w-full pt-20 pb-24 bg-surface min-h-screen">
+        <div className="flex flex-col w-full relative select-none">
+          {/* Interactive Cockpit & Radar Viewport Stage */}
+          <div className="relative w-full h-[calc(100vh-11rem)] max-h-[940px] min-h-[520px] overflow-hidden rounded-xl bg-surface-container-lowest flex items-center justify-center">
+            <CanvasErrorBoundary>
+              <AirportRadarCanvas />
+            </CanvasErrorBoundary>
+
+            {/* Top-Left Wind Telemetry & Controls */}
+            <WindTelemetryPill />
+
+            {/* Right-Side 6-Step Challenge Panel */}
+            <ChallengePanelHost />
+          </div>
         </div>
       </main>
+
+      <BottomControlDock />
+
+      <SettingsModal />
+      <HelpModal />
+      <VideoDemoModal />
     </div>
   );
 }
