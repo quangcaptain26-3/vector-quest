@@ -2,6 +2,7 @@
 
 import { ArrowRight, PlaySquare, X } from "lucide-react";
 import { MathFormula } from "@/components/ui/MathFormula";
+import { getTranslations } from "@/lib/i18n";
 import { useSimulationStore } from "@/store/useSimulationStore";
 
 /**
@@ -9,12 +10,15 @@ import { useSimulationStore } from "@/store/useSimulationStore";
  */
 export function VideoDemoModal() {
   const activeModal = useSimulationStore((s) => s.activeModal);
+  const language = useSimulationStore((s) => s.language);
   const closeModal = useSimulationStore((s) => s.closeModal);
   const setStep = useSimulationStore((s) => s.setStep);
 
   if (activeModal !== "video") {
     return null;
   }
+
+  const tv = getTranslations(language).modals.video;
 
   const handleTryInLab = () => {
     closeModal();
@@ -38,20 +42,20 @@ export function VideoDemoModal() {
             <PlaySquare className="w-5 h-5 text-primary" aria-hidden="true" />
             <div className="flex flex-col">
               <span className="font-label-caps text-label-caps text-primary uppercase tracking-widest">
-                MINH HỌA TRỰC QUAN
+                {tv.eyebrow}
               </span>
               <h2
                 id="video-modal-title"
                 className="font-headline-sm text-headline-sm text-on-surface font-bold"
               >
-                Cách bù gió ngang bằng phép cộng vectơ
+                {tv.title}
               </h2>
             </div>
           </div>
 
           <button
             type="button"
-            aria-label="Đóng minh họa"
+            aria-label={tv.closeAria}
             onClick={closeModal}
             className="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors cursor-pointer"
           >
@@ -81,7 +85,7 @@ export function VideoDemoModal() {
               fontWeight="700"
               textAnchor="middle"
             >
-              TRỤC ĐƯỜNG BĂNG 36L
+              {tv.svgRunwayAxis}
             </text>
 
             <polygon
@@ -117,7 +121,7 @@ export function VideoDemoModal() {
               fontSize="11.5"
               fontWeight="700"
             >
-              1. Kéo đầu v_A (+18.4°)
+              {tv.svgStep1}
             </text>
 
             <line
@@ -138,7 +142,7 @@ export function VideoDemoModal() {
               fontWeight="700"
               textAnchor="middle"
             >
-              2. Gió ngang v_W
+              {tv.svgStep2}
             </text>
 
             <line
@@ -158,14 +162,14 @@ export function VideoDemoModal() {
               fontWeight="700"
               textAnchor="end"
             >
-              3. Vectơ tổng hợp v_R trùng trục!
+              {tv.svgStep3}
             </text>
           </svg>
         </div>
 
         <div className="flex items-center justify-between bg-surface-container-high/50 rounded-lg px-3 py-2">
           <span className="font-body-sm text-body-sm text-on-surface-variant">
-            Điều kiện hạ cánh an toàn:
+            {tv.conditionLabel}
           </span>
           <MathFormula
             tex="\vec{v}_R = \vec{v}_A + \vec{v}_W,\ |\Delta\theta| \le \varepsilon"
@@ -179,7 +183,7 @@ export function VideoDemoModal() {
             onClick={closeModal}
             className="py-2.5 rounded-lg bg-surface-container-highest hover:bg-surface-container-high text-on-surface font-telemetry-sm text-telemetry-sm font-semibold border border-outline-variant/60 transition-colors cursor-pointer"
           >
-            ĐÓNG
+            {tv.closeBtn}
           </button>
 
           <button
@@ -187,7 +191,7 @@ export function VideoDemoModal() {
             onClick={handleTryInLab}
             className="py-2.5 rounded-lg bg-primary hover:bg-primary-fixed text-on-primary font-telemetry-sm text-telemetry-sm font-bold flex items-center justify-center gap-1.5 shadow-[0_0_20px_rgba(56,189,248,0.45)] transition-colors cursor-pointer"
           >
-            <span>THỰC HÀNH NGAY</span>
+            <span>{tv.tryNowBtn}</span>
             <ArrowRight className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>

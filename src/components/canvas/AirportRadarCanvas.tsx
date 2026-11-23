@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { Eraser, PenTool, X } from "lucide-react";
 import { RADAR_CANVAS_COORDS } from "@/config/simulation";
+import { getTranslations } from "@/lib/i18n";
 import { clientToSvgPoint } from "@/lib/svgCoords";
 import { useSimulationStore } from "@/store/useSimulationStore";
 import { AircraftLayer } from "./AircraftLayer";
@@ -26,12 +27,14 @@ export function AirportRadarCanvas() {
   const themeMode = useSimulationStore((s) => s.themeMode);
   const chalkEnabled = useSimulationStore((s) => s.chalkEnabled);
   const chalkPaths = useSimulationStore((s) => s.chalkPaths);
+  const language = useSimulationStore((s) => s.language);
   const addChalkPath = useSimulationStore((s) => s.addChalkPath);
   const clearChalkPaths = useSimulationStore((s) => s.clearChalkPaths);
   const toggleChalk = useSimulationStore((s) => s.toggleChalk);
 
   const [activeStroke, setActiveStroke] = useState<string>("");
   const isDrawingRef = useRef(false);
+  const tc = getTranslations(language).canvas;
 
   const compassCenter = RADAR_CANVAS_COORDS.COMPASS_CENTER;
   const origin = RADAR_CANVAS_COORDS.AIRCRAFT_ORIGIN;
@@ -82,11 +85,10 @@ export function AirportRadarCanvas() {
     >
       {/* Atmospheric Glow & Tactical Radial Vignette */}
       <div
-        className={`absolute inset-0 pointer-events-none z-0 ${
-          isDaylight
-            ? "bg-[radial-gradient(circle_at_50%_45%,rgba(2,132,199,0.07)_0%,rgba(234,240,246,0.65)_68%,rgba(220,229,239,0.92)_100%)]"
-            : "bg-[radial-gradient(circle_at_50%_45%,rgba(56,189,248,0.06)_0%,rgba(15,19,28,0.75)_65%,rgba(10,14,23,0.98)_100%)]"
-        }`}
+        className={`absolute inset-0 pointer-events-none z-0 ${isDaylight
+          ? "bg-[radial-gradient(circle_at_50%_45%,rgba(2,132,199,0.07)_0%,rgba(234,240,246,0.65)_68%,rgba(220,229,239,0.92)_100%)]"
+          : "bg-[radial-gradient(circle_at_50%_45%,rgba(56,189,248,0.06)_0%,rgba(15,19,28,0.75)_65%,rgba(10,14,23,0.98)_100%)]"
+          }`}
       />
 
       {/* Live SVG Radar Grid, Runway 36L, Wind Particles, Aircraft & Interactive Vectors */}
@@ -372,93 +374,93 @@ export function AirportRadarCanvas() {
 
           {/* Physical Runway 36L (exact SVG-aligned strip at x=644, y=40, 72x260) */}
           <g opacity={isExplainStep ? 0.35 : 1}>
-          <rect
-            x={644}
-            y={40}
-            width={72}
-            height={260}
-            rx={3}
-            fill="var(--runway-fill)"
-            stroke="var(--runway-stroke)"
-            strokeWidth={2}
-          />
-          {/* Threshold Green Identification Strobes */}
-          {[658, 668, 678, 688, 698].map((sx) => (
             <rect
-              key={sx}
-              x={sx - 5}
-              y={48}
-              width={10}
+              x={644}
+              y={40}
+              width={72}
+              height={260}
+              rx={3}
+              fill="var(--runway-fill)"
+              stroke="var(--runway-stroke)"
+              strokeWidth={2}
+            />
+            {/* Threshold Green Identification Strobes */}
+            {[658, 668, 678, 688, 698].map((sx) => (
+              <rect
+                key={sx}
+                x={sx - 5}
+                y={48}
+                width={10}
+                height={4}
+                rx={1}
+                fill="var(--vec-r-safe)"
+              />
+            ))}
+            {/* Runway Designation Markings */}
+            <text
+              x={680}
+              y={82}
+              fill="var(--runway-markings)"
+              fontFamily="var(--font-space-grotesk)"
+              fontSize={19}
+              fontWeight={800}
+              letterSpacing="0.12em"
+              textAnchor="middle"
+            >
+              36
+            </text>
+            <text
+              x={680}
+              y={102}
+              fill="var(--runway-markings)"
+              fontFamily="var(--font-space-grotesk)"
+              fontSize={19}
+              fontWeight={800}
+              letterSpacing="0.12em"
+              textAnchor="middle"
+            >
+              L
+            </text>
+            {/* Touchdown Aiming Points */}
+            <rect
+              x={652}
+              y={128}
+              width={8}
+              height={40}
+              rx={1}
+              fill="var(--runway-markings)"
+              opacity={0.9}
+            />
+            <rect
+              x={700}
+              y={128}
+              width={8}
+              height={40}
+              rx={1}
+              fill="var(--runway-markings)"
+              opacity={0.9}
+            />
+            {/* Centerline High-Intensity Lights */}
+            {[195, 220, 245].map((ly) => (
+              <rect
+                key={ly}
+                x={678}
+                y={ly}
+                width={4}
+                height={12}
+                rx={1}
+                fill="var(--vec-r-safe)"
+              />
+            ))}
+            {/* Outer Runway End Safety Zone */}
+            <rect
+              x={644}
+              y={296}
+              width={72}
               height={4}
-              rx={1}
-              fill="var(--vec-r-safe)"
+              fill="var(--vec-r-drift)"
+              opacity={0.85}
             />
-          ))}
-          {/* Runway Designation Markings */}
-          <text
-            x={680}
-            y={82}
-            fill="var(--runway-markings)"
-            fontFamily="var(--font-space-grotesk)"
-            fontSize={19}
-            fontWeight={800}
-            letterSpacing="0.12em"
-            textAnchor="middle"
-          >
-            36
-          </text>
-          <text
-            x={680}
-            y={102}
-            fill="var(--runway-markings)"
-            fontFamily="var(--font-space-grotesk)"
-            fontSize={19}
-            fontWeight={800}
-            letterSpacing="0.12em"
-            textAnchor="middle"
-          >
-            L
-          </text>
-          {/* Touchdown Aiming Points */}
-          <rect
-            x={652}
-            y={128}
-            width={8}
-            height={40}
-            rx={1}
-            fill="var(--runway-markings)"
-            opacity={0.9}
-          />
-          <rect
-            x={700}
-            y={128}
-            width={8}
-            height={40}
-            rx={1}
-            fill="var(--runway-markings)"
-            opacity={0.9}
-          />
-          {/* Centerline High-Intensity Lights */}
-          {[195, 220, 245].map((ly) => (
-            <rect
-              key={ly}
-              x={678}
-              y={ly}
-              width={4}
-              height={12}
-              rx={1}
-              fill="var(--vec-r-safe)"
-            />
-          ))}
-          {/* Outer Runway End Safety Zone */}
-          <rect
-            x={644}
-            y={296}
-            width={72}
-            height={4}
-            fill="var(--vec-r-drift)"
-            opacity={0.85}
-          />
           </g>
         </g>
 
@@ -525,7 +527,7 @@ export function AirportRadarCanvas() {
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-surface-container-low/95 backdrop-blur-md px-3 py-1.5 rounded-full shadow-[var(--hud-card-shadow)] border border-secondary/50">
           <span className="font-telemetry-sm text-telemetry-sm text-secondary font-bold flex items-center gap-1">
             <PenTool className="w-3.5 h-3.5" aria-hidden="true" />
-            <span>{chalkEnabled ? "Bút ghi chú đang bật" : "Ghi chú trên Radar"}</span>
+            <span>{chalkEnabled ? tc.chalkActive : tc.chalkNotes}</span>
           </span>
           {chalkPaths.length > 0 && (
             <button
@@ -534,7 +536,7 @@ export function AirportRadarCanvas() {
               className="px-2 py-0.5 rounded-full bg-surface-container-high hover:bg-error-container hover:text-error font-telemetry-sm text-telemetry-sm font-semibold flex items-center gap-1 cursor-pointer"
             >
               <Eraser className="w-3.5 h-3.5" aria-hidden="true" />
-              <span>Xóa nét</span>
+              <span>{tc.chalkClear}</span>
             </button>
           )}
           {chalkEnabled && (
@@ -544,7 +546,7 @@ export function AirportRadarCanvas() {
               className="px-2 py-0.5 rounded-full bg-secondary text-on-secondary font-telemetry-sm text-telemetry-sm font-bold flex items-center gap-1 cursor-pointer"
             >
               <X className="w-3.5 h-3.5" aria-hidden="true" />
-              <span>Tắt bút</span>
+              <span>{tc.chalkTurnOff}</span>
             </button>
           )}
         </div>

@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { TOP_NAV_STAGES } from "@/domain/missionContent";
 import type { MissionStep } from "@/domain/types";
+import { getTranslations } from "@/lib/i18n";
 import { devWarn } from "@/lib/logger";
 import { useSimulationStore } from "@/store/useSimulationStore";
 
@@ -37,7 +38,7 @@ function isStageActive(stageId: string, currentStep: MissionStep): boolean {
 }
 
 /**
- * Thanh điều hướng nổi phía trên khớp 100% thiết kế Aerospace HUD.
+ * Thanh điều hướng nổi phía trên khớp 100% thiết kế Aerospace HUD với nút chuyển VI ↔ EN.
  */
 export function TopPillBar() {
   const currentStep = useSimulationStore((s) => s.currentStep);
@@ -45,14 +46,17 @@ export function TopPillBar() {
   const themeMode = useSimulationStore((s) => s.themeMode);
   const blindMode = useSimulationStore((s) => s.blindMode);
   const chalkEnabled = useSimulationStore((s) => s.chalkEnabled);
+  const language = useSimulationStore((s) => s.language);
   const setStep = useSimulationStore((s) => s.setStep);
   const toggleSound = useSimulationStore((s) => s.toggleSound);
   const toggleThemeMode = useSimulationStore((s) => s.toggleThemeMode);
   const toggleBlindMode = useSimulationStore((s) => s.toggleBlindMode);
   const toggleChalk = useSimulationStore((s) => s.toggleChalk);
+  const setLanguage = useSimulationStore((s) => s.setLanguage);
   const openModal = useSimulationStore((s) => s.openModal);
 
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const t = getTranslations(language).topBar;
 
   useEffect(() => {
     const onFullscreenChange = () => {
@@ -76,39 +80,39 @@ export function TopPillBar() {
         await document.exitFullscreen();
       }
     } catch (error) {
-      devWarn("API Toàn màn hình không khả dụng hoặc bị chặn", {
+      devWarn(t.fullscreenWarn, {
         error: error instanceof Error ? error.message : String(error),
       });
     }
   };
 
-  const soundLabel = soundEnabled ? "Âm thanh: Bật" : "Âm thanh: Tắt";
+  const soundLabel = soundEnabled ? t.soundOnLabel : t.soundOffLabel;
 
   return (
     <header className="fixed top-0 w-full z-50 pointer-events-none">
-      <div className="h-20 w-full px-margin-desktop flex items-center justify-between gap-2 pointer-events-auto">
+      <div className="h-20 w-full px-4 xl:px-margin-desktop flex items-center justify-between gap-2 pointer-events-auto">
         {/* Biểu trưng & Tên ứng dụng */}
         <div className="flex items-center gap-space-sm bg-surface-container-low/95 backdrop-blur-xl px-space-md py-space-xs rounded-full shadow-[var(--hud-card-shadow)] border border-outline-variant/60 shrink-0">
           <Image
             src="/logo.svg"
-            alt="Logo Nhiệm vụ Vectơ"
+            alt={t.logoAlt}
             width={36}
             height={36}
             className="w-9 h-9 rounded-lg shrink-0"
           />
           <div className="flex flex-col">
             <span className="font-label-caps text-label-caps text-primary tracking-widest">
-              PHÉP CỘNG &amp; PHÉP TRỪ VECTƠ
+              {t.brandEyebrow}
             </span>
             <span className="font-headline-sm text-headline-sm text-on-surface uppercase whitespace-nowrap">
-              NHIỆM VỤ VECTƠ • TOÁN 10
+              {t.brandTitle}
             </span>
           </div>
         </div>
 
         {/* Các tab giai đoạn ở giữa */}
         <nav
-          aria-label="Các giai đoạn nhiệm vụ"
+          aria-label={t.navAria}
           className="hidden xl:flex items-center gap-1 bg-surface-container-low/95 backdrop-blur-xl p-space-xs rounded-full shadow-[var(--hud-card-shadow)] border border-outline-variant/60"
         >
           {TOP_NAV_STAGES.map((stage) => {
@@ -119,13 +123,13 @@ export function TopPillBar() {
                 type="button"
                 aria-current={active ? "page" : undefined}
                 onClick={() => setStep(stage.targetStep)}
-                className={`px-space-md py-space-xs rounded-full font-telemetry-sm text-telemetry-sm whitespace-nowrap transition-colors cursor-pointer ${
+                className={`px-3 2xl:px-space-md py-space-xs rounded-full font-telemetry-sm text-telemetry-sm whitespace-nowrap transition-colors cursor-pointer ${
                   active
                     ? "bg-primary-container text-on-primary-container font-semibold shadow-[0_0_16px_rgba(56,189,248,0.4)]"
                     : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
                 }`}
               >
-                {stage.label}
+                {stage.label[language]}
               </button>
             );
           })}
@@ -137,30 +141,30 @@ export function TopPillBar() {
             <button
               type="button"
               onClick={toggleBlindMode}
-              title="Mở đáp án số liệu đang giấu"
-              aria-label="Mở đáp án số liệu"
+              title={t.revealAnswerTitle}
+              aria-label={t.revealAnswerAria}
               className="h-8 px-2.5 rounded-full bg-secondary/20 border border-secondary/50 text-secondary font-telemetry-sm text-telemetry-sm font-bold flex items-center gap-1 hover:bg-secondary hover:text-on-secondary transition-colors whitespace-nowrap cursor-pointer"
             >
               <Eye className="w-3.5 h-3.5" aria-hidden="true" />
-              <span>Mở đáp án</span>
+              <span>{t.revealAnswerButton}</span>
             </button>
           )}
 
           <button
             type="button"
-            title="Chế độ Giáo viên (Ra đề & Chia sẻ)"
-            aria-label="Chế độ Giáo viên"
+            title={t.teacherTitle}
+            aria-label={t.teacherAria}
             onClick={() => openModal("teacher")}
             className="h-8 px-2.5 rounded-full bg-primary/15 border border-primary/35 text-primary hover:bg-primary hover:text-on-primary font-telemetry-sm text-telemetry-sm font-bold flex items-center gap-1 transition-colors whitespace-nowrap cursor-pointer"
           >
             <GraduationCap className="w-4 h-4" aria-hidden="true" />
-            <span>Giáo viên</span>
+            <span>{t.teacherButton}</span>
           </button>
 
           <button
             type="button"
-            title="Bút ghi chú trên Radar"
-            aria-label="Bút ghi chú trên Radar"
+            title={t.chalkTitle}
+            aria-label={t.chalkTitle}
             aria-pressed={chalkEnabled}
             onClick={toggleChalk}
             className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
@@ -174,8 +178,8 @@ export function TopPillBar() {
 
           <button
             type="button"
-            title="Video"
-            aria-label="Video"
+            title={t.videoTitle}
+            aria-label={t.videoTitle}
             onClick={() => openModal("video")}
             className="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors cursor-pointer"
           >
@@ -184,8 +188,8 @@ export function TopPillBar() {
 
           <button
             type="button"
-            title="Cài đặt"
-            aria-label="Cài đặt"
+            title={t.settingsTitle}
+            aria-label={t.settingsTitle}
             onClick={() => openModal("settings")}
             className="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors cursor-pointer"
           >
@@ -216,8 +220,10 @@ export function TopPillBar() {
 
           <button
             type="button"
-            title={isFullscreen ? "Thoát toàn màn hình" : "Toàn màn hình"}
-            aria-label={isFullscreen ? "Thoát toàn màn hình" : "Toàn màn hình"}
+            title={isFullscreen ? t.fullscreenExitTitle : t.fullscreenEnterTitle}
+            aria-label={
+              isFullscreen ? t.fullscreenExitTitle : t.fullscreenEnterTitle
+            }
             onClick={handleToggleFullscreen}
             className="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors cursor-pointer"
           >
@@ -230,24 +236,61 @@ export function TopPillBar() {
 
           <button
             type="button"
-            title="Trợ giúp"
-            aria-label="Trợ giúp"
+            title={t.helpTitle}
+            aria-label={t.helpTitle}
             onClick={() => openModal("help")}
             className="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors cursor-pointer"
           >
             <HelpCircle className="w-[18px] h-[18px]" aria-hidden="true" />
           </button>
 
+          {/* Nút chuyển đổi ngôn ngữ nhanh VI | EN */}
+          <div
+            id="lang-toggle"
+            role="group"
+            aria-label={t.langGroupAria}
+            className="flex items-center p-0.5 rounded-full bg-surface-container-lowest/90 border border-outline-variant/70"
+          >
+            <button
+              id="btn-lang-vi"
+              type="button"
+              title={t.langViTitle}
+              aria-pressed={language === "vi"}
+              onClick={() => setLanguage("vi")}
+              className={`h-7 px-2 rounded-full font-telemetry-sm text-telemetry-sm font-bold transition-colors cursor-pointer ${
+                language === "vi"
+                  ? "bg-primary-container text-on-primary-container shadow-[0_0_8px_rgba(56,189,248,0.35)]"
+                  : "text-on-surface-variant hover:text-on-surface"
+              }`}
+            >
+              VI
+            </button>
+            <button
+              id="btn-lang-en"
+              type="button"
+              title={t.langEnTitle}
+              aria-pressed={language === "en"}
+              onClick={() => setLanguage("en")}
+              className={`h-7 px-2 rounded-full font-telemetry-sm text-telemetry-sm font-bold transition-colors cursor-pointer ${
+                language === "en"
+                  ? "bg-primary-container text-on-primary-container shadow-[0_0_8px_rgba(56,189,248,0.35)]"
+                  : "text-on-surface-variant hover:text-on-surface"
+              }`}
+            >
+              EN
+            </button>
+          </div>
+
           <button
             type="button"
             title={
               themeMode === "dark"
-                ? "Chuyển sang Chế độ Máy chiếu Sáng"
-                : "Chuyển sang Chế độ Buồng lái Tối"
+                ? t.themeToDaylightTitle
+                : t.themeToDarkTitle
             }
-            aria-label="Chuyển đổi giao diện Sáng/Tối"
+            aria-label={t.themeAria}
             onClick={toggleThemeMode}
-            className="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center ml-space-xs hover:bg-primary-fixed transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center hover:bg-primary-fixed transition-colors cursor-pointer"
           >
             {themeMode === "dark" ? (
               <Sun className="w-[17px] h-[17px]" aria-hidden="true" />

@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 import { AlertTriangle, RotateCcw } from "lucide-react";
+import { getTranslations } from "@/lib/i18n";
+import { useSimulationStore } from "@/store/useSimulationStore";
 
 interface GlobalErrorProps {
   error: Error & { digest?: string };
@@ -9,12 +11,15 @@ interface GlobalErrorProps {
 }
 
 /**
- * Error Boundary cấp toàn trang cho giao diện Buồng lái NHIỆM VỤ VECTƠ • TOÁN 10.
+ * Error Boundary cấp toàn trang cho giao diện Buồng lái Vector Quest • Math 10.
  */
 export default function GlobalError({ error, reset }: GlobalErrorProps) {
+  const language = useSimulationStore((s) => s.language);
+  const t = getTranslations(language).errors;
+
   useEffect(() => {
     if (process.env.NODE_ENV === "development") {
-      console.error("[NhiemVuVectơ] Route ErrorBoundary caught:", error);
+      console.error("[VectorQuest] Route ErrorBoundary caught:", error);
     }
   }, [error]);
 
@@ -31,21 +36,20 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
             </span>
             <div className="flex flex-col">
               <span className="font-label-caps text-label-caps text-error uppercase tracking-widest">
-                SỰ CỐ HỆ THỐNG
+                {t.globalEyebrow}
               </span>
               <h1 className="font-headline-sm text-headline-sm text-on-surface font-bold">
-                Mô phỏng tạm thời gián đoạn
+                {t.globalTitle}
               </h1>
             </div>
           </div>
           <span className="font-telemetry-sm text-telemetry-sm text-error bg-surface-container-high px-space-xs py-[2px] rounded">
-            MÃ LỖI HUD
+            {t.globalBadge}
           </span>
         </div>
 
         <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-          Hệ thống hiển thị hoặc tính toán vừa gặp sự cố ngoài ý muốn. Nhấn nút
-          bên dưới để khôi phục buồng lái mô phỏng.
+          {t.globalBody}
         </p>
 
         {error.message ? (
@@ -60,7 +64,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
           className="w-full py-3 px-space-md rounded-lg bg-primary hover:bg-primary-fixed text-on-primary font-headline-sm text-headline-sm font-bold flex items-center justify-center gap-space-xs transition-all shadow-[0_0_24px_rgba(56,189,248,0.45)] cursor-pointer"
         >
           <RotateCcw className="w-4 h-4" aria-hidden="true" />
-          <span>Khôi phục mô phỏng</span>
+          <span>{t.globalResetBtn}</span>
         </button>
       </section>
     </main>

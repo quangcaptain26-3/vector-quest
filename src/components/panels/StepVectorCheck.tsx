@@ -14,6 +14,7 @@ import {
 import { MathFormula } from "@/components/ui/MathFormula";
 import { MAX_HEADING_OFFSET_DEG, MIN_HEADING_OFFSET_DEG } from "@/config/simulation";
 import { MISSION_STEPS, STEP5_OUTCOMES } from "@/domain/missionContent";
+import { getTranslations } from "@/lib/i18n";
 import { useSimulationStore } from "@/store/useSimulationStore";
 
 const HEADING_STEP_BUTTONS: readonly { readonly label: string; readonly delta: number }[] = [
@@ -37,6 +38,7 @@ export function StepVectorCheck() {
   const toleranceDeg = useSimulationStore((s) => s.toleranceDeg);
   const guideVisible = useSimulationStore((s) => s.guideVisible);
   const blindMode = useSimulationStore((s) => s.blindMode);
+  const language = useSimulationStore((s) => s.language);
 
   const setAircraftHeading = useSimulationStore((s) => s.setAircraftHeading);
   const toggleBlindMode = useSimulationStore((s) => s.toggleBlindMode);
@@ -78,6 +80,8 @@ export function StepVectorCheck() {
 
   const isStep5 = currentStep === 5;
   const copy = isStep5 ? MISSION_STEPS[5] : MISSION_STEPS[4];
+  const t = getTranslations(language).panels;
+  const tv = t.vectorCheck;
   const isSuccess = landingResult?.success ?? false;
 
   const counterKts = Math.round(telemetry.vA.x);
@@ -86,49 +90,47 @@ export function StepVectorCheck() {
   const absDriftDeg = Math.abs(telemetry.driftAngleDeg);
   const isWithinTolerance = absDriftDeg <= toleranceDeg;
   const idealSign = telemetry.idealCrabAngleDeg >= 0 ? "+" : "";
+  const signedIdealStr = `${idealSign}${telemetry.idealCrabAngleDeg.toFixed(1)}`;
 
   return (
     <div className="flex flex-col gap-space-sm">
       {/* Nhãn bước */}
       <div className="flex items-center justify-between">
         <div
-          className={`flex items-center gap-1.5 px-space-sm py-1 rounded-full border ${
-            isStep5 && !isSuccess
-              ? "bg-error-container/30 border-error/40"
-              : "bg-tertiary/15 border-tertiary/30"
-          }`}
+          className={`flex items-center gap-1.5 px-space-sm py-1 rounded-full border ${isStep5 && !isSuccess
+            ? "bg-error-container/30 border-error/40"
+            : "bg-tertiary/15 border-tertiary/30"
+            }`}
         >
           <span
-            className={`w-1.5 h-1.5 rounded-full animate-pulse ${
-              isStep5 && !isSuccess
-                ? "bg-error shadow-[0_0_8px_rgba(255,180,171,0.9)]"
-                : "bg-tertiary shadow-[0_0_8px_rgba(86,229,169,0.9)]"
-            }`}
+            className={`w-1.5 h-1.5 rounded-full animate-pulse ${isStep5 && !isSuccess
+              ? "bg-error shadow-[0_0_8px_rgba(255,180,171,0.9)]"
+              : "bg-tertiary shadow-[0_0_8px_rgba(86,229,169,0.9)]"
+              }`}
           />
           <span
-            className={`font-label-caps text-label-caps font-bold tracking-wider ${
-              isStep5 && !isSuccess ? "text-error" : "text-tertiary"
-            }`}
+            className={`font-label-caps text-label-caps font-bold tracking-wider ${isStep5 && !isSuccess ? "text-error" : "text-tertiary"
+              }`}
           >
-            {copy.badge}
+            {copy.badge[language]}
           </span>
         </div>
 
         <span className="font-telemetry-sm text-telemetry-sm text-primary bg-surface-container-highest px-2.5 py-0.5 rounded-full font-semibold">
-          TOÁN 10 • VECTƠ
+          {t.mathBadge}
         </span>
       </div>
 
       {/* Tiêu đề */}
       <div className="flex flex-col gap-0.5">
         <span className="font-label-caps text-label-caps text-primary tracking-widest uppercase">
-          {copy.eyebrow}
+          {copy.eyebrow[language]}
         </span>
         <h2 className="font-headline-sm text-headline-sm text-on-surface font-bold leading-snug">
-          {copy.title}
+          {copy.title[language]}
         </h2>
         <p className="font-body-sm text-body-sm text-on-surface-variant leading-tight">
-          {copy.subtitle.vi}
+          {copy.subtitle[language]}
         </p>
       </div>
 
@@ -136,11 +138,11 @@ export function StepVectorCheck() {
       <div className="bg-surface-container-high/50 border border-outline-variant/60 rounded-xl p-2.5 flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <span className="font-label-caps text-label-caps text-secondary uppercase flex items-center gap-1">
-            <span>VẬN TỐC MÁY BAY</span>
+            <span>{tv.velocityTitle}</span>
             <MathFormula tex="\vec{v}_A" />
           </span>
           <span className="font-telemetry-sm text-telemetry-sm text-secondary font-bold">
-            {`${telemetry.headingOffsetDeg >= 0 ? "+" : ""}${telemetry.headingOffsetDeg.toFixed(1)}° (Hướng ${telemetry.compassHeadingDeg
+            {`${telemetry.headingOffsetDeg >= 0 ? "+" : ""}${telemetry.headingOffsetDeg.toFixed(1)}° (${tv.headingPrefix} ${telemetry.compassHeadingDeg
               .toFixed(0)
               .padStart(3, "0")}°)`}
           </span>
@@ -151,7 +153,7 @@ export function StepVectorCheck() {
           max={MAX_HEADING_OFFSET_DEG}
           step={0.5}
           value={telemetry.headingOffsetDeg}
-          aria-label="Điều chỉnh góc hướng mũi vectơ v_A"
+          aria-label={tv.sliderAria}
           onChange={(e) => setAircraftHeading(Number(e.target.value))}
           className="w-full accent-[var(--vec-a)] cursor-pointer"
         />
@@ -160,13 +162,13 @@ export function StepVectorCheck() {
         <div
           className="grid grid-cols-7 gap-1"
           role="group"
-          aria-label="Nút tinh chỉnh góc mũi máy bay"
+          aria-label={tv.stepGroupAria}
         >
           {HEADING_STEP_BUTTONS.slice(0, 3).map((btn) => (
             <button
               key={btn.label}
               type="button"
-              aria-label={`Giảm góc mũi ${Math.abs(btn.delta)} độ`}
+              aria-label={tv.decHeadingAria(Math.abs(btn.delta))}
               onPointerDown={() => startHoldRepeat(btn.delta)}
               onPointerUp={stopHoldRepeat}
               onPointerLeave={stopHoldRepeat}
@@ -185,8 +187,8 @@ export function StepVectorCheck() {
 
           <button
             type="button"
-            aria-label="Đưa góc mũi về 0 độ thẳng"
-            title="Về 0° (Thẳng)"
+            aria-label={tv.zeroHeadingAria}
+            title={tv.zeroHeadingTitle}
             onClick={() => setAircraftHeading(0)}
             className="min-h-[40px] px-1 rounded-lg bg-surface-container-highest hover:bg-secondary hover:text-on-secondary border border-outline-variant/80 font-telemetry-sm text-telemetry-sm font-bold text-on-surface transition-colors cursor-pointer select-none"
           >
@@ -197,7 +199,7 @@ export function StepVectorCheck() {
             <button
               key={btn.label}
               type="button"
-              aria-label={`Tăng góc mũi ${btn.delta} độ`}
+              aria-label={tv.incHeadingAria(btn.delta)}
               onPointerDown={() => startHoldRepeat(btn.delta)}
               onPointerUp={stopHoldRepeat}
               onPointerLeave={stopHoldRepeat}
@@ -217,25 +219,24 @@ export function StepVectorCheck() {
 
         {/* Chỉ báo độ lệch thời gian thực */}
         <div
-          className={`px-2.5 py-1.5 rounded-lg border font-telemetry-sm text-telemetry-sm font-bold flex items-center justify-between gap-2 ${
-            blindMode
-              ? "bg-secondary/15 border-secondary/45 text-secondary"
-              : isWithinTolerance
-                ? "bg-tertiary/15 border-tertiary/45 text-tertiary"
-                : "bg-surface-container-lowest/90 border-outline-variant/60 text-on-surface-variant"
-          }`}
+          className={`px-2.5 py-1.5 rounded-lg border font-telemetry-sm text-telemetry-sm font-bold flex items-center justify-between gap-2 ${blindMode
+            ? "bg-secondary/15 border-secondary/45 text-secondary"
+            : isWithinTolerance
+              ? "bg-tertiary/15 border-tertiary/45 text-tertiary"
+              : "bg-surface-container-lowest/90 border-outline-variant/60 text-on-surface-variant"
+            }`}
         >
           <span>
             {blindMode
-              ? "Độ lệch quỹ đạo: ??.?°"
-              : `Độ lệch quỹ đạo: ${absDriftDeg.toFixed(1)}°`}
+              ? tv.driftLabelHidden
+              : tv.driftLabelValue(absDriftDeg)}
           </span>
           <span>
             {blindMode
-              ? "• Đang giấu số"
+              ? tv.hiddenTag
               : isWithinTolerance
-                ? `• Đạt ngưỡng ±${toleranceDeg}°`
-                : `• Ngưỡng đạt ±${toleranceDeg}°`}
+                ? tv.withinToleranceTag(toleranceDeg)
+                : tv.targetToleranceTag(toleranceDeg)}
           </span>
         </div>
       </div>
@@ -244,11 +245,10 @@ export function StepVectorCheck() {
       {isStep5 && landingResult && (
         <div
           role="status"
-          className={`rounded-xl p-3.5 flex flex-col gap-2 ${
-            landingResult.success
-              ? "bg-tertiary/10 border border-tertiary/40 shadow-[0_0_20px_rgba(16,185,129,0.15)]"
-              : "bg-error-container/25 border border-error/40 shadow-[0_0_20px_rgba(244,63,94,0.15)]"
-          }`}
+          className={`rounded-xl p-3.5 flex flex-col gap-2 ${landingResult.success
+            ? "bg-tertiary/10 border border-tertiary/40 shadow-[0_0_20px_rgba(16,185,129,0.15)]"
+            : "bg-error-container/25 border border-error/40 shadow-[0_0_20px_rgba(244,63,94,0.15)]"
+            }`}
         >
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5">
@@ -264,24 +264,22 @@ export function StepVectorCheck() {
                 />
               )}
               <span
-                className={`font-telemetry-sm text-telemetry-sm font-bold tracking-wider uppercase ${
-                  landingResult.success ? "text-tertiary" : "text-error"
-                }`}
+                className={`font-telemetry-sm text-telemetry-sm font-bold tracking-wider uppercase ${landingResult.success ? "text-tertiary" : "text-error"
+                  }`}
               >
                 {landingResult.success
-                  ? STEP5_OUTCOMES.success.headline
-                  : STEP5_OUTCOMES.failure.headline}
+                  ? STEP5_OUTCOMES.success.headline[language]
+                  : STEP5_OUTCOMES.failure.headline[language]}
               </span>
             </div>
             <span
-              className={`font-telemetry-sm text-telemetry-sm font-bold px-2 py-0.5 rounded-full border shrink-0 ${
-                landingResult.success
-                  ? "bg-tertiary/20 text-tertiary border-tertiary/40"
-                  : "bg-error-container/50 text-error border-error/40"
-              }`}
+              className={`font-telemetry-sm text-telemetry-sm font-bold px-2 py-0.5 rounded-full border shrink-0 ${landingResult.success
+                ? "bg-tertiary/20 text-tertiary border-tertiary/40"
+                : "bg-error-container/50 text-error border-error/40"
+                }`}
             >
               {landingResult.success
-                ? STEP5_OUTCOMES.success.badge
+                ? STEP5_OUTCOMES.success.badge[language]
                 : `|Δθ| = ${landingResult.absDeltaDeg.toFixed(1)}°`}
             </span>
           </div>
@@ -289,13 +287,13 @@ export function StepVectorCheck() {
           <div className="flex flex-col gap-1">
             <span className="font-label-caps text-label-caps text-on-surface tracking-wider font-bold uppercase">
               {landingResult.success
-                ? STEP5_OUTCOMES.success.subheadline
-                : STEP5_OUTCOMES.failure.subheadline}
+                ? STEP5_OUTCOMES.success.subheadline[language]
+                : STEP5_OUTCOMES.failure.subheadline[language]}
             </span>
             <p className="font-body-sm text-body-sm text-on-surface leading-tight">
               {landingResult.success
-                ? STEP5_OUTCOMES.success.vi
-                : STEP5_OUTCOMES.failure.vi}
+                ? STEP5_OUTCOMES.success.description[language]
+                : STEP5_OUTCOMES.failure.description[language]}
             </p>
           </div>
         </div>
@@ -305,32 +303,32 @@ export function StepVectorCheck() {
       <div className="bg-surface-container-high/60 border border-outline-variant/60 rounded-xl p-2.5 flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
           <span className="font-label-caps text-label-caps text-primary tracking-wider uppercase">
-            PHÂN TÍCH THÀNH PHẦN VECTƠ
+            {tv.analysisHeader}
           </span>
           <span className="font-telemetry-sm text-telemetry-sm text-tertiary font-semibold">
             {blindMode
               ? "sin(θ) = ?"
               : `sin(${Math.abs(telemetry.headingOffsetDeg).toFixed(1)}°) ≈ ${Math.abs(
-                  Math.sin((telemetry.headingOffsetDeg * Math.PI) / 180)
-                ).toFixed(3)}`}
+                Math.sin((telemetry.headingOffsetDeg * Math.PI) / 180)
+              ).toFixed(3)}`}
           </span>
         </div>
 
         <div className="grid grid-cols-2 gap-2 text-center">
           <div className="bg-surface-container-lowest p-1.5 rounded">
             <span className="font-label-caps text-label-caps text-primary flex items-center justify-center gap-1">
-              <span>GIÓ NGANG</span>
+              <span>{tv.crosswindLabel}</span>
               <MathFormula tex="\vec{v}_W" />
             </span>
             <div className="font-telemetry-sm text-telemetry-sm text-primary font-bold mt-0.5">
               {`${windKtsSigned > 0 ? "+" : ""}${windKtsSigned} KT (${
-                windDirection === "rtl" ? "Trái" : "Phải"
+                windDirection === "rtl" ? tv.leftWord : tv.rightWord
               })`}
             </div>
           </div>
           <div className="bg-surface-container-lowest p-1.5 rounded">
             <span className="font-label-caps text-label-caps text-secondary flex items-center justify-center gap-1">
-              <span>THÀNH PHẦN BÙ</span>
+              <span>{tv.counterCompLabel}</span>
               <MathFormula tex="v_{A_x}" />
             </span>
             <div className="font-telemetry-sm text-telemetry-sm text-secondary font-bold mt-0.5">
@@ -343,22 +341,21 @@ export function StepVectorCheck() {
 
         <div className="flex items-center justify-between px-2 text-center bg-surface-container-lowest/70 py-1 rounded">
           <span className="font-telemetry-sm text-telemetry-sm text-on-surface-variant">
-            TỔNG THÀNH PHẦN NGANG:
+            {tv.netLateralLabel}
           </span>
           <span
-            className={`font-telemetry-sm text-telemetry-sm font-bold ${
-              blindMode
-                ? "text-secondary"
-                : Math.abs(telemetry.driftAngleDeg) <= toleranceDeg
-                  ? "text-tertiary"
-                  : "text-error"
-            }`}
+            className={`font-telemetry-sm text-telemetry-sm font-bold ${blindMode
+              ? "text-secondary"
+              : Math.abs(telemetry.driftAngleDeg) <= toleranceDeg
+                ? "text-tertiary"
+                : "text-error"
+              }`}
           >
             {blindMode
-              ? "?? KT (Tự tính)"
+              ? tv.selfCalcTag
               : Math.abs(netLateralKts) < 0.5
-                ? "0 KT (CÂN BẰNG)"
-                : `${netLateralKts > 0 ? "+" : ""}${netLateralKts} KT (ĐANG LỆCH)`}
+                ? tv.balancedTag
+                : `${netLateralKts > 0 ? "+" : ""}${netLateralKts} KT (${tv.driftingTag})`}
           </span>
         </div>
       </div>
@@ -370,14 +367,14 @@ export function StepVectorCheck() {
           className="min-h-[40px] px-3 py-1.5 rounded-lg bg-secondary/20 hover:bg-secondary hover:text-on-secondary border border-secondary/50 text-secondary font-telemetry-sm text-telemetry-sm font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
         >
           <Eye className="w-4 h-4" aria-hidden="true" />
-          <span>Mở đáp án số liệu</span>
+          <span>{tv.revealAnswerBtn}</span>
         </button>
       )}
 
       {guideVisible && !blindMode && (
         <div className="flex flex-col gap-1.5">
           <p className="font-body-sm text-body-sm text-on-surface-variant italic px-1">
-            {copy.guideNote.vi}
+            {copy.guideNote[language]}
           </p>
           <button
             type="button"
@@ -385,7 +382,7 @@ export function StepVectorCheck() {
             className="min-h-[40px] px-3 py-1.5 rounded-lg bg-tertiary/15 hover:bg-tertiary hover:text-on-tertiary border border-tertiary/40 text-tertiary font-telemetry-sm text-telemetry-sm font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
           >
             <Compass className="w-4 h-4" aria-hidden="true" />
-            <span>{`Gợi ý góc cân bằng (${idealSign}${telemetry.idealCrabAngleDeg.toFixed(1)}°)`}</span>
+            <span>{tv.idealHintBtn(signedIdealStr)}</span>
           </button>
         </div>
       )}
@@ -398,7 +395,7 @@ export function StepVectorCheck() {
             onClick={() => setStep(6)}
             className="w-full min-h-[44px] py-2.5 px-space-md rounded-lg bg-primary hover:bg-primary-fixed text-on-primary font-headline-sm text-headline-sm font-bold text-center transition-all flex items-center justify-center gap-space-xs shadow-[0_0_24px_rgba(56,189,248,0.5)] cursor-pointer"
           >
-            <span>XEM GIẢI THÍCH TOÁN HỌC</span>
+            <span>{tv.viewExplainBtn}</span>
             <ArrowRight className="w-5 h-5" aria-hidden="true" />
           </button>
         ) : (
@@ -412,7 +409,7 @@ export function StepVectorCheck() {
                 className="w-4 h-4 text-primary"
                 aria-hidden="true"
               />
-              <span>Xem đường bay</span>
+              <span>{tv.watchFlightBtn}</span>
             </button>
 
             <button
@@ -421,7 +418,7 @@ export function StepVectorCheck() {
               className="min-h-[42px] py-2 px-2 rounded-lg bg-primary hover:bg-primary-fixed text-on-primary font-telemetry-sm text-telemetry-sm font-bold text-center transition-all flex items-center justify-center gap-1 shadow-[0_0_20px_rgba(56,189,248,0.45)] cursor-pointer"
             >
               <BadgeCheck className="w-4 h-4" aria-hidden="true" />
-              <span>Kiểm tra hạ cánh</span>
+              <span>{tv.checkLandingBtn}</span>
             </button>
           </div>
         )}
@@ -433,7 +430,7 @@ export function StepVectorCheck() {
             className="font-telemetry-sm text-telemetry-sm text-outline hover:text-primary transition-colors flex items-center gap-1 cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
-            <span>Thử lại góc bay</span>
+            <span>{tv.retryHeadingBtn}</span>
           </button>
           <MathFormula
             tex="|\Delta\theta| \le \varepsilon"

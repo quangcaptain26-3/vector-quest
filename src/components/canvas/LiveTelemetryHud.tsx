@@ -2,6 +2,7 @@
 
 import { AlertTriangle } from "lucide-react";
 import { MathFormula } from "@/components/ui/MathFormula";
+import { getTranslations } from "@/lib/i18n";
 import { useSimulationStore } from "@/store/useSimulationStore";
 
 /**
@@ -15,16 +16,17 @@ export function LiveTelemetryHud() {
   const windDirection = useSimulationStore((s) => s.windDirection);
   const toleranceDeg = useSimulationStore((s) => s.toleranceDeg);
   const blindMode = useSimulationStore((s) => s.blindMode);
+  const language = useSimulationStore((s) => s.language);
 
+  const translations = getTranslations(language);
+  const tc = translations.canvas;
   const absDriftDeg = Math.abs(telemetry.driftAngleDeg);
   const isAligned = absDriftDeg <= toleranceDeg;
   const absMeters = Math.abs(telemetry.lateralDriftMeters);
 
   if (currentStep <= 3) {
     const dynamicWindNotice =
-      windDirection === "rtl"
-        ? "Gió ngang đang đẩy máy bay lệch sang trái."
-        : "Gió ngang đang đẩy máy bay lệch sang phải.";
+      windDirection === "rtl" ? tc.windNoticeRtl : tc.windNoticeLtr;
 
     return (
       <div
@@ -47,14 +49,14 @@ export function LiveTelemetryHud() {
           <span
             className={`font-bold ${isAligned ? "text-tertiary" : "text-secondary"}`}
           >
-            {isAligned ? "CHUẨN TRỤC:" : "CẢNH BÁO:"}
+            {isAligned ? tc.hudAlignedPrefix : tc.hudWarningPrefix}
           </span>
           <span className="text-on-surface">
             {blindMode
-              ? `${dynamicWindNotice} (Lệch ??m • Tự tính)`
+              ? `${dynamicWindNotice} ${tc.hudBlindSuffix}`
               : isAligned
-                ? "Quỹ đạo máy bay trùng với tim đường băng 36L."
-                : `${dynamicWindNotice} (Lệch ${absMeters}m)`}
+                ? tc.hudAlignedSentence
+                : `${dynamicWindNotice} ${tc.hudDriftMeters(absMeters)}`}
           </span>
         </div>
       </div>
@@ -63,7 +65,10 @@ export function LiveTelemetryHud() {
 
   const hdgSign = telemetry.headingOffsetDeg >= 0 ? "+" : "";
   const driftSign = telemetry.driftAngleDeg >= 0 ? "+" : "";
-  const windDirLabel = windDirection === "rtl" ? "Phải → Trái" : "Trái → Phải";
+  const windDirLabel =
+    windDirection === "rtl"
+      ? translations.windPill.rtlArrow
+      : translations.windPill.ltrArrow;
 
   return (
     <div
@@ -80,7 +85,7 @@ export function LiveTelemetryHud() {
             }`}
           />
           <span className="font-label-caps text-label-caps text-on-surface uppercase tracking-wider">
-            CÂN BẰNG VECTƠ
+            {tc.hudBalanceHeader}
           </span>
         </div>
         <span
@@ -93,16 +98,18 @@ export function LiveTelemetryHud() {
           }`}
         >
           {blindMode
-            ? "ĐANG GIẤU ĐÁP ÁN"
+            ? tc.hudHiddenBadge
             : isAligned
-              ? "KHÓA ĐƯỜNG BĂNG"
-              : "LỆCH TIM ĐƯỜNG BĂNG"}
+              ? tc.hudLockedBadge
+              : tc.hudOffCenterBadge}
         </span>
       </div>
 
       <div className="bg-surface-container-lowest/80 px-2.5 py-1.5 rounded-md flex items-center justify-between gap-2">
         <span className="font-label-caps text-label-caps text-on-surface-variant">
-          {telemetry.operationMode === "subtract" ? "PHÉP TRỪ VECTƠ:" : "CÔNG THỨC VECTƠ:"}
+          {telemetry.operationMode === "subtract"
+            ? tc.hudSubFormulaLabel
+            : tc.hudAddFormulaLabel}
         </span>
         <MathFormula
           tex={
@@ -117,7 +124,7 @@ export function LiveTelemetryHud() {
       <div className="grid grid-cols-2 gap-1.5">
         <div className="bg-surface-container-high/60 px-2 py-1 rounded flex flex-col">
           <span className="font-label-caps text-label-caps text-secondary flex items-center gap-1">
-            <span>MŨI MÁY BAY</span>
+            <span>{tc.hudNoseLabel}</span>
             <MathFormula tex="\vec{v}_A" />
           </span>
           <span className="font-telemetry-sm text-telemetry-sm text-on-surface font-semibold">
@@ -129,7 +136,7 @@ export function LiveTelemetryHud() {
 
         <div className="bg-surface-container-high/60 px-2 py-1 rounded flex flex-col">
           <span className="font-label-caps text-label-caps text-primary flex items-center gap-1">
-            <span>GIÓ NGANG</span>
+            <span>{tc.hudWindLabel}</span>
             <MathFormula tex="\vec{v}_W" />
           </span>
           <span className="font-telemetry-sm text-telemetry-sm text-on-surface font-semibold">
@@ -139,42 +146,54 @@ export function LiveTelemetryHud() {
 
         <div className="bg-surface-container-high/60 px-2 py-1 rounded flex flex-col">
           <span className="font-label-caps text-label-caps text-tertiary flex items-center gap-1">
-            <span>QUỸ ĐẠO</span>
+            <span>{tc.hudTrackLabel}</span>
             <MathFormula tex="\vec{v}_R" />
           </span>
           <span
             className={`font-telemetry-sm text-telemetry-sm font-semibold ${
-              blindMode ? "text-secondary" : isAligned ? "text-tertiary" : "text-error"
+              blindMode
+                ? "text-secondary"
+                : isAligned
+                  ? "text-tertiary"
+                  : "text-error"
             }`}
           >
             {blindMode
-              ? "??.?° (Tự tính)"
+              ? tc.hudSelfCalcShort
               : `${driftSign}${telemetry.driftAngleDeg.toFixed(1)}° (${
-                  isAligned ? "Chuẩn trục" : "Đang lệch"
+                  isAligned ? tc.hudAlignedShort : tc.hudDriftingShort
                 })`}
           </span>
         </div>
 
         <div className="bg-surface-container-high/60 px-2 py-1 rounded flex flex-col">
           <span className="font-label-caps text-label-caps text-outline">
-            TRẠNG THÁI
+            {tc.hudStatusLabel}
           </span>
           <span
             className={`font-telemetry-sm text-telemetry-sm font-bold flex items-center gap-1 ${
-              blindMode ? "text-secondary" : isAligned ? "text-tertiary" : "text-secondary"
+              blindMode
+                ? "text-secondary"
+                : isAligned
+                  ? "text-tertiary"
+                  : "text-secondary"
             }`}
           >
             <span
               className={`w-1.5 h-1.5 rounded-full ${
-                blindMode ? "bg-secondary" : isAligned ? "bg-tertiary" : "bg-secondary"
+                blindMode
+                  ? "bg-secondary"
+                  : isAligned
+                    ? "bg-tertiary"
+                    : "bg-secondary"
               }`}
             />
             <span>
               {blindMode
-                ? "GIẤU SỐ LIỆU"
+                ? tc.hudHiddenShort
                 : isAligned
-                  ? "TRÙNG TIM ĐB"
-                  : "CẦN CHỈNH HƯỚNG"}
+                  ? tc.hudCenterLockedShort
+                  : tc.hudAdjustNeededShort}
             </span>
           </span>
         </div>

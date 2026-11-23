@@ -11,8 +11,9 @@ import { TeacherStudioModal } from "@/components/modals/TeacherStudioModal";
 import { VideoDemoModal } from "@/components/modals/VideoDemoModal";
 import { ChallengePanelHost } from "@/components/panels/ChallengePanelHost";
 import { CanvasErrorBoundary } from "@/components/ui/CanvasErrorBoundary";
-import type { HeadingOptionId } from "@/domain/types";
+import type { HeadingOptionId, Language } from "@/domain/types";
 import { computeSimulationTelemetry } from "@/domain/vectorMath";
+import { getTranslations, LANGUAGE_STORAGE_KEY } from "@/lib/i18n";
 import {
   parseSimulationQueryParams,
   syncSimulationToUrl,
@@ -37,6 +38,7 @@ export default function HomePage() {
   const runwayAngleDeg = useSimulationStore((s) => s.runwayAngleDeg);
   const blindMode = useSimulationStore((s) => s.blindMode);
   const tvScale = useSimulationStore((s) => s.tvScale);
+  const language = useSimulationStore((s) => s.language);
   const hasHydratedUrlRef = useRef(false);
 
   // Sync Dark Cockpit vs Daylight Projector theme class and TV text scale on <html>
@@ -58,20 +60,44 @@ export default function HomePage() {
     }
   }, [themeMode, tvScale]);
 
-  // Hydrate initial wind, step, and Teacher Studio preset from URL query params once on mount
+  // Keep <html lang>, document.title, and localStorage synced with active UI language
+  useEffect(() => {
+    document.documentElement.lang = language;
+    document.title = getTranslations(language).meta.pageTitle;
+    try {
+      window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+    } catch {
+      // Ignore storage access restrictions
+    }
+  }, [language]);
+
+  // Hydrate initial wind, step, language, and Teacher Studio preset from URL query params / localStorage once on mount
   useEffect(() => {
     const preset = parseSimulationQueryParams(window.location.search);
-    if (
-      preset.windDirection ||
-      preset.windStrength ||
-      preset.currentStep ||
-      preset.operationMode ||
+    let storedLang: Language | undefined;
+    try {
+      const rawLang = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+      if (rawLang === "vi" || rawLang === "en") {
+        storedLang = rawLang;
+      }
+    } catch {
+      // Ignore storage access restrictions
+    }
+
+    const resolvedLang = preset.language ?? storedLang;
+    const hasPreset =
+      Boolean(preset.windDirection) ||
+      Boolean(preset.windStrength) ||
+      Boolean(preset.currentStep) ||
+      Boolean(preset.operationMode) ||
       preset.customAirspeedKts !== undefined ||
       preset.customWindSpeedKts !== undefined ||
       preset.runwayAngleDeg !== undefined ||
       preset.blindMode !== undefined ||
-      preset.tvScale !== undefined
-    ) {
+      preset.tvScale !== undefined ||
+      resolvedLang !== undefined;
+
+    if (hasPreset) {
       const current = useSimulationStore.getState();
       const nextDirection = preset.windDirection ?? current.windDirection;
       const nextStrength = preset.windStrength ?? current.windStrength;
@@ -82,6 +108,7 @@ export default function HomePage() {
       const nextRw = preset.runwayAngleDeg ?? current.runwayAngleDeg;
       const nextBlind = preset.blindMode ?? current.blindMode;
       const nextTvScale = preset.tvScale ?? current.tvScale;
+      const nextLang = resolvedLang ?? current.language;
 
       useSimulationStore.setState({
         windDirection: nextDirection,
@@ -93,6 +120,7 @@ export default function HomePage() {
         runwayAngleDeg: nextRw,
         blindMode: nextBlind,
         tvScale: nextTvScale,
+        language: nextLang,
         telemetry: computeSimulationTelemetry({
           windDirection: nextDirection,
           windStrength: nextStrength,
@@ -107,7 +135,7 @@ export default function HomePage() {
     hasHydratedUrlRef.current = true;
   }, []);
 
-  // Keep URL query params synchronized when wind, step, or Teacher Studio config changes
+  // Keep URL query params synchronized when wind, step, language, or Teacher Studio config changes
   useEffect(() => {
     if (!hasHydratedUrlRef.current) {
       return;
@@ -122,6 +150,7 @@ export default function HomePage() {
       runwayAngleDeg,
       blindMode,
       tvScale,
+      language,
     });
   }, [
     windDirection,
@@ -133,6 +162,7 @@ export default function HomePage() {
     runwayAngleDeg,
     blindMode,
     tvScale,
+    language,
   ]);
 
   // Classroom keyboard shortcuts (disabled while any modal is open)
@@ -208,7 +238,7 @@ export default function HomePage() {
         <div className="flex flex-col w-full relative select-none">
           {/* Interactive Cockpit & Radar Viewport Stage */}
           <div className="relative w-full h-[calc(100vh-11rem)] max-h-[940px] min-h-[520px] overflow-hidden rounded-xl bg-surface-container-lowest flex items-center justify-center">
-            <CanvasErrorBoundary>
+            <CanvasErrorBoundary language={language}>
               <AirportRadarCanvas />
             </CanvasErrorBoundary>
 

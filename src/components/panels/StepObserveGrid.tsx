@@ -17,6 +17,7 @@ import {
   STEP3_FEEDBACK,
 } from "@/domain/missionContent";
 import type { HeadingOptionId } from "@/domain/types";
+import { getTranslations } from "@/lib/i18n";
 import { useSimulationStore } from "@/store/useSimulationStore";
 
 const ROTATION_BY_OPTION: Record<HeadingOptionId, number> = {
@@ -37,6 +38,7 @@ export function StepObserveGrid() {
   const predictionResult = useSimulationStore((s) => s.predictionResult);
   const guideVisible = useSimulationStore((s) => s.guideVisible);
   const showTrigReference = useSimulationStore((s) => s.showTrigReference);
+  const language = useSimulationStore((s) => s.language);
 
   const selectOption = useSimulationStore((s) => s.selectOption);
   const checkPredictionAnswer = useSimulationStore(
@@ -47,6 +49,7 @@ export function StepObserveGrid() {
 
   const copy = MISSION_STEPS[3];
   const windHint = getStep3HintForWind(windDirection);
+  const t = getTranslations(language).panels;
 
   return (
     <div className="flex flex-col gap-space-sm">
@@ -55,25 +58,25 @@ export function StepObserveGrid() {
         <div className="flex items-center gap-1.5 bg-primary/15 px-space-sm py-1 rounded-full border border-primary/20">
           <span className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(56,189,248,0.8)] animate-pulse" />
           <span className="font-label-caps text-label-caps text-primary font-bold">
-            {copy.badge}
+            {copy.badge[language]}
           </span>
         </div>
 
         <span className="font-telemetry-sm text-telemetry-sm text-primary bg-surface-container-highest px-2.5 py-0.5 rounded-full font-semibold">
-          TOÁN 10 • VECTƠ
+          {t.mathBadge}
         </span>
       </div>
 
       {/* Tiêu đề */}
       <div className="flex flex-col gap-0.5">
         <span className="font-label-caps text-label-caps text-primary tracking-widest uppercase">
-          {copy.eyebrow}
+          {copy.eyebrow[language]}
         </span>
         <h2 className="font-headline-sm text-headline-sm text-on-surface font-bold leading-snug">
-          {copy.title}
+          {copy.title[language]}
         </h2>
         <p className="font-body-sm text-body-sm text-outline italic leading-tight">
-          {`“Chọn hướng mũi máy bay thích hợp để cân bằng gió ngang ${telemetry.windSpeedKts} KT.”`}
+          {t.observe.subtitleTemplate(telemetry.windSpeedKts)}
         </p>
       </div>
 
@@ -81,7 +84,7 @@ export function StepObserveGrid() {
       <div
         className="grid grid-cols-2 gap-2.5 pt-1"
         role="radiogroup"
-        aria-label="Các phương án hướng mũi máy bay"
+        aria-label={t.observe.radioGroupAria}
       >
         {HEADING_OPTIONS.map((opt) => {
           const isSelected = selectedOption === opt.id;
@@ -143,7 +146,7 @@ export function StepObserveGrid() {
                       isSelected ? "text-primary font-bold" : "text-outline"
                     }`}
                   >
-                    {opt.compassLabel}
+                    {opt.compassLabel[language]}
                   </span>
                 </div>
               </div>
@@ -197,7 +200,7 @@ export function StepObserveGrid() {
                     : "text-on-surface font-semibold"
                 }`}
               >
-                {opt.title.vi}
+                {opt.title[language]}
               </span>
             </button>
           );
@@ -220,8 +223,8 @@ export function StepObserveGrid() {
               }`}
             >
               {predictionResult.isCorrect
-                ? "DỰ ĐOÁN CHÍNH XÁC!"
-                : "HÃY KIỂM TRA LẠI HƯỚNG GIÓ"}
+                ? t.observe.correctStatus
+                : t.observe.incorrectStatus}
             </span>
             <span className="font-telemetry-sm text-telemetry-sm text-on-surface-variant">
               {`[${predictionResult.selectedOption}]`}
@@ -229,8 +232,8 @@ export function StepObserveGrid() {
           </div>
           <p className="font-body-sm text-body-sm text-on-surface leading-snug">
             {predictionResult.isCorrect
-              ? STEP3_FEEDBACK.correct.vi
-              : `${STEP3_FEEDBACK.incorrect.vi} ${windHint.vi}`}
+              ? STEP3_FEEDBACK.correct[language]
+              : `${STEP3_FEEDBACK.incorrect[language]} ${windHint[language]}`}
           </p>
         </div>
       ) : (
@@ -244,31 +247,31 @@ export function StepObserveGrid() {
             <span className="font-telemetry-sm text-telemetry-sm text-on-surface">
               {selectedOption ? (
                 <>
-                  Đã chọn phương án{" "}
+                  {t.observe.selectedPrefix}{" "}
                   <strong className="text-primary">{`[${selectedOption}]`}</strong>{" "}
-                  — nhấn Kiểm tra đáp án
+                  {t.observe.selectedSuffix}
                 </>
               ) : (
-                "Chọn thẻ [A–D] hoặc nhấn phím A–D"
+                t.observe.idlePrompt
               )}
             </span>
           </div>
           <span className="font-telemetry-sm text-telemetry-sm text-tertiary font-semibold">
-            {selectedOption ? "Sẵn sàng" : "Đang chờ"}
+            {selectedOption ? t.observe.ready : t.observe.waiting}
           </span>
         </div>
       )}
 
       {guideVisible && !predictionResult && (
         <p className="font-body-sm text-body-sm text-on-surface-variant italic px-1">
-          {copy.guideNote.vi}
+          {copy.guideNote[language]}
         </p>
       )}
 
       {showTrigReference && (
         <div className="bg-surface-container-lowest/90 border border-primary/30 rounded-lg p-2 flex items-center justify-between gap-2">
           <span className="font-body-sm text-body-sm text-on-surface-variant">
-            Công thức góc bù gió:
+            {t.observe.trigLabel}
           </span>
           <MathFormula
             tex="\sin\theta = \frac{|\vec{v}_W|}{|\vec{v}_A|}"
@@ -285,7 +288,7 @@ export function StepObserveGrid() {
             onClick={() => setStep(4)}
             className="w-full py-3 px-space-md rounded-lg bg-tertiary hover:bg-tertiary-fixed text-on-tertiary font-headline-sm text-headline-sm font-bold text-center transition-all flex items-center justify-center gap-space-xs shadow-[0_0_24px_rgba(86,229,169,0.45)] cursor-pointer"
           >
-            <span>KIỂM CHỨNG TRÊN MÔ PHỎNG</span>
+            <span>{t.observe.verifyInLabBtn}</span>
             <ArrowRight className="w-5 h-5" aria-hidden="true" />
           </button>
         ) : (
@@ -295,7 +298,7 @@ export function StepObserveGrid() {
             onClick={checkPredictionAnswer}
             className="w-full py-3 px-space-md rounded-lg bg-primary hover:bg-primary-fixed disabled:opacity-45 disabled:pointer-events-none text-on-primary font-headline-sm text-headline-sm font-bold text-center transition-all flex items-center justify-center gap-space-xs shadow-[0_0_24px_rgba(56,189,248,0.5)] cursor-pointer"
           >
-            <span>Kiểm tra đáp án</span>
+            <span>{t.observe.checkAnswerBtn}</span>
             <Check className="w-5 h-5" aria-hidden="true" />
           </button>
         )}
@@ -308,7 +311,7 @@ export function StepObserveGrid() {
             className="font-telemetry-sm text-telemetry-sm text-outline hover:text-primary transition-colors flex items-center gap-1 cursor-pointer"
           >
             <Calculator className="w-3.5 h-3.5" aria-hidden="true" />
-            <span>Công thức góc bù gió</span>
+            <span>{t.observe.trigButton}</span>
           </button>
           <MathFormula
             tex="\sin\theta = |\vec{v}_W| / |\vec{v}_A|"

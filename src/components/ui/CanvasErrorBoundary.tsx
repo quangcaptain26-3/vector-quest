@@ -2,9 +2,12 @@
 
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { Radar, RotateCcw } from "lucide-react";
+import type { Language } from "@/domain/types";
+import { getTranslations } from "@/lib/i18n";
 
 interface CanvasErrorBoundaryProps {
   children: ReactNode;
+  language?: Language;
 }
 
 interface CanvasErrorBoundaryState {
@@ -30,7 +33,7 @@ export class CanvasErrorBoundary extends Component<
   static getDerivedStateFromError(error: Error): CanvasErrorBoundaryState {
     return {
       hasError: true,
-      errorMessage: error.message || "Lỗi hiển thị màn hình Radar",
+      errorMessage: error.message || "",
     };
   }
 
@@ -49,6 +52,9 @@ export class CanvasErrorBoundary extends Component<
       return this.props.children;
     }
 
+    const t = getTranslations(this.props.language ?? "vi").errors;
+    const message = this.state.errorMessage || t.canvasFallbackMsg;
+
     return (
       <div
         role="alert"
@@ -59,10 +65,10 @@ export class CanvasErrorBoundary extends Component<
             <Radar className="w-5 h-5" aria-hidden="true" />
           </div>
           <span className="font-label-caps text-label-caps text-error uppercase tracking-widest">
-            MÀN HÌNH RADAR TẠM NGƯNG
+            {t.canvasTitle}
           </span>
           <p className="font-body-sm text-body-sm text-on-surface-variant">
-            {this.state.errorMessage}
+            {message}
           </p>
           <button
             type="button"
@@ -70,7 +76,7 @@ export class CanvasErrorBoundary extends Component<
             className="mt-1 px-space-md py-space-xs rounded-lg bg-primary hover:bg-primary-fixed text-on-primary font-telemetry-sm text-telemetry-sm font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
-            <span>Khởi động lại Radar</span>
+            <span>{t.canvasResetBtn}</span>
           </button>
         </div>
       </div>

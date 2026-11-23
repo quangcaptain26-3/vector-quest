@@ -1,28 +1,41 @@
 "use client";
 
-import { Moon, SlidersHorizontal, Sun, Volume2, VolumeX, X } from "lucide-react";
+import {
+  Languages,
+  Moon,
+  SlidersHorizontal,
+  Sun,
+  Volume2,
+  VolumeX,
+  X,
+} from "lucide-react";
 import { MathFormula } from "@/components/ui/MathFormula";
 import { TOLERANCE_OPTIONS_DEG } from "@/config/simulation";
+import { getTranslations } from "@/lib/i18n";
 import { useSimulationStore } from "@/store/useSimulationStore";
 
 /**
  * Hộp thoại Cài đặt mô phỏng:
- * Chỉnh sai số góc cho phép (±3°/±4°/±5°), chế độ Buồng lái tối / Máy chiếu sáng, và âm thanh.
+ * Chỉnh sai số góc cho phép (±3°/±4°/±5°), ngôn ngữ VI/EN, chế độ Buồng lái tối / Máy chiếu sáng, và âm thanh.
  */
 export function SettingsModal() {
   const activeModal = useSimulationStore((s) => s.activeModal);
   const toleranceDeg = useSimulationStore((s) => s.toleranceDeg);
   const themeMode = useSimulationStore((s) => s.themeMode);
   const soundEnabled = useSimulationStore((s) => s.soundEnabled);
+  const language = useSimulationStore((s) => s.language);
 
   const setToleranceDeg = useSimulationStore((s) => s.setToleranceDeg);
   const setThemeMode = useSimulationStore((s) => s.setThemeMode);
+  const setLanguage = useSimulationStore((s) => s.setLanguage);
   const toggleSound = useSimulationStore((s) => s.toggleSound);
   const closeModal = useSimulationStore((s) => s.closeModal);
 
   if (activeModal !== "settings") {
     return null;
   }
+
+  const ts = getTranslations(language).modals.settings;
 
   return (
     <div
@@ -44,20 +57,20 @@ export function SettingsModal() {
             />
             <div className="flex flex-col">
               <span className="font-label-caps text-label-caps text-primary uppercase tracking-widest">
-                TÙY CHỈNH MÔ PHỎNG
+                {ts.eyebrow}
               </span>
               <h2
                 id="settings-modal-title"
                 className="font-headline-sm text-headline-sm text-on-surface font-bold"
               >
-                Cài đặt Buồng lái
+                {ts.title}
               </h2>
             </div>
           </div>
 
           <button
             type="button"
-            aria-label="Đóng cài đặt"
+            aria-label={ts.closeAria}
             onClick={closeModal}
             className="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors cursor-pointer"
           >
@@ -69,18 +82,18 @@ export function SettingsModal() {
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <span className="font-telemetry-sm text-telemetry-sm text-on-surface font-semibold">
-              SAI SỐ GÓC CHO PHÉP (ε)
+              {ts.toleranceTitle}
             </span>
             <span className="font-telemetry-sm text-telemetry-sm text-tertiary font-bold">
               {`±${toleranceDeg}°`}
             </span>
           </div>
           <p className="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 flex-wrap">
-            <span>Ngưỡng góc lệch tối đa</span>
+            <span>{ts.tolerancePart1}</span>
             <MathFormula tex="|\Delta\theta| \le \varepsilon" />
-            <span>của vectơ</span>
+            <span>{ts.tolerancePart2}</span>
             <MathFormula tex="\vec{v}_R" />
-            <span>so với trục đường băng 36L.</span>
+            <span>{ts.tolerancePart3}</span>
           </p>
           <div className="grid grid-cols-3 gap-2 p-1 bg-surface-container-lowest rounded-lg">
             {TOLERANCE_OPTIONS_DEG.map((deg) => {
@@ -103,10 +116,45 @@ export function SettingsModal() {
           </div>
         </div>
 
+        {/* Ngôn ngữ hiển thị */}
+        <div className="flex flex-col gap-2">
+          <span className="font-telemetry-sm text-telemetry-sm text-on-surface font-semibold flex items-center gap-1.5">
+            <Languages className="w-4 h-4 text-primary" aria-hidden="true" />
+            <span>{ts.languageTitle}</span>
+          </span>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              aria-pressed={language === "vi"}
+              onClick={() => setLanguage("vi")}
+              className={`py-2 px-3 rounded-lg border font-telemetry-sm text-telemetry-sm font-semibold flex items-center justify-center transition-all cursor-pointer ${
+                language === "vi"
+                  ? "bg-primary/15 border-primary text-primary"
+                  : "bg-surface-container-high/50 border-outline-variant/50 text-on-surface-variant hover:text-on-surface"
+              }`}
+            >
+              <span>{ts.languageVi}</span>
+            </button>
+
+            <button
+              type="button"
+              aria-pressed={language === "en"}
+              onClick={() => setLanguage("en")}
+              className={`py-2 px-3 rounded-lg border font-telemetry-sm text-telemetry-sm font-semibold flex items-center justify-center transition-all cursor-pointer ${
+                language === "en"
+                  ? "bg-primary/15 border-primary text-primary"
+                  : "bg-surface-container-high/50 border-outline-variant/50 text-on-surface-variant hover:text-on-surface"
+              }`}
+            >
+              <span>{ts.languageEn}</span>
+            </button>
+          </div>
+        </div>
+
         {/* Chế độ hiển thị lớp học */}
         <div className="flex flex-col gap-2">
           <span className="font-telemetry-sm text-telemetry-sm text-on-surface font-semibold">
-            CHẾ ĐỘ HIỂN THỊ LỚP HỌC
+            {ts.themeTitle}
           </span>
           <div className="grid grid-cols-2 gap-2">
             <button
@@ -119,7 +167,7 @@ export function SettingsModal() {
               }`}
             >
               <Moon className="w-4 h-4" aria-hidden="true" />
-              <span>Buồng lái tối</span>
+              <span>{ts.themeDark}</span>
             </button>
 
             <button
@@ -132,7 +180,7 @@ export function SettingsModal() {
               }`}
             >
               <Sun className="w-4 h-4" aria-hidden="true" />
-              <span>Máy chiếu sáng</span>
+              <span>{ts.themeDaylight}</span>
             </button>
           </div>
         </div>
@@ -146,7 +194,7 @@ export function SettingsModal() {
               <VolumeX className="w-4 h-4 text-outline" aria-hidden="true" />
             )}
             <span className="font-telemetry-sm text-telemetry-sm text-on-surface font-semibold">
-              ÂM THANH PHẢN HỒI
+              {ts.soundTitle}
             </span>
           </div>
           <button
@@ -160,7 +208,7 @@ export function SettingsModal() {
                 : "bg-surface-container-lowest text-outline border border-outline-variant"
             }`}
           >
-            {soundEnabled ? "Âm thanh: Bật" : "Âm thanh: Tắt"}
+            {soundEnabled ? ts.soundOn : ts.soundOff}
           </button>
         </div>
 
@@ -169,7 +217,7 @@ export function SettingsModal() {
           onClick={closeModal}
           className="w-full py-2.5 rounded-lg bg-primary hover:bg-primary-fixed text-on-primary font-telemetry-sm text-telemetry-sm font-bold transition-colors cursor-pointer"
         >
-          HOÀN TẤT
+          {ts.doneBtn}
         </button>
       </div>
     </div>

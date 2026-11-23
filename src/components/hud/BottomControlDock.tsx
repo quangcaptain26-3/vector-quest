@@ -13,12 +13,13 @@ import {
   Waypoints,
 } from "lucide-react";
 import type { MissionStep } from "@/domain/types";
+import { getTranslations } from "@/lib/i18n";
 import { useSimulationStore } from "@/store/useSimulationStore";
 
 const STEP_DOTS: readonly MissionStep[] = [1, 2, 3, 4, 5, 6];
 
 /**
- * Thanh điều khiển nổi dưới đáy khớp thiết kế gốc với đầy đủ nhãn Tiếng Việt chuẩn.
+ * Thanh điều khiển nổi dưới đáy khớp thiết kế gốc với đầy đủ nhãn song ngữ Việt – Anh.
  */
 export function BottomControlDock() {
   const currentStep = useSimulationStore((s) => s.currentStep);
@@ -27,6 +28,7 @@ export function BottomControlDock() {
   const vectorsVisible = useSimulationStore((s) => s.vectorsVisible);
   const showParallelogram = useSimulationStore((s) => s.showParallelogram);
   const landingResult = useSimulationStore((s) => s.landingResult);
+  const language = useSimulationStore((s) => s.language);
 
   const setStep = useSimulationStore((s) => s.setStep);
   const nextStep = useSimulationStore((s) => s.nextStep);
@@ -38,6 +40,8 @@ export function BottomControlDock() {
   const toggleGuide = useSimulationStore((s) => s.toggleGuide);
   const toggleVectors = useSimulationStore((s) => s.toggleVectors);
   const toggleParallelogram = useSimulationStore((s) => s.toggleParallelogram);
+
+  const t = getTranslations(language).bottomDock;
 
   return (
     <footer className="fixed bottom-0 w-full z-40 pointer-events-none">
@@ -52,7 +56,7 @@ export function BottomControlDock() {
               className="min-h-[40px] px-space-sm py-space-xs rounded-full font-telemetry-sm text-telemetry-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface disabled:opacity-40 disabled:pointer-events-none transition-colors flex items-center gap-1 whitespace-nowrap cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-              <span>Quay lại</span>
+              <span>{t.back}</span>
             </button>
 
             <button
@@ -61,25 +65,25 @@ export function BottomControlDock() {
               className="min-h-[40px] px-space-sm py-space-xs rounded-full font-telemetry-sm text-telemetry-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors flex items-center gap-1 whitespace-nowrap cursor-pointer"
             >
               <RotateCcw className="w-4 h-4" aria-hidden="true" />
-              <span>Đặt lại</span>
+              <span>{t.reset}</span>
             </button>
 
             <button
               type="button"
-              title={isPlaying ? "Tạm dừng" : "Tiếp tục"}
-              aria-label={isPlaying ? "Tạm dừng" : "Tiếp tục"}
+              title={isPlaying ? t.pause : t.resume}
+              aria-label={isPlaying ? t.pause : t.resume}
               onClick={togglePlay}
               className="min-h-[40px] px-space-sm rounded-full bg-surface-container-high text-primary flex items-center justify-center gap-1 hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-[0_0_12px_rgba(56,189,248,0.25)] font-telemetry-sm text-telemetry-sm whitespace-nowrap cursor-pointer"
             >
               {isPlaying ? (
                 <>
                   <Pause className="w-3.5 h-3.5" aria-hidden="true" />
-                  <span>Tạm dừng</span>
+                  <span>{t.pause}</span>
                 </>
               ) : (
                 <>
                   <Play className="w-3.5 h-3.5" aria-hidden="true" />
-                  <span>Tiếp tục</span>
+                  <span>{t.resume}</span>
                 </>
               )}
             </button>
@@ -91,20 +95,20 @@ export function BottomControlDock() {
                 className="min-h-[40px] px-space-sm py-space-xs rounded-full font-telemetry-sm text-telemetry-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors flex items-center gap-1 whitespace-nowrap cursor-pointer"
               >
                 <PlaneTakeoff className="w-4 h-4" aria-hidden="true" />
-                <span>{currentStep === 6 ? "Phát lại" : "Xem đường bay"}</span>
+                <span>{currentStep === 6 ? t.replay : t.watchFlight}</span>
               </button>
             )}
 
             {(currentStep === 4 || currentStep === 5) && (
               <button
                 type="button"
-                title="Kiểm tra hạ cánh"
-                aria-label="Kiểm tra hạ cánh"
+                title={t.checkLanding}
+                aria-label={t.checkLanding}
                 onClick={checkLanding}
                 className="min-h-[40px] px-space-sm py-space-xs rounded-full bg-surface-container-high text-tertiary hover:bg-tertiary-container hover:text-on-tertiary-container font-telemetry-sm text-telemetry-sm font-semibold transition-colors flex items-center gap-1 shadow-[0_0_12px_rgba(86,229,169,0.25)] whitespace-nowrap cursor-pointer"
               >
                 <BadgeCheck className="w-4 h-4" aria-hidden="true" />
-                <span>Kiểm tra hạ cánh</span>
+                <span>{t.checkLanding}</span>
               </button>
             )}
           </div>
@@ -113,7 +117,7 @@ export function BottomControlDock() {
           <div
             className="flex items-center gap-space-xs px-space-xs shrink-0"
             role="tablist"
-            aria-label="Tiến trình 6 bước"
+            aria-label={t.progressAria}
           >
             {STEP_DOTS.map((step) => {
               const isCurrent = currentStep === step;
@@ -125,7 +129,7 @@ export function BottomControlDock() {
                   type="button"
                   role="tab"
                   aria-selected={isCurrent}
-                  aria-label={`Bước ${step}`}
+                  aria-label={`${t.stepPrefix} ${step}`}
                   onClick={() => setStep(step)}
                   className={`h-2 rounded-full transition-all cursor-pointer ${
                     isCurrent
@@ -154,7 +158,7 @@ export function BottomControlDock() {
               }`}
             >
               <BookOpen className="w-4 h-4" aria-hidden="true" />
-              <span>Hướng dẫn</span>
+              <span>{t.guide}</span>
             </button>
 
             <button
@@ -168,7 +172,7 @@ export function BottomControlDock() {
               }`}
             >
               <Waypoints className="w-4 h-4" aria-hidden="true" />
-              <span>{vectorsVisible ? "Ẩn vectơ" : "Hiện vectơ"}</span>
+              <span>{vectorsVisible ? t.hideVectors : t.showVectors}</span>
             </button>
 
             {currentStep === 6 && (
@@ -183,7 +187,7 @@ export function BottomControlDock() {
                 }`}
               >
                 <GitCompareArrows className="w-4 h-4" aria-hidden="true" />
-                <span>Hình bình hành</span>
+                <span>{t.parallelogram}</span>
               </button>
             )}
 
@@ -193,7 +197,7 @@ export function BottomControlDock() {
                 onClick={nextStep}
                 className="min-h-[40px] px-space-md py-space-xs rounded-full bg-primary-container text-on-primary-container font-telemetry-sm text-telemetry-sm font-semibold hover:bg-primary hover:text-on-primary transition-colors flex items-center gap-1 shadow-[0_0_16px_rgba(56,189,248,0.3)] whitespace-nowrap cursor-pointer"
               >
-                <span>{currentStep === 5 ? "Giải thích" : "Tiếp theo"}</span>
+                <span>{currentStep === 5 ? t.explain : t.next}</span>
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </button>
             ) : (
@@ -202,7 +206,7 @@ export function BottomControlDock() {
                 onClick={resetSimulation}
                 className="min-h-[40px] px-space-md py-space-xs rounded-full bg-primary-container text-on-primary-container font-telemetry-sm text-telemetry-sm font-semibold hover:bg-primary hover:text-on-primary transition-colors flex items-center gap-1 shadow-[0_0_16px_rgba(56,189,248,0.3)] whitespace-nowrap cursor-pointer"
               >
-                <span>Phát lại từ đầu</span>
+                <span>{t.restart}</span>
                 <RotateCcw className="w-4 h-4" aria-hidden="true" />
               </button>
             )}

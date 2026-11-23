@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { RealisticAircraftSvg } from "@/components/ui/RealisticAircraftSvg";
 import { RADAR_CANVAS_COORDS } from "@/config/simulation";
+import { getTranslations } from "@/lib/i18n";
 import { useSimulationStore } from "@/store/useSimulationStore";
 
 const FLIGHT_DURATION_MS = 2200;
@@ -19,7 +20,9 @@ export function AircraftLayer() {
   const isFlightAnimating = useSimulationStore((s) => s.isFlightAnimating);
   const stopFlightAnimation = useSimulationStore((s) => s.stopFlightAnimation);
   const blindMode = useSimulationStore((s) => s.blindMode);
+  const language = useSimulationStore((s) => s.language);
   const isDaylight = useSimulationStore((s) => s.themeMode) === "daylight";
+  const tc = getTranslations(language).canvas;
 
   const [flightProgress, setFlightProgress] = useState(0);
 
@@ -143,8 +146,8 @@ export function AircraftLayer() {
               textAnchor="middle"
             >
               {isAligned && !blindMode
-                ? "ĐIỂM CHẠM ĐẤT • ĐÃ KHÓA"
-                : "ĐIỂM CHẠM ĐẤT • ĐB 36L"}
+                ? tc.touchdownLocked
+                : tc.touchdownRwy}
             </text>
           </g>
         )}
@@ -189,9 +192,11 @@ export function AircraftLayer() {
               textAnchor={projectedX < origin.x ? "end" : "start"}
             >
               {blindMode
-                ? "DỰ KIẾN LỆCH (??m)"
-                : `DỰ KIẾN LỆCH (${absDriftMeters}m ${telemetry.lateralDriftMeters < 0 ? "TRÁI" : "PHẢI"
-                })`}
+                ? tc.projectedDriftHidden
+                : tc.projectedDriftValue(
+                    absDriftMeters,
+                    telemetry.lateralDriftMeters < 0
+                  )}
             </text>
           )}
         </g>
@@ -210,20 +215,21 @@ export function AircraftLayer() {
           />
           <circle cx={0} cy={0} r={3.5} fill="var(--vec-r-safe)" />
           <circle cx={caliperDevPx} cy={0} r={3.5} fill="var(--vec-caliper)" />
-          <text
-            x={caliperDevPx < 0 ? caliperDevPx - 8 : caliperDevPx + 8}
-            y={-7}
-            fill="var(--vec-caliper)"
-            fontFamily="var(--font-jetbrains-mono)"
-            fontSize={12.5}
-            fontWeight={700}
-            textAnchor={caliperDevPx < 0 ? "end" : "start"}
-          >
-            {blindMode
-              ? "LỆCH NGANG: ??m"
-              : `LỆCH NGANG: ${telemetry.lateralDriftMeters > 0 ? "+" : ""}${telemetry.lateralDriftMeters
-              }m`}
-          </text>
+            <text
+              x={caliperDevPx < 0 ? caliperDevPx - 8 : caliperDevPx + 8}
+              y={-7}
+              fill="var(--vec-caliper)"
+              fontFamily="var(--font-jetbrains-mono)"
+              fontSize={12.5}
+              fontWeight={700}
+              textAnchor={caliperDevPx < 0 ? "end" : "start"}
+            >
+              {blindMode
+                ? tc.lateralDriftHidden
+                : tc.lateralDriftValue(
+                    `${telemetry.lateralDriftMeters > 0 ? "+" : ""}${telemetry.lateralDriftMeters}`
+                  )}
+            </text>
         </g>
       )}
 

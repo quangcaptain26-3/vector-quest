@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent, RefObject } from "react";
+import { getTranslations } from "@/lib/i18n";
 import { clientToSvgPoint, svgPointToHeadingOffsetDeg } from "@/lib/svgCoords";
 import { useSimulationStore } from "@/store/useSimulationStore";
 
@@ -24,8 +25,10 @@ export function VectorOverlayLayer({ svgRef }: VectorOverlayLayerProps) {
   const guideVisible = useSimulationStore((s) => s.guideVisible);
   const blindMode = useSimulationStore((s) => s.blindMode);
   const toleranceDeg = useSimulationStore((s) => s.toleranceDeg);
+  const language = useSimulationStore((s) => s.language);
   const setAircraftHeading = useSimulationStore((s) => s.setAircraftHeading);
   const isDaylight = useSimulationStore((s) => s.themeMode) === "daylight";
+  const tc = getTranslations(language).canvas;
 
   const [isDragging, setIsDragging] = useState(false);
   const activePointerId = useRef<number | null>(null);
@@ -218,7 +221,7 @@ export function VectorOverlayLayer({ svgRef }: VectorOverlayLayerProps) {
                 fontWeight={700}
                 textAnchor={telemetry.idealCrabAngleDeg >= 0 ? "start" : "end"}
               >
-                {`Chuẩn ${telemetry.idealCrabAngleDeg >= 0 ? "+" : ""}${telemetry.idealCrabAngleDeg.toFixed(1)}°`}
+                {`${tc.idealPrefix} ${telemetry.idealCrabAngleDeg >= 0 ? "+" : ""}${telemetry.idealCrabAngleDeg.toFixed(1)}°`}
               </text>
             </g>
           )}
@@ -246,10 +249,10 @@ export function VectorOverlayLayer({ svgRef }: VectorOverlayLayerProps) {
               textAnchor="middle"
             >
               {blindMode
-                ? "Độ lệch: ??.?° • Đang giấu số liệu"
+                ? tc.radarDriftHidden
                 : isAligned
-                  ? `Độ lệch: ${absDriftDeg.toFixed(1)}° • Đạt ngưỡng ±${toleranceDeg}°`
-                  : `Độ lệch: ${absDriftDeg.toFixed(1)}° • Cần chỉnh vào ±${toleranceDeg}°`}
+                  ? tc.radarDriftWithin(absDriftDeg, toleranceDeg)
+                  : tc.radarDriftAdjust(absDriftDeg, toleranceDeg)}
             </text>
           </g>
         </g>
@@ -274,7 +277,7 @@ export function VectorOverlayLayer({ svgRef }: VectorOverlayLayerProps) {
             fontSize={12.5}
             fontWeight={700}
           >
-            +x (ĐÔNG)
+            {tc.axisEast}
           </text>
           <text
             x={svgOrigin.x}
@@ -286,7 +289,7 @@ export function VectorOverlayLayer({ svgRef }: VectorOverlayLayerProps) {
             fontWeight={700}
             textAnchor="middle"
           >
-            +y (BẮC / TRỤC ĐƯỜNG BĂNG)
+            {tc.axisNorthRunway}
           </text>
           <text
             x={svgOrigin.x + 8}
@@ -388,9 +391,9 @@ export function VectorOverlayLayer({ svgRef }: VectorOverlayLayerProps) {
             className="pointer-events-none"
           >
             {isExplainStep
-              ? "v_A (Vận tốc máy bay)"
+              ? tc.vaExplainLabel
               : isLabStep
-                ? `v_A (Góc bù ${headingLabel})`
+                ? tc.vaLabLabel(headingLabel)
                 : `v_A (${telemetry.airspeedKts} KT • ${telemetry.compassHeadingDeg.toFixed(0)}°)`}
           </text>
 
@@ -418,7 +421,7 @@ export function VectorOverlayLayer({ svgRef }: VectorOverlayLayerProps) {
                 textAnchor={windDirection === "rtl" ? "end" : "start"}
                 className="pointer-events-none"
               >
-                v_W (Gió ngang)
+                {tc.vwExplainLabel}
               </text>
               <text
                 x={windDirection === "rtl" ? tipW.x - 10 : tipW.x + 10}
@@ -430,7 +433,7 @@ export function VectorOverlayLayer({ svgRef }: VectorOverlayLayerProps) {
                 textAnchor={windDirection === "rtl" ? "end" : "start"}
                 className="pointer-events-none"
               >
-                {`${telemetry.windSpeedKts} KT [${windDirection === "rtl" ? "PHẢI → TRÁI" : "TRÁI → PHẢI"}]`}
+                {`${telemetry.windSpeedKts} KT [${windDirection === "rtl" ? tc.rtlUpper : tc.ltrUpper}]`}
               </text>
             </>
           ) : (
@@ -505,7 +508,7 @@ export function VectorOverlayLayer({ svgRef }: VectorOverlayLayerProps) {
                 fontWeight={700}
                 textAnchor="end"
               >
-                v_R (Quỹ đạo thực tế)
+                {tc.vrExplainLabel}
               </text>
             </g>
           ) : (
@@ -525,7 +528,7 @@ export function VectorOverlayLayer({ svgRef }: VectorOverlayLayerProps) {
                 ? "v_R (Δθ = ??.?°)"
                 : isLabStep
                   ? `v_R = ${telemetry.airspeedKts} KT (Δθ = ${driftLabel})`
-                  : `v_R (Quỹ đạo ${telemetry.groundTrackDeg.toFixed(1)}°)`}
+                  : `v_R (${tc.vrTrackPrefix} ${telemetry.groundTrackDeg.toFixed(1)}°)`}
             </text>
           )}
 
@@ -589,7 +592,7 @@ export function VectorOverlayLayer({ svgRef }: VectorOverlayLayerProps) {
               style={{ touchAction: "none" }}
               className="pointer-events-auto cursor-grab active:cursor-grabbing"
               role="slider"
-              aria-label="Kéo đầu mũi tên vectơ v_A để chỉnh hướng mũi máy bay"
+              aria-label={tc.dragTipAria}
               aria-valuemin={-60}
               aria-valuemax={60}
               aria-valuenow={Math.round(telemetry.headingOffsetDeg)}
@@ -609,7 +612,7 @@ export function VectorOverlayLayer({ svgRef }: VectorOverlayLayerProps) {
               <rect
                 x={12}
                 y={-10}
-                width={74}
+                width={78}
                 height={20}
                 rx={10}
                 fill="var(--vec-pill-bg)"
@@ -617,14 +620,15 @@ export function VectorOverlayLayer({ svgRef }: VectorOverlayLayerProps) {
                 strokeWidth={1.5}
               />
               <text
-                x={19}
+                x={51}
                 y={4}
                 fill="var(--vec-a)"
                 fontFamily="var(--font-jetbrains-mono)"
                 fontSize={11}
                 fontWeight={800}
+                textAnchor="middle"
               >
-                KÉO ĐẦU
+                {tc.dragTip}
               </text>
             </g>
           )}

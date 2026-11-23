@@ -3,6 +3,7 @@
 import { ArrowRight, Brain, Calculator, MessageSquare } from "lucide-react";
 import { MathFormula } from "@/components/ui/MathFormula";
 import { MISSION_STEPS } from "@/domain/missionContent";
+import { getTranslations } from "@/lib/i18n";
 import { useSimulationStore } from "@/store/useSimulationStore";
 
 /**
@@ -11,10 +12,12 @@ import { useSimulationStore } from "@/store/useSimulationStore";
 export function StepPrediction() {
   const guideVisible = useSimulationStore((s) => s.guideVisible);
   const showTrigReference = useSimulationStore((s) => s.showTrigReference);
+  const language = useSimulationStore((s) => s.language);
   const setStep = useSimulationStore((s) => s.setStep);
   const toggleTrigReference = useSimulationStore((s) => s.toggleTrigReference);
 
   const copy = MISSION_STEPS[2];
+  const t = getTranslations(language).panels;
 
   return (
     <div className="flex flex-col gap-space-md">
@@ -23,27 +26,27 @@ export function StepPrediction() {
         <div className="flex items-center gap-1.5 bg-secondary/15 px-space-sm py-1 rounded-full">
           <span className="w-1.5 h-1.5 rounded-full bg-secondary shadow-[0_0_8px_rgba(255,198,64,0.8)]" />
           <span className="font-label-caps text-label-caps text-secondary font-bold">
-            {copy.badge}
+            {copy.badge[language]}
           </span>
         </div>
 
         <span className="font-telemetry-sm text-telemetry-sm text-primary bg-surface-container-highest px-2.5 py-0.5 rounded-full font-semibold">
-          TOÁN 10 • VECTƠ
+          {t.mathBadge}
         </span>
       </div>
 
       {/* Tiêu đề */}
       <div className="flex flex-col gap-1">
         <span className="font-label-caps text-label-caps text-primary tracking-widest uppercase">
-          {copy.eyebrow}
+          {copy.eyebrow[language]}
         </span>
         <h2 className="font-headline-md text-headline-md text-on-surface font-bold leading-tight">
-          {copy.title}
+          {copy.title[language]}
         </h2>
       </div>
 
       <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-        {copy.subtitle.vi}
+        {copy.subtitle[language]}
       </p>
 
       {/* Câu hỏi thảo luận */}
@@ -53,7 +56,7 @@ export function StepPrediction() {
           aria-hidden="true"
         />
         <span className="font-headline-sm text-headline-sm text-on-surface font-semibold leading-snug">
-          {copy.prompt.vi}
+          {copy.prompt[language]}
         </span>
       </div>
 
@@ -63,11 +66,11 @@ export function StepPrediction() {
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
             <span className="font-label-caps text-label-caps text-primary tracking-wider uppercase font-bold">
-              CUNG DỰ ĐOÁN HƯỚNG MŨI
+              {t.prediction.arcHeader}
             </span>
           </div>
           <span className="font-telemetry-sm text-telemetry-sm text-outline">
-            ĐƯỜNG BĂNG 36L
+            {t.prediction.runwayTag}
           </span>
         </div>
 
@@ -129,13 +132,13 @@ export function StepPrediction() {
             <text
               fill="var(--vec-w)"
               fontFamily="var(--font-jetbrains-mono)"
-              fontSize="11.5"
+              fontSize="11"
               fontWeight="700"
               textAnchor="middle"
-              x="90"
+              x="85"
               y="26"
             >
-              RẼ TRÁI
+              {t.prediction.turnLeft}
             </text>
             <text
               fill="var(--on-surface-variant)"
@@ -143,21 +146,21 @@ export function StepPrediction() {
               fontSize="10"
               fontWeight="600"
               textAnchor="middle"
-              x="90"
+              x="85"
               y="38"
             >
-              Chếch trái
+              {t.prediction.crabLeft}
             </text>
             <text
               fill="var(--vec-a)"
               fontFamily="var(--font-jetbrains-mono)"
-              fontSize="11.5"
+              fontSize="11"
               fontWeight="700"
               textAnchor="middle"
               x="160"
               y="18"
             >
-              BAY THẲNG
+              {t.prediction.flyStraight}
             </text>
             <text
               fill="var(--on-surface-variant)"
@@ -168,18 +171,18 @@ export function StepPrediction() {
               x="160"
               y="30"
             >
-              Hướng 360°
+              {t.prediction.heading360}
             </text>
             <text
               fill="var(--vec-r-drift)"
               fontFamily="var(--font-jetbrains-mono)"
-              fontSize="11.5"
+              fontSize="11"
               fontWeight="700"
               textAnchor="middle"
-              x="230"
+              x="235"
               y="26"
             >
-              RẼ PHẢI
+              {t.prediction.turnRight}
             </text>
             <text
               fill="var(--on-surface-variant)"
@@ -187,10 +190,10 @@ export function StepPrediction() {
               fontSize="10"
               fontWeight="600"
               textAnchor="middle"
-              x="230"
+              x="235"
               y="38"
             >
-              Chếch phải
+              {t.prediction.crabRight}
             </text>
           </svg>
         </div>
@@ -202,7 +205,7 @@ export function StepPrediction() {
               aria-hidden="true"
             />
             <span className="font-body-sm text-body-sm text-on-surface-variant italic">
-              {copy.guideNote.vi}
+              {copy.guideNote[language]}
             </span>
           </div>
         )}
@@ -212,7 +215,7 @@ export function StepPrediction() {
       {showTrigReference && (
         <div className="bg-surface-container-lowest/90 border border-primary/30 rounded-lg p-2.5 flex items-center justify-between gap-2">
           <span className="font-body-sm text-body-sm text-on-surface-variant">
-            Cân bằng thành phần ngang:
+            {t.prediction.trigHintLabel}
           </span>
           <MathFormula
             tex="|\vec{v}_A|\sin\theta + v_{W_x} = 0"
@@ -228,7 +231,7 @@ export function StepPrediction() {
           onClick={() => setStep(3)}
           className="w-full py-3 px-space-md rounded-lg bg-primary hover:bg-primary-fixed text-on-primary font-headline-sm text-headline-sm font-bold text-center transition-all flex items-center justify-center gap-space-xs shadow-[0_0_24px_rgba(56,189,248,0.5)] cursor-pointer"
         >
-          <span>MỞ CÁC PHƯƠNG ÁN HƯỚNG BAY</span>
+          <span>{t.prediction.openOptionsBtn}</span>
           <ArrowRight className="w-5 h-5" aria-hidden="true" />
         </button>
 
@@ -240,10 +243,10 @@ export function StepPrediction() {
             className="font-telemetry-sm text-telemetry-sm text-outline hover:text-primary transition-colors flex items-center gap-1 cursor-pointer"
           >
             <Calculator className="w-3.5 h-3.5" aria-hidden="true" />
-            <span>Công thức lượng giác</span>
+            <span>{t.prediction.trigButton}</span>
           </button>
           <span className="font-telemetry-sm text-telemetry-sm text-outline">
-            Góc bù gió • TOÁN 10
+            {t.prediction.crabAngleFooter}
           </span>
         </div>
       </div>

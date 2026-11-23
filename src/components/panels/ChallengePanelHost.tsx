@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
+import { getTranslations } from "@/lib/i18n";
 import { useSimulationStore } from "@/store/useSimulationStore";
 import { StepBriefing } from "./StepBriefing";
 import { StepExplain } from "./StepExplain";
@@ -13,6 +14,8 @@ import { StepVectorCheck } from "./StepVectorCheck";
  */
 export function ChallengePanelHost() {
   const currentStep = useSimulationStore((s) => s.currentStep);
+  const language = useSimulationStore((s) => s.language);
+  const t = getTranslations(language).panels;
 
   const widthClass =
     currentStep <= 2 ? "w-[384px] max-w-[384px]" : "w-[420px] max-w-[420px]";
@@ -37,7 +40,7 @@ export function ChallengePanelHost() {
 
   return (
     <aside
-      aria-label="Bảng nhiệm vụ học tập"
+      aria-label={t.asideAria}
       className={`absolute top-6 right-8 ${widthClass} z-10 bg-surface-container-low/95 backdrop-blur-xl p-space-lg rounded-xl shadow-[var(--hud-card-shadow)] border border-outline-variant/60 max-h-[calc(100%-3rem)] overflow-y-auto`}
     >
       <AnimatePresence mode="wait">

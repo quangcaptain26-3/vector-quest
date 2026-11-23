@@ -7,11 +7,11 @@
 ## 1. Trạng thái Tổng quan Dự án
 - **Dự án:** Vector Quest – Math 10 (Next.js + Vercel Frontend-Only Edition)
 - **Thư mục thiết kế chuẩn:** `design/` (chứa các file HTML mẫu bắt buộc phải bám sát 100%)
-- **Phase hiện tại:** `Hoàn thiện Teacher Studio (Ngăn Tùy biến Giáo viên) — Sẵn sàng Deploy Vercel`
+- **Phase hiện tại:** `Hoàn thiện Chuyển đổi Song ngữ VI ↔ EN mượt mà + Teacher Studio — Sẵn sàng Deploy Vercel`
 - **Trạng thái Build gần nhất:** `PASS (npm run build --webpack thành công)`
-- **Trạng thái Test gần nhất:** `PASS (31/31 Vitest unit tests + 48/48 Edge CDP DevTools assertions)`
+- **Trạng thái Test gần nhất:** `PASS (35/35 Vitest unit tests + 40/40 Bilingual Edge CDP assertions)`
 - **Người/Agent cập nhật cuối:** `Senior Frontend & Physics Simulation Engineer (Antigravity)`
-- **Thời gian cập nhật:** `2026-11-24 00:09`
+- **Thời gian cập nhật:** `2026-11-24 00:34`
 
 ---
 
@@ -32,6 +32,7 @@
 | **Daylight & TV Audit** (Theme Sáng & Typography 3–5m) | `[x] Hoàn thành` | `100% (Verified on Edge)` | `PASS` | `PASS (26/26 Vitest + 32/32 Edge E2E)` | `PASS` | `Daylight Avionics (#EAF0F6 + #FFFFFF/94 + #1E293B runway + #D97706/#0284C7/#059669/#E11D48 vectơ); nâng cỡ chữ TV 12–24px, tabular-nums, 0 chồng lấn 1280×720` |
 | **Aircraft & Teacher UX** (Máy bay 3D SVG & Nút `- / +`) | `[x] Hoàn thành` | `100% (Verified on Edge)` | `PASS` | `PASS (26/26 Vitest + 40/40 Edge E2E)` | `PASS` | `RealisticAircraftSvg đa lớp (động cơ, kính lái, đèn cánh đỏ/xanh lá, bóng đổ) đồng bộ Radar & Bước 3; cụm 7 nút -5°..+5°/0° (press-and-hold), gió ±5 KT, gợi ý góc chuẩn, phím ↑/↓` |
 | **Teacher Studio** (Tùy biến Giáo viên 100% FE) | `[x] Hoàn thành` | `100% (Verified on Edge)` | `PASS` | `PASS (31/31 Vitest + 48/48 Edge E2E)` | `PASS` | `Phép cộng/trừ, bộ số đẹp 30°/45°/3-4-5, xoay đường băng -45°..+45°, Blind Mode giấu số liệu, TV Scale 100/115/125%, lưu localStorage, URL share, Bút vẽ Radar` |
+| **Bilingual VI ↔ EN** (Chuyển đổi Ngôn ngữ 100% FE) | `[x] Hoàn thành` | `100% (Verified on Edge)` | `PASS` | `PASS (35/35 Vitest + 40/40 Edge E2E)` | `PASS` | `Toggle VI | EN tức thì ở TopPillBar & SettingsModal, giữ nguyên 100% ký hiệu Toán 10 & trạng thái mô phỏng đang chạy, lưu localStorage (vq_language_v1) + ?lang=en` |
 
 ---
 

@@ -19,6 +19,7 @@ import type {
   WindStrength,
 } from "@/domain/types";
 import { SPECIAL_ANGLE_PRESETS } from "@/domain/vectorMath";
+import { getTranslations } from "@/lib/i18n";
 import { buildSimulationQueryString } from "@/lib/urlSync";
 import { useSimulationStore } from "@/store/useSimulationStore";
 
@@ -37,15 +38,6 @@ interface SavedTeacherPreset {
   readonly tvScale: TvScaleMode;
 }
 
-const TV_SCALE_OPTIONS: readonly {
-  readonly id: TvScaleMode;
-  readonly label: string;
-}[] = [
-  { id: "normal", label: "100% (Chuẩn)" },
-  { id: "large", label: "115% (Lớn)" },
-  { id: "xlarge", label: "125% (Rất lớn)" },
-];
-
 /**
  * Ngăn Tùy Biến Giáo Viên (Teacher Studio) — 100% Frontend (localStorage + URL Query Params).
  */
@@ -62,6 +54,7 @@ export function TeacherStudioModal() {
   const operationMode = useSimulationStore((s) => s.operationMode);
   const blindMode = useSimulationStore((s) => s.blindMode);
   const tvScale = useSimulationStore((s) => s.tvScale);
+  const language = useSimulationStore((s) => s.language);
   const telemetry = useSimulationStore((s) => s.telemetry);
 
   const setOperationMode = useSimulationStore((s) => s.setOperationMode);
@@ -101,6 +94,17 @@ export function TeacherStudioModal() {
     return null;
   }
 
+  const tt = getTranslations(language).modals.teacher;
+
+  const tvScaleOptions: readonly {
+    readonly id: TvScaleMode;
+    readonly label: string;
+  }[] = [
+    { id: "normal", label: tt.tvNormal },
+    { id: "large", label: tt.tvLarge },
+    { id: "xlarge", label: tt.tvXlarge },
+  ];
+
   const queryString = buildSimulationQueryString({
     windDirection,
     windStrength,
@@ -111,6 +115,7 @@ export function TeacherStudioModal() {
     runwayAngleDeg,
     blindMode,
     tvScale,
+    language,
   });
 
   const shareUrl =
@@ -119,7 +124,9 @@ export function TeacherStudioModal() {
       : queryString;
 
   const handleSavePreset = () => {
-    const trimmed = presetName.trim() || `Bài giảng Toán 10 (${telemetry.airspeedKts}/${telemetry.windSpeedKts})`;
+    const trimmed =
+      presetName.trim() ||
+      tt.defaultPresetName(telemetry.airspeedKts, telemetry.windSpeedKts);
     const nextItem: SavedTeacherPreset = {
       id: `${Date.now()}`,
       name: trimmed,
@@ -182,20 +189,20 @@ export function TeacherStudioModal() {
             </div>
             <div className="flex flex-col">
               <span className="font-label-caps text-label-caps text-primary uppercase tracking-widest">
-                TEACHER STUDIO • TOÁN 10
+                {tt.eyebrow}
               </span>
               <h2
                 id="teacher-modal-title"
                 className="font-headline-sm text-headline-sm text-on-surface font-bold"
               >
-                Ngăn Tùy biến Giáo viên &amp; Ra đề Nhanh
+                {tt.title}
               </h2>
             </div>
           </div>
 
           <button
             type="button"
-            aria-label="Đóng Chế độ Giáo viên"
+            aria-label={tt.closeAria}
             onClick={closeModal}
             className="w-9 h-9 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors cursor-pointer"
           >
@@ -206,7 +213,7 @@ export function TeacherStudioModal() {
         {/* 1. Chọn chế độ Phép cộng / Phép trừ Vectơ */}
         <div className="flex flex-col gap-2">
           <span className="font-label-caps text-label-caps text-on-surface-variant uppercase">
-            1. CHẾ ĐỘ PHÉP TOÁN VECTƠ
+            {tt.section1Title}
           </span>
           <div className="grid grid-cols-2 gap-2">
             <button
@@ -220,7 +227,7 @@ export function TeacherStudioModal() {
               }`}
             >
               <span className="font-telemetry-sm text-telemetry-sm font-bold">
-                Phép cộng Vectơ
+                {tt.addModeTitle}
               </span>
               <MathFormula tex="\vec{v}_R = \vec{v}_A + \vec{v}_W" className="text-xs" />
             </button>
@@ -236,7 +243,7 @@ export function TeacherStudioModal() {
               }`}
             >
               <span className="font-telemetry-sm text-telemetry-sm font-bold">
-                Phép trừ Vectơ
+                {tt.subtractModeTitle}
               </span>
               <MathFormula tex="\vec{v}_A = \vec{v}_R - \vec{v}_W" className="text-xs" />
             </button>
@@ -246,7 +253,7 @@ export function TeacherStudioModal() {
         {/* 2. Bộ đề Số đẹp & Xoay Đường băng */}
         <div className="flex flex-col gap-2.5 bg-surface-container-high/45 border border-outline-variant/50 rounded-xl p-3">
           <span className="font-label-caps text-label-caps text-primary uppercase">
-            2. BỘ ĐỀ SỐ ĐẸP TÍNH NHẨM &amp; ĐƯỜNG BĂNG NGHIÊNG
+            {tt.section2Title}
           </span>
           <div className="flex flex-wrap gap-1.5">
             {SPECIAL_ANGLE_PRESETS.map((preset) => {
@@ -258,7 +265,11 @@ export function TeacherStudioModal() {
                 <button
                   key={preset.id}
                   type="button"
-                  title={preset.description}
+                  title={
+                    language === "en"
+                      ? preset.descriptionEn
+                      : preset.description
+                  }
                   onClick={() => applySpecialPreset(preset.id)}
                   className={`min-h-[38px] px-3 py-1.5 rounded-lg border font-telemetry-sm text-telemetry-sm font-semibold transition-all cursor-pointer ${
                     isMatch
@@ -266,7 +277,7 @@ export function TeacherStudioModal() {
                       : "bg-surface-container-lowest text-on-surface border-outline-variant/60 hover:border-primary/60"
                   }`}
                 >
-                  {preset.label}
+                  {language === "en" ? preset.labelEn : preset.label}
                 </button>
               );
             })}
@@ -277,7 +288,7 @@ export function TeacherStudioModal() {
             <div className="bg-surface-container-lowest/90 border border-outline-variant/50 rounded-lg p-2.5 flex flex-col gap-1">
               <div className="flex items-center justify-between font-telemetry-sm text-telemetry-sm">
                 <span className="text-secondary font-bold flex items-center gap-1">
-                  <span>Độ lớn</span>
+                  <span>{tt.magnitudeLabel}</span>
                   <MathFormula tex="|\vec{v}_A|" />
                 </span>
                 <span className="text-on-surface font-bold">
@@ -289,7 +300,7 @@ export function TeacherStudioModal() {
                 min={60}
                 max={200}
                 step={10}
-                aria-label="Chỉnh độ lớn vận tốc máy bay"
+                aria-label={tt.airspeedAria}
                 value={telemetry.airspeedKts}
                 onChange={(e) => setCustomAirspeed(Number(e.target.value))}
                 className="w-full accent-[var(--vec-a)] cursor-pointer"
@@ -300,7 +311,7 @@ export function TeacherStudioModal() {
             <div className="bg-surface-container-lowest/90 border border-outline-variant/50 rounded-lg p-2.5 flex flex-col gap-1">
               <div className="flex items-center justify-between font-telemetry-sm text-telemetry-sm">
                 <span className="text-primary font-bold flex items-center gap-1">
-                  <span>Độ lớn</span>
+                  <span>{tt.magnitudeLabel}</span>
                   <MathFormula tex="|\vec{v}_W|" />
                 </span>
                 <span className="text-on-surface font-bold">
@@ -312,7 +323,7 @@ export function TeacherStudioModal() {
                 min={5}
                 max={100}
                 step={5}
-                aria-label="Chỉnh độ lớn vận tốc gió"
+                aria-label={tt.windSpeedAria}
                 value={telemetry.windSpeedKts}
                 onChange={(e) => setCustomWindSpeed(Number(e.target.value))}
                 className="w-full accent-[var(--vec-w)] cursor-pointer"
@@ -322,7 +333,9 @@ export function TeacherStudioModal() {
             {/* Runway Angle */}
             <div className="bg-surface-container-lowest/90 border border-outline-variant/50 rounded-lg p-2.5 flex flex-col gap-1">
               <div className="flex items-center justify-between font-telemetry-sm text-telemetry-sm">
-                <span className="text-tertiary font-bold">Góc đường băng</span>
+                <span className="text-tertiary font-bold">
+                  {tt.runwayAngleLabel}
+                </span>
                 <span className="text-on-surface font-bold">
                   {`${runwayAngleDeg > 0 ? "+" : ""}${runwayAngleDeg}°`}
                 </span>
@@ -332,7 +345,7 @@ export function TeacherStudioModal() {
                 min={-45}
                 max={45}
                 step={5}
-                aria-label="Xoay góc đường băng từ -45 đến +45 độ"
+                aria-label={tt.runwayAngleAria}
                 value={runwayAngleDeg}
                 onChange={(e) => setRunwayAngle(Number(e.target.value))}
                 className="w-full accent-[var(--vec-r-safe)] cursor-pointer"
@@ -348,17 +361,17 @@ export function TeacherStudioModal() {
             <div className="flex flex-col gap-0.5">
               <span className="font-telemetry-sm text-telemetry-sm text-on-surface font-bold flex items-center gap-1.5">
                 <EyeOff className="w-4 h-4 text-secondary" aria-hidden="true" />
-                <span>Chế độ Giấu số liệu</span>
+                <span>{tt.blindTitle}</span>
               </span>
               <span className="font-body-sm text-body-sm text-on-surface-variant">
-                Ẩn góc lệch &amp; v_R để học sinh tự tính
+                {tt.blindDesc}
               </span>
             </div>
             <button
               type="button"
               role="switch"
               aria-checked={blindMode}
-              aria-label="Chế độ giấu số liệu"
+              aria-label={tt.blindAria}
               onClick={toggleBlindMode}
               className={`w-11 h-6 rounded-full p-0.5 flex items-center transition-all shrink-0 cursor-pointer ${
                 blindMode
@@ -378,10 +391,10 @@ export function TeacherStudioModal() {
           <div className="flex flex-col gap-1.5 bg-surface-container-high/50 border border-outline-variant/50 rounded-xl p-3">
             <span className="font-telemetry-sm text-telemetry-sm text-on-surface font-bold flex items-center gap-1.5">
               <Monitor className="w-4 h-4 text-primary" aria-hidden="true" />
-              <span>Cỡ chữ TV / Máy chiếu</span>
+              <span>{tt.tvScaleTitle}</span>
             </span>
             <div className="grid grid-cols-3 gap-1.5">
-              {TV_SCALE_OPTIONS.map((opt) => (
+              {tvScaleOptions.map((opt) => (
                 <button
                   key={opt.id}
                   type="button"
@@ -403,7 +416,7 @@ export function TeacherStudioModal() {
         {/* 4. Lưu bộ đề (localStorage) & Sao chép Link bài giảng */}
         <div className="flex flex-col gap-2.5 bg-surface-container-lowest/80 border border-outline-variant/60 rounded-xl p-3">
           <span className="font-label-caps text-label-caps text-primary uppercase">
-            3. LƯU BỘ ĐỀ CÁ NHÂN &amp; CHIA SẺ LINK BÀI GIẢNG
+            {tt.section3Title}
           </span>
 
           <div className="flex gap-2">
@@ -411,8 +424,8 @@ export function TeacherStudioModal() {
               type="text"
               value={presetName}
               onChange={(e) => setPresetName(e.target.value)}
-              placeholder="Đặt tên bài giảng (VD: Tiết 12 - Góc 30 độ)..."
-              aria-label="Tên bộ đề bài giảng"
+              placeholder={tt.presetPlaceholder}
+              aria-label={tt.presetInputAria}
               className="flex-1 min-h-[40px] px-3 rounded-lg bg-surface-container-high/70 border border-outline-variant/60 font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-primary"
             />
             <button
@@ -421,7 +434,7 @@ export function TeacherStudioModal() {
               className="min-h-[40px] px-3 rounded-lg bg-surface-container-highest hover:bg-primary-container hover:text-on-primary-container border border-outline-variant/70 font-telemetry-sm text-telemetry-sm font-bold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
             >
               <BookmarkPlus className="w-4 h-4" aria-hidden="true" />
-              <span>Lưu bộ đề</span>
+              <span>{tt.savePresetBtn}</span>
             </button>
           </div>
 
@@ -441,7 +454,7 @@ export function TeacherStudioModal() {
                   </button>
                   <button
                     type="button"
-                    aria-label={`Xóa bộ đề ${item.name}`}
+                    aria-label={tt.deletePresetAria(item.name)}
                     onClick={() => handleDeletePreset(item.id)}
                     className="p-1 text-outline hover:text-error cursor-pointer"
                   >
@@ -467,12 +480,12 @@ export function TeacherStudioModal() {
               {copiedLink ? (
                 <>
                   <Check className="w-4 h-4" aria-hidden="true" />
-                  <span>Đã sao chép!</span>
+                  <span>{tt.copiedBtn}</span>
                 </>
               ) : (
                 <>
                   <Copy className="w-4 h-4" aria-hidden="true" />
-                  <span>Sao chép Link bài giảng</span>
+                  <span>{tt.copyUrlBtn}</span>
                 </>
               )}
             </button>
