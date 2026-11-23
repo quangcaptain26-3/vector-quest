@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" width="1200" height="420" role="img" aria-label="Nhiệm vụ Vectơ Toán 10 — Phép cộng và Phép trừ Vectơ">
+  <defs>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090D16" />
+      <stop offset="55%" stop-color="#0F131C" />
+      <stop offset="100%" stop-color="#111827" />
+    </linearGradient>
+    <radialGradient id="radar-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.16" />
+      <stop offset="65%" stop-color="#38BDF8" stop-opacity="0.04" />
+      <stop offset="100%" stop-color="#090D16" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="accent-cyan" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#56E5A9" />
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#38BDF8" stroke-opacity="0.06" stroke-width="1" />
+    </pattern>
+    <marker id="arrow-amber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#FFC640" />
+    </marker>
+    <marker id="arrow-cyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#38BDF8" />
+    </marker>
+    <marker id="arrow-rose" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#F43F5E" />
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="420" rx="20" fill="url(#bg-grad)" />
+  <rect width="1200" height="420" rx="20" fill="url(#grid)" />
+  <rect x="1" y="1" width="1198" height="418" rx="19" fill="none" stroke="#38BDF8" stroke-opacity="0.22" stroke-width="1.5" />
+
+  <!-- Left Content Area -->
+  <g transform="translate(56, 54)">
+    <!-- Eyebrow Pill -->
+    <rect x="0" y="0" width="310" height="30" rx="15" fill="#181B25" stroke="#38BDF8" stroke-opacity="0.45" stroke-width="1" />
+    <circle cx="18" cy="15" r="4" fill="#56E5A9" />
+    <text x="32" y="19" font-family="'Consolas', 'Courier New', monospace" font-size="12" font-weight="700" fill="#38BDF8" letter-spacing="1.2">TOÁN 10 • CT GDPT 2018 • RADAR 36L</text>
+
+    <!-- Main Title -->
+    <text x="0" y="84" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="42" font-weight="800" fill="#F8FAFC" letter-spacing="-0.5">NHIỆM VỤ VECTƠ</text>
+    <text x="0" y="128" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="24" font-weight="700" fill="url(#accent-cyan)">Phép cộng &amp; Phép trừ Vectơ trong Buồng lái</text>
+
+    <!-- Description -->
+    <text x="0" y="166" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="15.5" fill="#CBD5E1">Nhập vai phi công cân bằng gió ngang trên đường băng 36L bằng kéo thả</text>
+    <text x="0" y="189" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="15.5" fill="#CBD5E1">vectơ trực tiếp 60 FPS, quy tắc hình bình hành và kiểm chứng quỹ đạo.</text>
+
+    <!-- Formula Card -->
+    <g transform="translate(0, 214)">
+      <rect x="0" y="0" width="468" height="54" rx="12" fill="#181B25" stroke="#38BDF8" stroke-opacity="0.3" stroke-width="1" />
+      <text x="18" y="32" font-family="'Consolas', 'Courier New', monospace" font-size="12" fill="#94A3B8" font-weight="700">CÔNG THỨC TRỌNG TÂM:</text>
+
+      <!-- Custom vector arrows over v_R = v_A + v_W (100% portable, no combining glyph boxes) -->
+      <g transform="translate(198, 34)" font-family="'Segoe UI', system-ui, sans-serif" font-size="20" font-weight="700" font-style="italic">
+        <!-- v_R -->
+        <path d="M 1 -20 L 12 -20 M 9 -23 L 13 -20 L 9 -17" stroke="#F43F5E" stroke-width="1.6" fill="none" stroke-linecap="round" />
+        <text x="0" y="0" fill="#F43F5E">v</text>
+        <text x="11" y="5" font-size="12" font-style="normal" fill="#F43F5E">R</text>
+
+        <text x="30" y="0" font-style="normal" fill="#E2E8F0">=</text>
+
+        <!-- v_A -->
+        <path d="M 55 -20 L 66 -20 M 63 -23 L 67 -20 L 63 -17" stroke="#FFC640" stroke-width="1.6" fill="none" stroke-linecap="round" />
+        <text x="54" y="0" fill="#FFC640">v</text>
+        <text x="65" y="5" font-size="12" font-style="normal" fill="#FFC640">A</text>
+
+        <text x="84" y="0" font-style="normal" fill="#E2E8F0">+</text>
+
+        <!-- v_W -->
+        <path d="M 109 -20 L 120 -20 M 117 -23 L 121 -20 L 117 -17" stroke="#38BDF8" stroke-width="1.6" fill="none" stroke-linecap="round" />
+        <text x="108" y="0" fill="#38BDF8">v</text>
+        <text x="119" y="5" font-size="12" font-style="normal" fill="#38BDF8">W</text>
+      </g>
+    </g>
+
+    <!-- Tech Stack Badges -->
+    <g transform="translate(0, 286)" font-family="'Consolas', 'Courier New', monospace" font-size="12" font-weight="700">
+      <rect x="0" y="0" width="128" height="30" rx="8" fill="#0F131C" stroke="#38BDF8" stroke-opacity="0.5" />
+      <text x="64" y="19" text-anchor="middle" fill="#E2E8F0">Next.js 16.4.6</text>
+
+      <rect x="140" y="0" width="116" height="30" rx="8" fill="#0F131C" stroke="#56E5A9" stroke-opacity="0.5" />
+      <text x="198" y="19" text-anchor="middle" fill="#56E5A9">React 19.3.0</text>
+
+      <rect x="268" y="0" width="128" height="30" rx="8" fill="#0F131C" stroke="#FFC640" stroke-opacity="0.5" />
+      <text x="332" y="19" text-anchor="middle" fill="#FFC640">Zero Backend</text>
+    </g>
+  </g>
+
+  <!-- Right Radar Scene (Runway 36L + Top-Down Aircraft + 3 Vectors) -->
+  <g transform="translate(690, 26)">
+    <rect x="0" y="0" width="466" height="368" rx="16" fill="#0F131C" stroke="#38BDF8" stroke-opacity="0.28" stroke-width="1.2" />
+    <circle cx="233" cy="215" r="175" fill="url(#radar-glow)" />
+
+    <!-- Radar Rings -->
+    <circle cx="233" cy="230" r="65" fill="none" stroke="#38BDF8" stroke-opacity="0.16" stroke-dasharray="4 4" />
+    <circle cx="233" cy="230" r="118" fill="none" stroke="#38BDF8" stroke-opacity="0.12" stroke-dasharray="4 4" />
+    <circle cx="233" cy="230" r="168" fill="none" stroke="#38BDF8" stroke-opacity="0.09" />
+
+    <!-- Runway 36L -->
+    <rect x="201" y="22" width="64" height="118" rx="4" fill="#181B25" stroke="#56E5A9" stroke-opacity="0.5" stroke-width="1.5" />
+    <line x1="233" y1="22" x2="233" y2="348" stroke="#56E5A9" stroke-opacity="0.35" stroke-width="1.5" stroke-dasharray="6 5" />
+    <rect x="210" y="28" width="46" height="4" fill="#56E5A9" fill-opacity="0.85" />
+    <text x="233" y="64" text-anchor="middle" font-family="'Consolas', monospace" font-size="18" font-weight="800" fill="#E2E8F0">36L</text>
+
+    <!-- Crosswind Streamlines (R -> L) -->
+    <g stroke="#38BDF8" stroke-opacity="0.45" stroke-width="2" stroke-linecap="round">
+      <line x1="425" y1="88" x2="345" y2="88" marker-end="url(#arrow-cyan)" />
+      <line x1="125" y1="150" x2="48" y2="150" marker-end="url(#arrow-cyan)" />
+      <line x1="420" y1="255" x2="340" y2="255" marker-end="url(#arrow-cyan)" />
+      <line x1="130" y1="305" x2="52" y2="305" marker-end="url(#arrow-cyan)" />
+    </g>
+
+    <!-- Parallelogram Construction Lines -->
+    <line x1="295" y1="168" x2="233" y2="168" stroke="#38BDF8" stroke-width="2.5" marker-end="url(#arrow-cyan)" />
+    <line x1="233" y1="290" x2="171" y2="290" stroke="#38BDF8" stroke-opacity="0.5" stroke-width="1.5" stroke-dasharray="4 4" />
+    <line x1="171" y1="290" x2="233" y2="168" stroke="#FFC640" stroke-opacity="0.45" stroke-width="1.5" stroke-dasharray="4 4" />
+
+    <!-- Resultant Velocity v_R (Vertical, Aligned with Runway 36L) -->
+    <line x1="233" y1="290" x2="233" y2="168" stroke="#F43F5E" stroke-width="3.2" marker-end="url(#arrow-rose)" />
+
+    <!-- Aircraft Heading Vector v_A (Crabbed Right into Wind) -->
+    <line x1="233" y1="290" x2="295" y2="168" stroke="#FFC640" stroke-width="3.2" marker-end="url(#arrow-amber)" />
+    <circle cx="295" cy="168" r="5.5" fill="#FFC640" stroke="#090D16" stroke-width="1.5" />
+
+    <!-- Top-Down Aircraft Silhouette rotated slightly right (+18 deg) -->
+    <g transform="translate(233, 290) rotate(22)">
+      <path d="M 0 -17 L 4 -5 L 18 4 L 18 8 L 4 4 L 3 12 L 8 16 L 8 19 L 0 17 L -8 19 L -8 16 L -3 12 L -4 4 L -18 8 L -18 4 L -4 -5 Z" fill="#F8FAFC" stroke="#FFC640" stroke-width="1.2" />
+    </g>
+
+    <!-- Vector Labels -->
+    <rect x="299" y="198" width="94" height="24" rx="6" fill="#181B25" stroke="#FFC640" stroke-opacity="0.6" />
+    <text x="346" y="214" text-anchor="middle" font-family="'Consolas', monospace" font-size="12" font-weight="700" fill="#FFC640">v_A (140 KT)</text>
+
+    <rect x="242" y="138" width="90" height="22" rx="6" fill="#181B25" stroke="#38BDF8" stroke-opacity="0.6" />
+    <text x="287" y="153" text-anchor="middle" font-family="'Consolas', monospace" font-size="11.5" font-weight="700" fill="#38BDF8">v_W (-25 KT)</text>
+
+    <rect x="116" y="206" width="106" height="24" rx="6" fill="#181B25" stroke="#F43F5E" stroke-opacity="0.7" />
+    <text x="169" y="222" text-anchor="middle" font-family="'Consolas', monospace" font-size="12" font-weight="700" fill="#F43F5E">v_R (000°)</text>
+
+    <!-- Status Pill Top-Left of Radar -->
+    <rect x="14" y="14" width="154" height="24" rx="12" fill="#181B25" stroke="#56E5A9" stroke-opacity="0.55" />
+    <circle cx="28" cy="26" r="4" fill="#56E5A9" />
+    <text x="39" y="30" font-family="'Consolas', monospace" font-size="11" font-weight="700" fill="#56E5A9">TRÙNG TIM ĐƯỜNG BĂNG</text>
+  </g>
+</svg>
