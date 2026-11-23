@@ -45,7 +45,7 @@ export function BottomControlDock() {
 
   return (
     <footer className="fixed bottom-0 w-full z-40 pointer-events-none">
-      <div className="w-full px-margin-desktop pb-space-md flex items-center justify-center">
+      <div className="w-full px-margin-desktop pb-1.5 flex flex-col items-center justify-center gap-1">
         <div className="pointer-events-auto flex items-center gap-space-sm bg-surface-container-low/95 backdrop-blur-xl px-space-md py-space-sm rounded-full shadow-[var(--hud-card-shadow)] border border-outline-variant/60 max-w-full overflow-x-auto">
           {/* Nhóm nút bên trái */}
           <div className="flex items-center gap-space-xs shrink-0">
@@ -211,6 +211,20 @@ export function BottomControlDock() {
               </button>
             )}
           </div>
+        </div>
+
+        {/* Chữ ký tác giả phong cách Aerospace HUD */}
+        <div
+          aria-label="Made by CapQuang and AGY"
+          className="flex items-center gap-1.5 text-[10px] font-telemetry-sm tracking-[0.2em] uppercase text-on-surface-variant/45 select-none"
+        >
+          <span className="w-1 h-1 rounded-full bg-primary/60" aria-hidden="true" />
+          <span>
+            MADE BY <span className="text-on-surface/65 font-semibold">CAPQUANG</span>{" "}
+            <span className="text-primary/65">×</span>{" "}
+            <span className="text-primary/70 font-semibold">AGY</span>
+          </span>
+          <span className="w-1 h-1 rounded-full bg-secondary/60" aria-hidden="true" />
         </div>
       </div>
     </footer>
